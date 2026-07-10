@@ -54,7 +54,7 @@ link into its references for the common work.
 
 - [parsing-matillion-pipelines.md](references/parsing-matillion-pipelines.md) — how to read DPC YAML (`.orch.yaml`/`.tran.yaml`) and METL JSON, and inventory the workload
 - [matillion-component-mapping.md](references/matillion-component-mapping.md) — the component → dbt answer key, incl. Detect Changes → snapshots and variable handling
-- The **`legacy-to-dbt-migration-foundations`** skill — shared references for cloud detection, layer classification, best practices, validation, cost, and coverage
+- The **`legacy-to-dbt-migration-foundations`** skill — shared references for cloud detection, **dbt-package usage**, layer classification, target architecture, best practices, validation, cost, and coverage
 
 ## Migration Workflow
 

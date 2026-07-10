@@ -45,7 +45,7 @@ link into its references for the common work.
 
 - [parsing-powercenter-xml.md](references/parsing-powercenter-xml.md) — how to walk the POWERMART/REPOSITORY/FOLDER XML and inventory the workload
 - [powercenter-transformation-mapping.md](references/powercenter-transformation-mapping.md) — the transformation → dbt answer key, incl. SCD2 → snapshots and expression functions
-- The **`legacy-to-dbt-migration-foundations`** skill — shared references for cloud detection, layer classification, best practices, validation, cost, and coverage
+- The **`legacy-to-dbt-migration-foundations`** skill — shared references for cloud detection, **dbt-package usage**, layer classification, target architecture, best practices, validation, cost, and coverage
 
 ## Migration Workflow
 

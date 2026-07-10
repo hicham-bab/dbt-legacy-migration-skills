@@ -4,6 +4,12 @@ Every migrated model must ship Fusion-conformant SQL, tests, docs, and (for publ
 contracts. Sourced from the `SCHEMA_WRITER_SYSTEM` prompt in `~/talend-to-dbt/.../generation/prompts.py`
 and the governance assets in `~/dbt-oracle-to-databricks/` (`_marts.yml`, `groups.yml`, `exposures.yml`).
 
+**Use packages, don't hand-type** (see [dbt-packages.md](dbt-packages.md)): scaffold the YAML with
+**codegen** (`generate_model_yaml`, `generate_source`), then enrich it; add generic tests from
+**dbt_utils** and Great-Expectations-style tests from **dbt_expectations** (`metaplane/dbt_expectations`)
+on top of the built-ins; and run **dbt_project_evaluator** as the post-migration quality gate (it
+flags undocumented/untested models, bad structure, and fanout).
+
 ## Contents
 
 - [Fusion-conformant SQL rules](#fusion-conformant-sql-rules)

@@ -45,7 +45,7 @@ link into its references for the common work.
 
 - [parsing-talend-jobs.md](references/parsing-talend-jobs.md) — how to read `.item` XML and inventory the workload
 - [talend-component-mapping.md](references/talend-component-mapping.md) — the component → dbt answer key, incl. tMap joins and Talend expression functions
-- The **`legacy-to-dbt-migration-foundations`** skill — shared references for cloud detection, layer classification, best practices, validation, cost, and coverage
+- The **`legacy-to-dbt-migration-foundations`** skill — shared references for cloud detection, **dbt-package usage**, layer classification, target architecture, best practices, validation, cost, and coverage
 
 ## Migration Workflow
 

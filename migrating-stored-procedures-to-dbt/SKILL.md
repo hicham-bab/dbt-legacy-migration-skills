@@ -46,7 +46,7 @@ link into its references for the common work.
 
 - [stored-proc-decomposition.md](references/stored-proc-decomposition.md) — the procedural → declarative answer key
 - [sql-dialect-notes.md](references/sql-dialect-notes.md) — per-dialect procedural constructs and target-syntax choice
-- The **`legacy-to-dbt-migration-foundations`** skill — shared references for cloud detection, layer classification, best practices, validation, cost, and coverage
+- The **`legacy-to-dbt-migration-foundations`** skill — shared references for cloud detection, **dbt-package usage**, layer classification, target architecture, best practices, validation, cost, and coverage
 - The **`migrating-dbt-project-across-platforms`** skill — for heavy SQL-dialect translation when the source proc's dialect differs from the target cloud
 
 ## Migration Workflow

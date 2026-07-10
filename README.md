@@ -43,6 +43,11 @@ the source artifact, and the component/transformation → dbt answer key. All ge
 Fusion-conformant (`cast()` not `::`, `coalesce()` not `nvl`/`ifnull`, tests via the `arguments:`
 nested spec).
 
+**Uses the dbt package ecosystem** (all Fusion-checked): **codegen** to scaffold sources/models/YAML,
+**audit_helper** to prove legacy-vs-dbt parity, **dbt_utils** + **dbt_expectations** for tests,
+**dbt_project_evaluator** as the quality gate, **datavault4dbt**/**dbt_date** per architecture — see
+`legacy-to-dbt-migration-foundations/references/dbt-packages.md`.
+
 ## Target architecture (Step 2)
 
 After mapping the legacy workload, the skill **asks which target modeling architecture to build**,

@@ -27,6 +27,11 @@ Every migration, regardless of source, must:
 the fast iteration gate; **data parity against the warehouse** is the proof the migration
 preserved business logic. Never declare a migration done on a clean compile alone.
 
+**Use the dbt package ecosystem, don't reinvent it.** Every migration should lean on maintained,
+Fusion-compatible packages — **codegen** to scaffold, **audit_helper** to prove parity, **dbt_utils**
++ **dbt_expectations** for tests, **dbt_project_evaluator** as the quality gate,
+**datavault4dbt**/**dbt_date** per architecture. See [dbt-packages.md](references/dbt-packages.md).
+
 ## The shared 8-step workflow
 
 The migration skills implement these steps. Each links to the reference that carries the detail.
@@ -43,6 +48,7 @@ The migration skills implement these steps. Each links to the reference that car
 
 ## Additional Resources
 
+- [dbt-packages.md](references/dbt-packages.md) — **use the dbt package ecosystem the best way**: codegen (scaffold), audit_helper (parity), dbt_utils/dbt_expectations (tests), dbt_project_evaluator (quality gate), all Fusion-checked
 - [cloud-detection-and-materializations.md](references/cloud-detection-and-materializations.md) — questions to ask up front; per-platform cost-aware materialization guidance
 - [target-architecture.md](references/target-architecture.md) — ask the migrator which paradigm (layered / Data Vault / Kimball / star) and generate accordingly
 - [layer-classification.md](references/layer-classification.md) — source → staging → intermediate → mart mapping with confidence scoring and Mesh detection
