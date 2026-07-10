@@ -98,6 +98,9 @@ on the datavault4dbt hashkey uniqueness/not-null tests for the raw vault itself.
 ## Kimball dimensional
 
 Conformed **dimensions** shared across business processes + **fact** tables, laid out as star schemas.
+**Hand off the generation to the `using-kimball4dbt` skill** — this section decides the *modeling*
+(which legacy unit becomes which dim/fact); that skill builds them (surrogate keys, snapshots for
+SCD2, conformed dims, materializations, tests).
 
 **Map the legacy workload → dimensional model:**
 - Master/reference entities (customer, product, date, store) → **dimensions** (`dim_`). History-
@@ -128,7 +131,8 @@ incremental). Snapshots live in `snapshots/`.
 
 A single star for one subject area: one (or few) `fct_` + its `dim_`s, minimal governance. Same
 generation as Kimball but without the conformed-dimension/bus-matrix ceremony — good for a focused
-mart or a quick migration to BI-friendly shape.
+mart or a quick migration to BI-friendly shape. **Hand off the generation to the
+`using-starschema4dbt` skill.**
 
 - Facts + dimensions as above; surrogate keys optional (natural keys acceptable for a self-contained
   mart). SCD2 only where the legacy tracked history; otherwise Type-1 (overwrite) dims.

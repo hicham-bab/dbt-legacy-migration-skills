@@ -20,6 +20,8 @@ skills are plain `SKILL.md` folders and work in any agent that supports the skil
 | [`migrating-matillion-to-dbt`](migrating-matillion-to-dbt) | Matillion pipelines/jobs — DPC YAML (`.tran.yaml`/`.orch.yaml`), Matillion ETL JSON (export + git per-job forms), CDC/streaming, shared jobs |
 | [`legacy-to-dbt-migration-foundations`](legacy-to-dbt-migration-foundations) | *Shared reference library* — not invoked directly; the four migration skills link to it |
 | [`configuring-datavault4dbt`](configuring-datavault4dbt) · [`using-datavault4dbt`](using-datavault4dbt) · [`testing-a-datavault4dbt-project`](testing-a-datavault4dbt-project) | *Data Vault path* — Scalefree's datavault4dbt skills (Apache-2.0, vendored; see [ATTRIBUTION.md](ATTRIBUTION.md)) |
+| [`using-kimball4dbt`](using-kimball4dbt) | *Kimball path* — dimensional generation: conformed dims, facts at a declared grain, SCD2 via snapshots, surrogate keys (dbt-native) |
+| [`using-starschema4dbt`](using-starschema4dbt) | *Star path* — a single lightweight star (one fact + its dims) for a focused subject area |
 
 ## How they fit together
 
@@ -72,7 +74,7 @@ dbt Wizard CLI:
 
 ```bash
 git clone https://github.com/hicham-bab/dbt-legacy-migration-skills.git
-cp -R dbt-legacy-migration-skills/{legacy-to-dbt-migration-foundations,migrating-*,configuring-datavault4dbt,using-datavault4dbt,testing-a-datavault4dbt-project} ~/.dbt/wizard/skills/
+cp -R dbt-legacy-migration-skills/{legacy-to-dbt-migration-foundations,migrating-*,configuring-datavault4dbt,using-datavault4dbt,testing-a-datavault4dbt-project,using-kimball4dbt,using-starschema4dbt} ~/.dbt/wizard/skills/
 ```
 
 Claude Code (user-level skills):

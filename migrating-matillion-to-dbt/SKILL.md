@@ -102,8 +102,9 @@ See foundations → [layer-classification.md](../legacy-to-dbt-migration-foundat
 Translate each component using [matillion-component-mapping.md](references/matillion-component-mapping.md)
 for the SQL logic. Because Matillion is push-down ELT, the component graph already implies warehouse
 SQL. Apply the chosen architecture's generation pattern (foundations → target-architecture.md):
-**layered/dimensional** → express as CTE models, `ref()`-ing upstream models where a `Table Input`
-reads a table another pipeline produced (Detect Changes → snapshot); **Data Vault** → hand off to
+**layered** → express as CTE models, `ref()`-ing upstream models where a `Table Input`
+reads a table another pipeline produced (Detect Changes → snapshot); **Kimball / Star** → hand off
+to the `using-kimball4dbt` / `using-starschema4dbt` skill; **Data Vault** → hand off to
 the `using-datavault4dbt` skill (stage → hub/link/satellite), building info marts on top. Pick
 materializations per the target cloud (foundations → cloud-detection-and-materializations.md). Emit
 Fusion-conformant SQL (`cast()`, `coalesce()`).

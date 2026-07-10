@@ -71,3 +71,5 @@ These existing skills already do parts of the job — reference them, don't dupl
 - `building-dbt-semantic-layer` — optional metrics on top of the migrated marts
 - `configuring-datavault4dbt`, `using-datavault4dbt`, `testing-a-datavault4dbt-project` — the three
   Scalefree datavault4dbt skills (Apache-2.0) the Data Vault path hands off to in Step 3
+- `using-kimball4dbt`, `using-starschema4dbt` — the dimensional generation skills the Kimball and
+  Star paths hand off to in Step 3

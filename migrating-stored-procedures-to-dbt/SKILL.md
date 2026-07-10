@@ -93,8 +93,9 @@ Data Vault: hubs / links / satellites; dimensional: dims / facts). See foundatio
 
 Turn temp tables into CTEs/intermediate models, MERGE/upsert into `incremental`, full rebuilds into
 `table`, per [stored-proc-decomposition.md](references/stored-proc-decomposition.md), and apply the
-chosen architecture's generation pattern (foundations → target-architecture.md): **layered/
-dimensional** → CTE models (+ snapshots for history); **Data Vault** → hand off to the
+chosen architecture's generation pattern (foundations → target-architecture.md): **layered** →
+CTE models (+ snapshots for history); **Kimball / Star** → hand off to the `using-kimball4dbt` /
+`using-starschema4dbt` skill; **Data Vault** → hand off to the
 `using-datavault4dbt` skill, building info marts on top. Use
 [sql-dialect-notes.md](references/sql-dialect-notes.md) for dialect specifics; defer heavy dialect
 translation to the `migrating-dbt-project-across-platforms` skill. Emit Fusion-conformant SQL.

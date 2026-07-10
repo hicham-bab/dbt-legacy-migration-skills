@@ -90,7 +90,8 @@ confidence score, and detect domain boundaries for a possible Mesh split. See fo
 
 Translate each transformation using [powercenter-transformation-mapping.md](references/powercenter-transformation-mapping.md)
 for the SQL logic, and apply the chosen architecture's generation pattern (foundations →
-target-architecture.md): **layered/dimensional** → CTE models, SCD2 mappings become **snapshots**;
+target-architecture.md): **layered** → CTE models, SCD2 mappings become **snapshots**;
+**Kimball / Star** → hand off to the `using-kimball4dbt` / `using-starschema4dbt` skill;
 **Data Vault** → hand off to the `using-datavault4dbt` skill (stage → hub/link/satellite), building
 info marts on top. Pick materializations per the target cloud
 (foundations → cloud-detection-and-materializations.md). Emit Fusion-conformant SQL
