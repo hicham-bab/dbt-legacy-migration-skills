@@ -19,6 +19,9 @@ skills are plain `SKILL.md` folders and work in any agent that supports the skil
 | [`migrating-stored-procedures-to-dbt`](migrating-stored-procedures-to-dbt) | SQL stored procedures (Snowflake, BigQuery, Databricks, T-SQL, PL/SQL) |
 | [`migrating-matillion-to-dbt`](migrating-matillion-to-dbt) | Matillion pipelines/jobs — DPC YAML (`.tran.yaml`/`.orch.yaml`), Matillion ETL JSON (export + git per-job forms), CDC/streaming, shared jobs |
 | [`legacy-to-dbt-migration-foundations`](legacy-to-dbt-migration-foundations) | *Shared reference library* — not invoked directly; the four migration skills link to it |
+| [`configuring-datavault4dbt`](configuring-datavault4dbt) · [`using-datavault4dbt`](using-datavault4dbt) · [`testing-a-datavault4dbt-project`](testing-a-datavault4dbt-project) | *Data Vault path* — Scalefree's datavault4dbt skills (Apache-2.0, vendored; see [ATTRIBUTION.md](ATTRIBUTION.md)) |
+| [`using-kimball4dbt`](using-kimball4dbt) | *Kimball path* — dimensional generation: conformed dims, facts at a declared grain, SCD2 via snapshots, surrogate keys (dbt-native) |
+| [`using-starschema4dbt`](using-starschema4dbt) | *Star path* — a single lightweight star (one fact + its dims) for a focused subject area |
 
 ## How they fit together
 
@@ -27,11 +30,11 @@ The four migration skills share the same 8-step workflow and defer the common st
 
 - **Step 0** — Detect environment & cloud (Snowflake / Databricks / BigQuery / Redshift; Fusion vs Core)
 - **Step 1** — Inventory & map the legacy workload *(source-specific)*
-- **Step 2** — Classify into dbt layers (source → staging → intermediate → mart) + detect Mesh
-- **Step 3** — Translate to dbt SQL with cost-aware materializations *(source-specific answer key)*
+- **Step 2** — **Choose the target architecture** (see below), then classify the workload into it + detect Mesh
+- **Step 3** — Translate to dbt SQL for the chosen architecture, with cost-aware materializations *(source-specific answer key)*
 - **Step 4** — Apply best practices: tests (`arguments:` spec), docs, contracts, snapshots
-- **Step 5** — Validate: `dbt compile` gate (free), then data parity against the warehouse
-- **Step 6** — Cost comparison: TCO + measured dev run
+- **Step 5** — Validate: `dbt compile` gate (free), then **legacy-prod vs dbt-dev** data parity (explain every difference)
+- **Step 6** — Cost comparison: **measured** warehouse consumption (legacy vs dbt), auditable
 - **Step 7** — Coverage report (confirm ≥95%, flag residual)
 - **Step 8** — Document changes in `migration_changes.md`
 
@@ -39,6 +42,34 @@ Each migration skill carries a `references/` folder with two source-specific doc
 the source artifact, and the component/transformation → dbt answer key. All generated SQL is dbt
 Fusion-conformant (`cast()` not `::`, `coalesce()` not `nvl`/`ifnull`, tests via the `arguments:`
 nested spec).
+
+**Uses the dbt package ecosystem** (all Fusion-checked): **codegen** to scaffold sources/models/YAML,
+**audit_helper** to prove legacy-vs-dbt parity, **dbt_utils** + **dbt_expectations** for tests,
+**dbt_project_evaluator** as the quality gate, **datavault4dbt**/**dbt_date** per architecture — see
+`legacy-to-dbt-migration-foundations/references/dbt-packages.md`.
+
+## Target architecture (Step 2)
+
+After mapping the legacy workload, the skill **asks which target modeling architecture to build**,
+then generates the dbt models accordingly:
+
+- **Layered (default)** — faithful source-aligned staging → intermediate → mart. Lowest risk.
+- **Data Vault 2.0** — hubs / links / satellites via the [datavault4dbt](https://github.com/ScalefreeCOM/datavault4dbt)
+  package, with dimensional info marts on top.
+- **Kimball dimensional** — conformed dimensions + fact tables, SCD2 via snapshots, surrogate keys.
+- **Star schema (pragmatic)** — facts + dimensions for a focused subject area.
+
+See `legacy-to-dbt-migration-foundations/references/target-architecture.md` for the legacy→paradigm
+mappings and per-paradigm performance guidance.
+
+> **Data Vault path:** the Data Vault option hands off to Scalefree's **datavault4dbt agent skills**.
+> The three needed to produce a migration — `configuring-datavault4dbt`, `using-datavault4dbt`,
+> `testing-a-datavault4dbt-project` — are **vendored here** (Apache-2.0). See
+> [ATTRIBUTION.md](ATTRIBUTION.md) for credit, source, and the modifications made. The upstream
+> `troubleshooting-` and `rehashing-datavault4dbt` skills (for fixing/upgrading an existing vault)
+> are not included — get them from
+> [`ScalefreeCOM/datavault4dbt-agent-skills`](https://github.com/ScalefreeCOM/datavault4dbt-agent-skills)
+> if needed. Kimball and star schema need nothing extra.
 
 ## Install
 
@@ -48,7 +79,7 @@ dbt Wizard CLI:
 
 ```bash
 git clone https://github.com/hicham-bab/dbt-legacy-migration-skills.git
-cp -R dbt-legacy-migration-skills/{legacy-to-dbt-migration-foundations,migrating-*} ~/.dbt/wizard/skills/
+cp -R dbt-legacy-migration-skills/{legacy-to-dbt-migration-foundations,migrating-*,configuring-datavault4dbt,using-datavault4dbt,testing-a-datavault4dbt-project,using-kimball4dbt,using-starschema4dbt} ~/.dbt/wizard/skills/
 ```
 
 Claude Code (user-level skills):

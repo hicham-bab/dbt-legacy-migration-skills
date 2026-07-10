@@ -45,7 +45,7 @@ link into its references for the common work.
 
 - [parsing-talend-jobs.md](references/parsing-talend-jobs.md) — how to read `.item` XML and inventory the workload
 - [talend-component-mapping.md](references/talend-component-mapping.md) — the component → dbt answer key, incl. tMap joins and Talend expression functions
-- The **`legacy-to-dbt-migration-foundations`** skill — shared references for cloud detection, layer classification, best practices, validation, cost, and coverage
+- The **`legacy-to-dbt-migration-foundations`** skill — shared references for cloud detection, **dbt-package usage**, layer classification, target architecture, best practices, validation, cost, and coverage
 
 ## Migration Workflow
 
@@ -55,8 +55,8 @@ link into its references for the common work.
 Talend → dbt Migration Progress:
 - [ ] Step 0: Detect environment & cloud (warehouse, Fusion/Core, dev target, parity access)
 - [ ] Step 1: Inventory & map the Talend jobs (count all components)
-- [ ] Step 2: Classify each component into dbt layers + detect Mesh
-- [ ] Step 3: Translate to dbt SQL with cost-aware materializations
+- [ ] Step 2: Choose target architecture (layered / Data Vault / Kimball / star), then classify into it
+- [ ] Step 3: Translate to dbt SQL for the chosen architecture, with cost-aware materializations
 - [ ] Step 4: Apply tests, docs, contracts, snapshots
 - [ ] Step 5: Validate — compile gate, then data parity vs warehouse
 - [ ] Step 6: Cost comparison — measured warehouse consumption (legacy vs dbt), auditable
@@ -73,19 +73,28 @@ Ask the up-front questions and pick the target platform before parsing anything.
 
 Parse the `.item` exports and produce a complete inventory: every job, component, schema, FLOW/
 LOOKUP connection, context variable, and `tRunJob` cross-job edge. Record the **total component
-count** — the coverage denominator. See [parsing-talend-jobs.md](references/parsing-talend-jobs.md).
+count** — the coverage denominator. See [parsing-talend-jobs.md](references/parsing-talend-jobs.md). Scaffold `_sources.yml` (and staging models) with **codegen** `generate_source` / `generate_base_model` (foundations → dbt-packages.md).
 
-### Step 2 — Classify into dbt layers + detect Mesh
+### Step 2 — Choose target architecture, then classify into it
 
-Assign each component to source / staging / intermediate / mart with a confidence score; detect
-domain boundaries (job folders, schemas) for a possible Mesh split. See foundations →
-[layer-classification.md](../legacy-to-dbt-migration-foundations/references/layer-classification.md).
+**First ask the migrator which target architecture to build** — layered (default) / Data Vault 2.0 /
+Kimball dimensional / pragmatic star — since it reshapes Steps 3-4. See foundations →
+[target-architecture.md](../legacy-to-dbt-migration-foundations/references/target-architecture.md).
+Then classify each component into that architecture's structures (layered: source / staging /
+intermediate / mart; Data Vault: hubs / links / satellites; dimensional: dims / facts), with a
+confidence score, and detect domain boundaries (job folders, schemas) for a possible Mesh split. See
+foundations → [layer-classification.md](../legacy-to-dbt-migration-foundations/references/layer-classification.md).
 
-### Step 3 — Translate to dbt SQL with cost-aware materializations
+### Step 3 — Translate to dbt SQL for the chosen architecture
 
-Translate each component using [talend-component-mapping.md](references/talend-component-mapping.md).
-Pick materializations per the target cloud (foundations → cloud-detection-and-materializations.md).
-Emit Fusion-conformant SQL (`cast()`, `coalesce()`, CTEs, `ref()`/`source()`).
+Translate each component using [talend-component-mapping.md](references/talend-component-mapping.md)
+for the SQL logic, and apply the chosen architecture's generation pattern (foundations →
+target-architecture.md): **layered** → CTE models (+ snapshots for change-data-capture);
+**Kimball / Star** → hand off to the `using-kimball4dbt` / `using-starschema4dbt` skill;
+**Data Vault** → hand off to the `using-datavault4dbt` skill (stage → hub/link/satellite), building
+info marts on top. Pick materializations per the target cloud
+(foundations → cloud-detection-and-materializations.md). Emit Fusion-conformant SQL
+(`cast()`, `coalesce()`, CTEs, `ref()`/`source()`).
 
 ### Step 4 — Apply best practices: tests, docs, contracts, snapshots
 
@@ -99,7 +108,7 @@ contracts on public marts, and snapshots for any change-data-capture jobs. See f
 production** table each `tDBOutput` populated to the **dbt dev** output (align the inputs first) and
 **explain every difference** — accept legitimate environment/platform differences, fix real logic
 bugs. See foundations →
-[data-validation.md](../legacy-to-dbt-migration-foundations/references/data-validation.md).
+[data-validation.md](../legacy-to-dbt-migration-foundations/references/data-validation.md). Prefer **audit_helper** classify macros over a hand-written diff (foundations → dbt-packages.md).
 
 ### Step 6 — Cost comparison: measured, apples-to-apples
 
@@ -115,7 +124,7 @@ optional labeled context only. See foundations →
 ### Step 7 — Coverage report
 
 Compute migrated-and-validated ÷ total inventoried; confirm ≥95%; list the residual. See
-foundations → [coverage-report.md](../legacy-to-dbt-migration-foundations/references/coverage-report.md).
+foundations → [coverage-report.md](../legacy-to-dbt-migration-foundations/references/coverage-report.md). Run **dbt_project_evaluator** as the post-migration quality gate (foundations → dbt-packages.md).
 
 ### Step 8 — Document
 

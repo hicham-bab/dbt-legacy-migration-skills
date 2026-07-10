@@ -46,7 +46,7 @@ link into its references for the common work.
 
 - [stored-proc-decomposition.md](references/stored-proc-decomposition.md) — the procedural → declarative answer key
 - [sql-dialect-notes.md](references/sql-dialect-notes.md) — per-dialect procedural constructs and target-syntax choice
-- The **`legacy-to-dbt-migration-foundations`** skill — shared references for cloud detection, layer classification, best practices, validation, cost, and coverage
+- The **`legacy-to-dbt-migration-foundations`** skill — shared references for cloud detection, **dbt-package usage**, layer classification, target architecture, best practices, validation, cost, and coverage
 - The **`migrating-dbt-project-across-platforms`** skill — for heavy SQL-dialect translation when the source proc's dialect differs from the target cloud
 
 ## Migration Workflow
@@ -57,8 +57,8 @@ link into its references for the common work.
 Stored Procedure → dbt Migration Progress:
 - [ ] Step 0: Detect environment & cloud (warehouse, source dialect, Fusion/Core, dev target, parity access)
 - [ ] Step 1: Inventory & map the procedure (count all procedural steps)
-- [ ] Step 2: Classify each step into dbt layers + detect Mesh
-- [ ] Step 3: Decompose to dbt SQL with cost-aware materializations
+- [ ] Step 2: Choose target architecture (layered / Data Vault / Kimball / star), then classify into it
+- [ ] Step 3: Decompose to dbt SQL for the chosen architecture, with cost-aware materializations
 - [ ] Step 4: Apply tests, docs, contracts, snapshots
 - [ ] Step 5: Validate — compile gate, then row-for-row parity vs the legacy output
 - [ ] Step 6: Cost comparison — measured warehouse consumption (legacy vs dbt), auditable
@@ -77,18 +77,26 @@ Databricks SQL, T-SQL, PL/SQL) before parsing. See `legacy-to-dbt-migration-foun
 Read the procedure and list every step: each temp/staging table build, each intermediate query,
 each branch, and the final target write. Identify the **output grain** and every source table and
 business rule (thresholds, filters, lifecycle logic). Record the **total step count** — the
-coverage denominator. See [stored-proc-decomposition.md](references/stored-proc-decomposition.md).
+coverage denominator. See [stored-proc-decomposition.md](references/stored-proc-decomposition.md). Scaffold `_sources.yml` (and staging models) with **codegen** `generate_source` / `generate_base_model` (foundations → dbt-packages.md).
 
-### Step 2 — Classify into dbt layers + detect Mesh
+### Step 2 — Choose target architecture, then classify into it
 
-Map each step to source / staging / intermediate / mart. Prefer building on **existing** staging/
-intermediate models over re-reading raw tables. See foundations →
+**First ask the migrator which target architecture to build** — layered (default) / Data Vault 2.0 /
+Kimball dimensional / pragmatic star — since it reshapes Steps 3-4. See foundations →
+[target-architecture.md](../legacy-to-dbt-migration-foundations/references/target-architecture.md).
+Then map each procedural step into that architecture's structures (layered: source / staging /
+intermediate / mart, preferring **existing** staging/intermediate models over re-reading raw tables;
+Data Vault: hubs / links / satellites; dimensional: dims / facts). See foundations →
 [layer-classification.md](../legacy-to-dbt-migration-foundations/references/layer-classification.md).
 
-### Step 3 — Decompose to dbt SQL with cost-aware materializations
+### Step 3 — Decompose to dbt SQL for the chosen architecture
 
 Turn temp tables into CTEs/intermediate models, MERGE/upsert into `incremental`, full rebuilds into
-`table`, per [stored-proc-decomposition.md](references/stored-proc-decomposition.md). Use
+`table`, per [stored-proc-decomposition.md](references/stored-proc-decomposition.md), and apply the
+chosen architecture's generation pattern (foundations → target-architecture.md): **layered** →
+CTE models (+ snapshots for history); **Kimball / Star** → hand off to the `using-kimball4dbt` /
+`using-starschema4dbt` skill; **Data Vault** → hand off to the
+`using-datavault4dbt` skill, building info marts on top. Use
 [sql-dialect-notes.md](references/sql-dialect-notes.md) for dialect specifics; defer heavy dialect
 translation to the `migrating-dbt-project-across-platforms` skill. Emit Fusion-conformant SQL.
 
@@ -103,7 +111,7 @@ foundations → [dbt-best-practices.md](../legacy-to-dbt-migration-foundations/r
 mart to the procedure's **production** output table on the grain (align the inputs first) — zero
 mismatches = parity, and **explain every difference** (accept legitimate environment/platform
 differences, fix real logic bugs). See foundations →
-[data-validation.md](../legacy-to-dbt-migration-foundations/references/data-validation.md).
+[data-validation.md](../legacy-to-dbt-migration-foundations/references/data-validation.md). Prefer **audit_helper** classify macros over a hand-written diff (foundations → dbt-packages.md).
 
 ### Step 6 — Cost comparison: measured, apples-to-apples
 
@@ -117,7 +125,7 @@ only. See foundations →
 ### Step 7 — Coverage report
 
 Compute migrated-and-validated ÷ total inventoried; confirm ≥95%; list the residual. See
-foundations → [coverage-report.md](../legacy-to-dbt-migration-foundations/references/coverage-report.md).
+foundations → [coverage-report.md](../legacy-to-dbt-migration-foundations/references/coverage-report.md). Run **dbt_project_evaluator** as the post-migration quality gate (foundations → dbt-packages.md).
 
 ### Step 8 — Document
 
