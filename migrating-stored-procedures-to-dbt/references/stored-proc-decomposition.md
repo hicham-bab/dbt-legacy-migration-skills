@@ -1,7 +1,7 @@
 # Stored procedure → dbt decomposition (Step 1 + Step 3)
 
 How to take an imperative stored procedure apart and rebuild it as declarative dbt models. Pattern
-sourced from the worked example in `~/dbt-gcp-retail-copilot/`: `legacy/sp_customer_ltv.sql` (a
+sourced from the worked example in `a worked stored-proc→dbt example`: `legacy/sp_customer_ltv.sql` (a
 BigQuery proc that rebuilds a table with temp tables and procedural SQL) → the refactored
 `models/marts/finance/mart_customer_ltv.sql` on `ref()` models, with
 `analyses/validate_ltv_migration.sql` proving parity. The `WIZARD_PROMPTS.md` in that repo is a

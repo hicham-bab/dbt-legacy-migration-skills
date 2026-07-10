@@ -1,6 +1,6 @@
 # dbt layer classification & Mesh detection (Step 2)
 
-Distilled from the confidence-scored classifier in `~/talend-to-dbt/src/talend_to_dbt/graph/classifier.py`.
+Distilled from the confidence-scored classifier in `a confidence-scored layer classifier`.
 After the workload is inventoried (Step 1), assign each unit of work to a dbt layer so the
 generated project follows the standard source → staging → intermediate → mart structure.
 

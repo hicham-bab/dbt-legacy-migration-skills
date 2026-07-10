@@ -178,7 +178,7 @@ METL variable exports carry names only.
 - **Orchestration control flow** (If / And / Retry / success-failure branching) has no model
   equivalent — it maps to dbt run ordering plus a scheduler/job; capture it as notes.
 - The parsing reference is grounded in Matillion docs and real exported files, with a hand-authored
-  demo fixture at `~/matillion-retail-demo/` (exports + the dbt project they map to + a parser
+  demo fixture at `an example Matillion→dbt project` (exports + the dbt project they map to + a parser
   test). Validate against the user's *actual* export early — the demo is illustrative, not a spec.
 
 ## Output Template for migration_changes.md

@@ -2,9 +2,9 @@
 
 How to walk an Informatica PowerCenter repository export and produce the workload inventory that
 Step 1 requires. The element/attribute names below are **verified** against
-`~/informatica-retail-legacy/informatica/WF_RETAIL_EDW_DAILY.XML`. You read the XML directly with
+`a real PowerCenter 10.5 XML export`. You read the XML directly with
 Read/Grep; no Python is required. (The element-walking parser at
-`~/talend-to-dbt/src/talend_to_dbt/extraction/xml_parser.py` is a useful structural template for
+`a reference XML-walking parser` is a useful structural template for
 the traversal.)
 
 ## Contents
@@ -84,7 +84,7 @@ or echo connection credentials from them.
 4. Hand the inventory to Step 2 (classification) and the per-transformation logic to Step 3
    (translation via [powercenter-transformation-mapping.md](powercenter-transformation-mapping.md)).
 
-**Reference fixture:** `~/informatica-retail-legacy/informatica/WF_RETAIL_EDW_DAILY.XML` is a
+**Reference fixture:** `a real PowerCenter 10.5 XML export` is a
 complete, realistic example (10 sources, staging/dim/fact targets, a `mplt_LOOKUP_DIM_KEYS`
 mapplet, a `wklt_LOAD_DIMENSIONS` worklet, SCD2 dims, and a full workflow). Its companion
 `docs/WORKFLOW_DESIGN.md` walks each mapping, and `snowflake/04_edw_load_simulation.sql` shows the

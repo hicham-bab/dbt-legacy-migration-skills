@@ -1,7 +1,7 @@
 # Talend component → dbt answer key (Step 3)
 
 The translation table for each Talend component. Lifted from the `REWRITER_SYSTEM` prompt in
-`~/talend-to-dbt/src/talend_to_dbt/generation/prompts.py`, which encodes the proven mappings.
+`a proven Talend→dbt translation/prompt set`, which encodes the proven mappings.
 
 ## Contents
 

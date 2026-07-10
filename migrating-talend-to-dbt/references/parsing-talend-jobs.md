@@ -1,8 +1,8 @@
 # Parsing Talend `.item` jobs (Step 1)
 
 How to read a Talend job export and produce the workload inventory. The element/attribute names
-below are **verified** against real `.item` fixtures at `~/talend-to-dbt/demo/ecommerce/process/`
-and against the working parser at `~/talend-to-dbt/src/talend_to_dbt/extraction/xml_parser.py`.
+below are **verified** against real `.item` fixtures at `real Talend `.item` exports`
+and against the working parser at `a reference XML-walking parser`.
 You read the XML directly with Read/Grep; no Python required.
 
 ## Contents

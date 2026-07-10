@@ -97,6 +97,7 @@ type**. `contract: enforced` on published dims/facts; version them.
 
 ## End-to-end example
 
-See the worked `dim_customer` (Type-2 from a snapshot) + `fct_orders` (grain: one order line, with
-a surrogate-key FK and PIT join) — parse- and dialect-tested — in
-`~/dimensional-demo/dbt/models/marts/`.
+Put it together: the Type-2 `dim_customer` (from a snapshot) shown above, plus an `fct_orders` at
+grain "one order line" that generates its own surrogate grain key, looks up `customer_key` with the
+point-in-time predicate, keeps the order id as a degenerate dimension, and casts its measures —
+materialized `incremental`. See the [facts](#facts) section for the fact build steps.
