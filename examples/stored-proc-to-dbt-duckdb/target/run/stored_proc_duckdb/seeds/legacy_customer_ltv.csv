@@ -1,0 +1,13 @@
+
+    
+    
+    
+    create table "dev"."main"."legacy_customer_ltv" ("customer_id" integer,"lifetime_value" integer,"order_count" integer,"ltv_segment" text)
+  ;
+    -- dbt seed --
+    
+          COPY "dev"."main"."legacy_customer_ltv" FROM '/Users/hichambabahmed/dbt-legacy-migration-skills/examples/stored-proc-to-dbt-duckdb/seeds/legacy_customer_ltv.csv' (FORMAT CSV, HEADER TRUE, DELIMITER ',')
+        
+
+;
+  

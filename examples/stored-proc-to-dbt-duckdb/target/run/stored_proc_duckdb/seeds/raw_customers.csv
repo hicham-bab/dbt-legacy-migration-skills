@@ -1,0 +1,13 @@
+
+    
+    
+    
+    create table "dev"."main"."raw_customers" ("customer_id" integer,"customer_name" text,"signup_date" date)
+  ;
+    -- dbt seed --
+    
+          COPY "dev"."main"."raw_customers" FROM '/Users/hichambabahmed/dbt-legacy-migration-skills/examples/stored-proc-to-dbt-duckdb/seeds/raw_customers.csv' (FORMAT CSV, HEADER TRUE, DELIMITER ',')
+        
+
+;
+  

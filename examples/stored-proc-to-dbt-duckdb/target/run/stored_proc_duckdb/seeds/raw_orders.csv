@@ -1,0 +1,13 @@
+
+    
+    
+    
+    create table "dev"."main"."raw_orders" ("order_id" integer,"customer_id" integer,"order_date" date,"status" text,"amount" integer)
+  ;
+    -- dbt seed --
+    
+          COPY "dev"."main"."raw_orders" FROM '/Users/hichambabahmed/dbt-legacy-migration-skills/examples/stored-proc-to-dbt-duckdb/seeds/raw_orders.csv' (FORMAT CSV, HEADER TRUE, DELIMITER ',')
+        
+
+;
+  

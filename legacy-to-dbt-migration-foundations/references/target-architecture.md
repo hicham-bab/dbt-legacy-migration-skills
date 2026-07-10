@@ -6,6 +6,12 @@ you classify the workload (rest of Step 2), how you generate models (Step 3), an
 materializations you apply (Step 4). Do not assume — a migration is the natural moment to decide
 whether to re-architect, and it's the migrator's call.
 
+**Always offer the choice, even when it looks obvious.** If the workload clearly resembles one
+paradigm (e.g. SCD2 dims + a fact with surrogate-key lookups → obviously Kimball), still present the
+options and **recommend** that one with a one-line why — don't silently auto-select it. The migrator
+may want a different target (e.g. a Data Vault for auditability, or a faithful layered port to
+minimise risk) regardless of what the source looks like.
+
 ## Contents
 
 - [The question to ask](#the-question-to-ask)
