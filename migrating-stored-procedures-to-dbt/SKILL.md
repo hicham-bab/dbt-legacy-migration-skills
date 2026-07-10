@@ -61,7 +61,7 @@ Stored Procedure → dbt Migration Progress:
 - [ ] Step 3: Decompose to dbt SQL with cost-aware materializations
 - [ ] Step 4: Apply tests, docs, contracts, snapshots
 - [ ] Step 5: Validate — compile gate, then row-for-row parity vs the legacy output
-- [ ] Step 6: Cost comparison — TCO + measured dev run
+- [ ] Step 6: Cost comparison — measured warehouse consumption (legacy vs dbt), auditable
 - [ ] Step 7: Coverage report (confirm ≥95%, flag residual)
 - [ ] Step 8: Document changes in migration_changes.md
 ```
@@ -99,14 +99,19 @@ foundations → [dbt-best-practices.md](../legacy-to-dbt-migration-foundations/r
 
 ### Step 5 — Validate: compile gate, then row-for-row parity
 
-`dbt compile` to 0 errors/warnings, then `dbt build`, then full-outer-join the mart to the
-procedure's current output table on the grain — zero mismatches = parity. See foundations →
+`dbt compile` to 0 errors/warnings, then `dbt build` into dev, then full-outer-join the **dbt dev**
+mart to the procedure's **production** output table on the grain (align the inputs first) — zero
+mismatches = parity, and **explain every difference** (accept legitimate environment/platform
+differences, fix real logic bugs). See foundations →
 [data-validation.md](../legacy-to-dbt-migration-foundations/references/data-validation.md).
 
-### Step 6 — Cost comparison: TCO + measured dev run
+### Step 6 — Cost comparison: measured, apples-to-apples
 
-Compare the legacy proc run (engine compute + the maintenance burden of imperative SQL) vs the dbt
-models, plus the measured dev-run compute. See foundations →
+**Measure**, don't estimate. The stored procedure already runs in the warehouse, so its real
+consumption is in the warehouse metering/query history — measure it, and the dbt models' consumption
+on the **same data**, isolate each run, and compare with a cited dollar rate. Emit the exact
+measurement queries + raw numbers so the analysis is auditable. TCO is optional labeled context
+only. See foundations →
 [cost-comparison.md](../legacy-to-dbt-migration-foundations/references/cost-comparison.md).
 
 ### Step 7 — Coverage report

@@ -59,7 +59,7 @@ Talend → dbt Migration Progress:
 - [ ] Step 3: Translate to dbt SQL with cost-aware materializations
 - [ ] Step 4: Apply tests, docs, contracts, snapshots
 - [ ] Step 5: Validate — compile gate, then data parity vs warehouse
-- [ ] Step 6: Cost comparison — TCO + measured dev run
+- [ ] Step 6: Cost comparison — measured warehouse consumption (legacy vs dbt), auditable
 - [ ] Step 7: Coverage report (confirm ≥95%, flag residual)
 - [ ] Step 8: Document changes in migration_changes.md
 ```
@@ -95,14 +95,21 @@ contracts on public marts, and snapshots for any change-data-capture jobs. See f
 
 ### Step 5 — Validate: compile gate, then data parity
 
-`dbt compile` to 0 errors/warnings, then `dbt build`, then prove parity against the warehouse
-table each `tDBOutput` populated. See foundations →
+`dbt compile` to 0 errors/warnings, then `dbt build` into dev, then compare the **legacy
+production** table each `tDBOutput` populated to the **dbt dev** output (align the inputs first) and
+**explain every difference** — accept legitimate environment/platform differences, fix real logic
+bugs. See foundations →
 [data-validation.md](../legacy-to-dbt-migration-foundations/references/data-validation.md).
 
-### Step 6 — Cost comparison: TCO + measured dev run
+### Step 6 — Cost comparison: measured, apples-to-apples
 
-Compare Talend TCO (license tier + Job/integration-runtime infra + maintenance FTE) vs
-dbt-on-warehouse, plus the measured dev-run compute. See foundations →
+**Measure**, don't estimate the dbt run's real warehouse consumption. If Talend ran transforms on
+its own engine (off-warehouse), there's no in-warehouse legacy number — either run the equivalent
+pushed-down SQL in the warehouse as a labeled **reconstructed baseline**, or compare dbt's measured
+warehouse cost against Talend's own run cost and state plainly they are **different cost bases**
+(if the jobs were ELT push-down, measure the legacy queries directly from query history). Isolate
+each run, cite the dollar rate, emit the measurement queries + raw numbers so it's auditable. TCO is
+optional labeled context only. See foundations →
 [cost-comparison.md](../legacy-to-dbt-migration-foundations/references/cost-comparison.md).
 
 ### Step 7 — Coverage report

@@ -68,7 +68,7 @@ Matillion → dbt Migration Progress:
 - [ ] Step 3: Translate to dbt SQL with cost-aware materializations
 - [ ] Step 4: Apply tests, docs, contracts, snapshots (Detect Changes → snapshot)
 - [ ] Step 5: Validate — compile gate, then data parity vs warehouse
-- [ ] Step 6: Cost comparison — TCO + measured dev run
+- [ ] Step 6: Cost comparison — measured warehouse consumption (legacy vs dbt), auditable
 - [ ] Step 7: Coverage report (confirm ≥95%, flag residual + out-of-scope EL)
 - [ ] Step 8: Document changes in migration_changes.md
 ```
@@ -109,15 +109,19 @@ foundations → [dbt-best-practices.md](../legacy-to-dbt-migration-foundations/r
 
 ### Step 5 — Validate: compile gate, then data parity
 
-`dbt compile` to 0 errors/warnings, then `dbt build`, then prove parity against the table each
-`Rewrite Table` / `Table Output` produced. See foundations →
+`dbt compile` to 0 errors/warnings, then `dbt build` into dev, then compare the **legacy
+production** table each `Rewrite Table` / `Table Output` produced to the **dbt dev** output (align
+the inputs first) and **explain every difference** — accept legitimate environment/platform
+differences, fix real logic bugs. See foundations →
 [data-validation.md](../legacy-to-dbt-migration-foundations/references/data-validation.md).
 
-### Step 6 — Cost comparison: TCO + measured dev run
+### Step 6 — Cost comparison: measured, apples-to-apples
 
-Compare Matillion TCO (credits/vCore or instance cost + platform subscription + maintenance FTE)
-vs dbt-on-warehouse, plus the measured dev-run compute. Note that both are push-down, so the
-warehouse-compute line is directly comparable. See foundations →
+**Measure**, don't estimate. Matillion transformation pipelines push down to the warehouse, so the
+legacy run's real consumption is already in the warehouse metering/query history — measure it, and
+the dbt run's consumption, on the **same data**, isolate each run, and compare with a cited dollar
+rate. Emit the exact measurement queries + raw numbers so the analysis is auditable. TCO is
+optional labeled context only. See foundations →
 [cost-comparison.md](../legacy-to-dbt-migration-foundations/references/cost-comparison.md).
 
 ### Step 7 — Coverage report
