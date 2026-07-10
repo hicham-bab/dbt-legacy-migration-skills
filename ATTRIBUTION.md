@@ -1,30 +1,20 @@
-# Attribution — third-party skills
+# Attribution — third-party content
 
-## datavault4dbt agent skills (Scalefree)
+## datavault4dbt (Scalefree)
 
-The Data Vault path of these migration skills reuses skills from Scalefree's
-**datavault4dbt agent skills**:
+The Data Vault generation reference
+(`legacy-to-dbt-migration-foundations/references/building-datavault.md`) is **distilled from**
+Scalefree's **datavault4dbt agent skills** — the staging-driven hub/link/satellite pattern, entity
+choice, project layout/materializations, and technical tests.
 
 - Source: https://github.com/ScalefreeCOM/datavault4dbt-agent-skills
 - Author: Scalefree International GmbH
 - License: Apache License 2.0
 
-Vendored here (the three needed to produce a Data Vault migration):
+The reference is a condensed, rewritten summary (not a verbatim copy) that credits Scalefree and
+points to their full skill set and the `datavault4dbt` package docs for deeper coverage (all
+satellite variants, PIT cleanup, rehashing, per-adapter config, troubleshooting). The
+`datavault4dbt` dbt **package** it describes is Apache-2.0 and installed on demand into the target
+project's `packages.yml` at migration time — it is not redistributed here.
 
-- `configuring-datavault4dbt/`
-- `using-datavault4dbt/`
-- `testing-a-datavault4dbt-project/`
-
-### Modifications made to the vendored copies
-
-Per Apache-2.0 §4, changes are stated:
-
-1. Removed the top-level `user-invocable:` frontmatter key from each `SKILL.md` — the dbt Wizard
-   skill validator only accepts `name`, `description`, `license`, `allowed-tools`, and `metadata`.
-2. In `using-datavault4dbt/SKILL.md`, trimmed the two "Related skills" bullets that pointed to the
-   upstream `troubleshooting-datavault4dbt` and `rehashing-datavault4dbt-entities` skills, which are
-   not included in this bundle (they cover fixing/upgrading an existing vault, not producing a
-   migration). Install them from the source repo above if you need them.
-
-All other content is unmodified. The upstream Apache-2.0 license governs these three folders; this
-repository is also Apache-2.0 (see [LICENSE](LICENSE)).
+This repository is licensed Apache-2.0 (see [LICENSE](LICENSE)).

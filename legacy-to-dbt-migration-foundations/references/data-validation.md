@@ -52,11 +52,12 @@ Only after inputs are aligned does a remaining difference point to the *transfor
 
 ## Preferred tool: audit_helper
 
-**Use the `audit_helper` package rather than a hand-written diff** — it's dbt Labs' official
+**If the migrator allowed external packages** (Step 0 — see [dbt-packages.md](dbt-packages.md)), use
+the `audit_helper` package rather than a hand-written diff — it's dbt Labs' official
 migration-validation tooling and does row- and column-level classification for you. Add
-`dbt-labs/audit_helper` to `packages.yml` (`dbt deps`); see
-[dbt-packages.md](dbt-packages.md#audit_helper--the-validation-centerpiece). Use the current
-**classify** macros (not the legacy `compare_relations`/`compare_queries`).
+`dbt-labs/audit_helper` from hub.getdbt.com (`dbt deps`). Use the current **classify** macros (not
+the legacy `compare_relations`/`compare_queries`). *If they chose self-contained macros,* skip this
+and use Pattern A/B below.
 
 1. **Fast yes/no** — is the dbt-dev model already identical to legacy prod?
    ```sql

@@ -26,6 +26,10 @@ do not start parsing until the warehouse is known.
    old job populated, or the source system). Needed for Step 5 data validation.
 5. **Do you have legacy run metrics** (runtime, license tier, infra, schedule frequency)? Needed
    for the Step 6 cost comparison; absent these, Step 6 produces the TCO estimate only.
+6. **Packages or self-contained macros?** Ask whether the migration may use **external dbt packages
+   (from hub.getdbt.com only)** — so the skill reuses maintained macros instead of hand-writing
+   them — or whether it should stay **self-contained** and generate the needed macros itself. This
+   drives how every later step is built. See [dbt-packages.md](dbt-packages.md).
 
 ## Choosing a materialization
 

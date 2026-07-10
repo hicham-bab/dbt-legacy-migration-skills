@@ -50,18 +50,9 @@ Guidance to offer:
 
 A Data Vault splits data into **hubs** (business keys), **links** (relationships), and **satellites**
 (descriptive history), loaded insert-only, with dimensional **info marts** built on top. Use the
-**datavault4dbt** package (Scalefree) — do not hand-roll hashing/loading SQL.
-
-**Reuse the datavault4dbt skills — don't reinvent them.** This skill decides the *modeling* (which
-legacy unit becomes which entity); the package mechanics come from the Scalefree skill set
-(Apache-2.0), bundled here as the three needed for a migration:
-- `configuring-datavault4dbt` — `packages.yml`, global variables, hashing, per-adapter setup (do this first)
-- `using-datavault4dbt` — building stage/hub/link/satellite/PIT models (the YAML-metadata macro pattern)
-- `testing-a-datavault4dbt-project` — hub/link/satellite technical tests
-
-(The upstream `troubleshooting-datavault4dbt` and `rehashing-datavault4dbt-entities` skills aren't
-bundled — they're for fixing/upgrading an existing vault, not producing a migration; install them
-from `ScalefreeCOM/datavault4dbt-agent-skills` if needed.)
+**datavault4dbt** package (Scalefree) — do not hand-roll hashing/loading SQL. This section decides
+the *modeling* (which legacy unit → which entity); the package mechanics are in
+[building-datavault.md](building-datavault.md).
 
 **Map the legacy workload → Data Vault entities:**
 
@@ -87,7 +78,7 @@ from `ScalefreeCOM/datavault4dbt-agent-skills` if needed.)
   time) and **bridge** tables (`sat_v1` virtualized end-dating drives PITs) so BI queries avoid
   wide satellite joins. Materialize info marts as `table`.
 - Hashkeys make joins uniform; keep the package's hash datatype (binary where the adapter supports
-  it) for smaller, faster joins — see `configuring-datavault4dbt`.
+  it) for smaller, faster joins — see [building-datavault.md](building-datavault.md).
 - Apply the platform tuning from [cloud-detection-and-materializations.md](cloud-detection-and-materializations.md)
   to the info marts (partition/cluster facts by date, cluster dims by key).
 
@@ -98,9 +89,9 @@ on the datavault4dbt hashkey uniqueness/not-null tests for the raw vault itself.
 ## Kimball dimensional
 
 Conformed **dimensions** shared across business processes + **fact** tables, laid out as star schemas.
-**Hand off the generation to the `using-kimball4dbt` skill** — this section decides the *modeling*
-(which legacy unit becomes which dim/fact); that skill builds them (surrogate keys, snapshots for
-SCD2, conformed dims, materializations, tests).
+This section decides the *modeling* (which legacy unit becomes which dim/fact); the generation
+mechanics (surrogate keys, snapshots for SCD2, conformed dims, materializations, tests) are in
+[building-kimball.md](building-kimball.md).
 
 **Map the legacy workload → dimensional model:**
 - Master/reference entities (customer, product, date, store) → **dimensions** (`dim_`). History-
@@ -131,8 +122,8 @@ incremental). Snapshots live in `snapshots/`.
 
 A single star for one subject area: one (or few) `fct_` + its `dim_`s, minimal governance. Same
 generation as Kimball but without the conformed-dimension/bus-matrix ceremony — good for a focused
-mart or a quick migration to BI-friendly shape. **Hand off the generation to the
-`using-starschema4dbt` skill.**
+mart or a quick migration to BI-friendly shape. Generation mechanics in
+[building-starschema.md](building-starschema.md).
 
 - Facts + dimensions as above; surrogate keys optional (natural keys acceptable for a self-contained
   mart). SCD2 only where the legacy tracked history; otherwise Type-1 (overwrite) dims.
@@ -155,7 +146,7 @@ Whichever paradigm is chosen, Step 4 still applies — adapted to the architectu
 
 | | Data Vault | Kimball / Star |
 |---|---|---|
-| **Data tests** | Hashkey `unique` + `not_null` on hubs/links; link→hub `relationships`; satellite key+ldts uniqueness — via the `testing-a-datavault4dbt-project` skill. Plus grain tests on the info marts. | `unique` + `not_null` on the dim surrogate key and the fact grain; `relationships` from every fact FK to its dim; `accepted_values` on low-cardinality columns — via the `arguments:` spec ([dbt-best-practices.md](dbt-best-practices.md)). |
+| **Data tests** | Hashkey `unique` + `not_null` on hubs/links; link→hub `relationships`; satellite key+ldts uniqueness — see [building-datavault.md](building-datavault.md). Plus grain tests on the info marts. | `unique` + `not_null` on the dim surrogate key and the fact grain; `relationships` from every fact FK to its dim; `accepted_values` on low-cardinality columns — via the `arguments:` spec ([dbt-best-practices.md](dbt-best-practices.md)). |
 | **Docs** | Model + column descriptions on staging, entities, and info marts; state each hub's business key and each satellite's source/rate-of-change. | Model + column descriptions on every dim and fact; state the fact **grain** explicitly and each dimension's SCD type. |
 | **Contracts** | `contract: enforced` on the **public info marts** (the query-facing dims/facts). The raw vault is internal. | `contract: enforced` on published dims and facts (especially conformed dims in a Mesh producer); version them. |
 

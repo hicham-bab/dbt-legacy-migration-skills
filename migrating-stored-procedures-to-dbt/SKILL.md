@@ -55,7 +55,7 @@ link into its references for the common work.
 
 ```
 Stored Procedure → dbt Migration Progress:
-- [ ] Step 0: Detect environment & cloud (warehouse, source dialect, Fusion/Core, dev target, parity access)
+- [ ] Step 0: Detect environment & cloud (warehouse, source dialect, Fusion/Core, dev target, parity access, packages-vs-macros)
 - [ ] Step 1: Inventory & map the procedure (count all procedural steps)
 - [ ] Step 2: Choose target architecture (layered / Data Vault / Kimball / star), then classify into it
 - [ ] Step 3: Decompose to dbt SQL for the chosen architecture, with cost-aware materializations
@@ -94,9 +94,9 @@ Data Vault: hubs / links / satellites; dimensional: dims / facts). See foundatio
 Turn temp tables into CTEs/intermediate models, MERGE/upsert into `incremental`, full rebuilds into
 `table`, per [stored-proc-decomposition.md](references/stored-proc-decomposition.md), and apply the
 chosen architecture's generation pattern (foundations → target-architecture.md): **layered** →
-CTE models (+ snapshots for history); **Kimball / Star** → hand off to the `using-kimball4dbt` /
-`using-starschema4dbt` skill; **Data Vault** → hand off to the
-`using-datavault4dbt` skill, building info marts on top. Use
+CTE models (+ snapshots for history); **Kimball / Star** → follow foundations building-kimball.md /
+building-starschema.md; **Data Vault** → follow foundations
+building-datavault.md, building info marts on top. Use
 [sql-dialect-notes.md](references/sql-dialect-notes.md) for dialect specifics; defer heavy dialect
 translation to the `migrating-dbt-project-across-platforms` skill. Emit Fusion-conformant SQL.
 

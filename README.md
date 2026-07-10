@@ -19,9 +19,6 @@ skills are plain `SKILL.md` folders and work in any agent that supports the skil
 | [`migrating-stored-procedures-to-dbt`](migrating-stored-procedures-to-dbt) | SQL stored procedures (Snowflake, BigQuery, Databricks, T-SQL, PL/SQL) |
 | [`migrating-matillion-to-dbt`](migrating-matillion-to-dbt) | Matillion pipelines/jobs — DPC YAML (`.tran.yaml`/`.orch.yaml`), Matillion ETL JSON (export + git per-job forms), CDC/streaming, shared jobs |
 | [`legacy-to-dbt-migration-foundations`](legacy-to-dbt-migration-foundations) | *Shared reference library* — not invoked directly; the four migration skills link to it |
-| [`configuring-datavault4dbt`](configuring-datavault4dbt) · [`using-datavault4dbt`](using-datavault4dbt) · [`testing-a-datavault4dbt-project`](testing-a-datavault4dbt-project) | *Data Vault path* — Scalefree's datavault4dbt skills (Apache-2.0, vendored; see [ATTRIBUTION.md](ATTRIBUTION.md)) |
-| [`using-kimball4dbt`](using-kimball4dbt) | *Kimball path* — dimensional generation: conformed dims, facts at a declared grain, SCD2 via snapshots, surrogate keys (dbt-native) |
-| [`using-starschema4dbt`](using-starschema4dbt) | *Star path* — a single lightweight star (one fact + its dims) for a focused subject area |
 
 ## How they fit together
 
@@ -59,17 +56,16 @@ then generates the dbt models accordingly:
 - **Kimball dimensional** — conformed dimensions + fact tables, SCD2 via snapshots, surrogate keys.
 - **Star schema (pragmatic)** — facts + dimensions for a focused subject area.
 
-See `legacy-to-dbt-migration-foundations/references/target-architecture.md` for the legacy→paradigm
-mappings and per-paradigm performance guidance.
+The generation for each paradigm lives in the **shared foundations skill's references** — not as
+separate skills — so the install is just the four migration skills + foundations:
+`legacy-to-dbt-migration-foundations/references/target-architecture.md` (legacy→paradigm mapping +
+performance), `building-datavault.md`, `building-kimball.md`, `building-starschema.md`.
 
-> **Data Vault path:** the Data Vault option hands off to Scalefree's **datavault4dbt agent skills**.
-> The three needed to produce a migration — `configuring-datavault4dbt`, `using-datavault4dbt`,
-> `testing-a-datavault4dbt-project` — are **vendored here** (Apache-2.0). See
-> [ATTRIBUTION.md](ATTRIBUTION.md) for credit, source, and the modifications made. The upstream
-> `troubleshooting-` and `rehashing-datavault4dbt` skills (for fixing/upgrading an existing vault)
-> are not included — get them from
-> [`ScalefreeCOM/datavault4dbt-agent-skills`](https://github.com/ScalefreeCOM/datavault4dbt-agent-skills)
-> if needed. Kimball and star schema need nothing extra.
+> **Data Vault path:** `building-datavault.md` is **distilled** from Scalefree's
+> [datavault4dbt agent skills](https://github.com/ScalefreeCOM/datavault4dbt-agent-skills)
+> (Apache-2.0) — see [ATTRIBUTION.md](ATTRIBUTION.md). The `datavault4dbt` **package** itself is
+> installed on demand when Data Vault is chosen (see `dbt-packages.md`). For deeper Data Vault
+> coverage, install Scalefree's full skill set separately. Kimball and star need nothing extra.
 
 ## Install
 
@@ -79,7 +75,7 @@ dbt Wizard CLI:
 
 ```bash
 git clone https://github.com/hicham-bab/dbt-legacy-migration-skills.git
-cp -R dbt-legacy-migration-skills/{legacy-to-dbt-migration-foundations,migrating-*,configuring-datavault4dbt,using-datavault4dbt,testing-a-datavault4dbt-project,using-kimball4dbt,using-starschema4dbt} ~/.dbt/wizard/skills/
+cp -R dbt-legacy-migration-skills/{legacy-to-dbt-migration-foundations,migrating-*} ~/.dbt/wizard/skills/
 ```
 
 Claude Code (user-level skills):

@@ -62,7 +62,7 @@ link into its references for the common work.
 
 ```
 Matillion → dbt Migration Progress:
-- [ ] Step 0: Detect environment & cloud (warehouse, Fusion/Core, dev target, parity access)
+- [ ] Step 0: Detect environment & cloud (warehouse, Fusion/Core, dev target, parity access, packages-vs-macros)
 - [ ] Step 1: Inventory & map pipelines (transformation components = denominator; orchestration/EL noted)
 - [ ] Step 2: Choose target architecture (layered / Data Vault / Kimball / star), then classify into it
 - [ ] Step 3: Translate to dbt SQL for the chosen architecture, with cost-aware materializations
@@ -103,9 +103,9 @@ Translate each component using [matillion-component-mapping.md](references/matil
 for the SQL logic. Because Matillion is push-down ELT, the component graph already implies warehouse
 SQL. Apply the chosen architecture's generation pattern (foundations → target-architecture.md):
 **layered** → express as CTE models, `ref()`-ing upstream models where a `Table Input`
-reads a table another pipeline produced (Detect Changes → snapshot); **Kimball / Star** → hand off
-to the `using-kimball4dbt` / `using-starschema4dbt` skill; **Data Vault** → hand off to
-the `using-datavault4dbt` skill (stage → hub/link/satellite), building info marts on top. Pick
+reads a table another pipeline produced (Detect Changes → snapshot); **Kimball / Star** → follow
+foundations building-kimball.md / building-starschema.md; **Data Vault** → follow foundations
+building-datavault.md (stage → hub/link/satellite), building info marts on top. Pick
 materializations per the target cloud (foundations → cloud-detection-and-materializations.md). Emit
 Fusion-conformant SQL (`cast()`, `coalesce()`).
 
