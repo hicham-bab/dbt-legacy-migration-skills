@@ -95,8 +95,10 @@ contracts on public marts, and snapshots for any change-data-capture jobs. See f
 
 ### Step 5 — Validate: compile gate, then data parity
 
-`dbt compile` to 0 errors/warnings, then `dbt build`, then prove parity against the warehouse
-table each `tDBOutput` populated. See foundations →
+`dbt compile` to 0 errors/warnings, then `dbt build` into dev, then compare the **legacy
+production** table each `tDBOutput` populated to the **dbt dev** output (align the inputs first) and
+**explain every difference** — accept legitimate environment/platform differences, fix real logic
+bugs. See foundations →
 [data-validation.md](../legacy-to-dbt-migration-foundations/references/data-validation.md).
 
 ### Step 6 — Cost comparison: TCO + measured dev run

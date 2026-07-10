@@ -97,8 +97,10 @@ contracts on public marts. See foundations →
 
 ### Step 5 — Validate: compile gate, then data parity
 
-`dbt compile` to 0 errors/warnings, then `dbt build`, then prove parity against the existing
-warehouse target table for each mart. See foundations →
+`dbt compile` to 0 errors/warnings, then `dbt build` into dev, then compare the **legacy
+production** target table to the **dbt dev** output for each mart (align the inputs first) and
+**explain every difference** — accept legitimate environment/platform differences, fix real logic
+bugs. See foundations →
 [data-validation.md](../legacy-to-dbt-migration-foundations/references/data-validation.md).
 
 ### Step 6 — Cost comparison: TCO + measured dev run

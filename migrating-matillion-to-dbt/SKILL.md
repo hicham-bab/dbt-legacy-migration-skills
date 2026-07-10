@@ -109,8 +109,10 @@ foundations → [dbt-best-practices.md](../legacy-to-dbt-migration-foundations/r
 
 ### Step 5 — Validate: compile gate, then data parity
 
-`dbt compile` to 0 errors/warnings, then `dbt build`, then prove parity against the table each
-`Rewrite Table` / `Table Output` produced. See foundations →
+`dbt compile` to 0 errors/warnings, then `dbt build` into dev, then compare the **legacy
+production** table each `Rewrite Table` / `Table Output` produced to the **dbt dev** output (align
+the inputs first) and **explain every difference** — accept legitimate environment/platform
+differences, fix real logic bugs. See foundations →
 [data-validation.md](../legacy-to-dbt-migration-foundations/references/data-validation.md).
 
 ### Step 6 — Cost comparison: TCO + measured dev run
