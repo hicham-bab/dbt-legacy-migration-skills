@@ -69,6 +69,32 @@ Talend expression syntax → Fusion-conformant SQL:
 
 Always emit `cast()` (never `::`) and `coalesce()` (never `nvl`/`ifnull`).
 
+### Java operators & literals — the common failure point
+
+Talend expressions are **Java**, not SQL. Translating the function names (above) but leaving Java
+operators produces **invalid SQL**. The same token can mean different things by context — read it
+carefully:
+
+| Talend / Java | SQL | Note |
+|---|---|---|
+| `a + b` where a/b are **strings** | `a \|\| b` | Java `+` is **string concatenation** → SQL `\|\|` (or `concat`) |
+| `a + b` where a/b are **numbers** | `a + b` | numeric `+` stays `+` |
+| `"text"` (double quotes) | `'text'` (single quotes) | Java string literal → SQL string literal |
+| `cond1 \|\| cond2` (booleans) | `cond1 or cond2` | Java `\|\|` is **logical OR**, *not* concat, in a boolean context |
+| `cond1 && cond2` | `cond1 and cond2` | logical AND |
+| `!cond` | `not cond` | |
+| `row1.status.equals("premium")` | `status = 'premium'` | Java `.equals()` → `=` |
+| `!row1.status.equals("x")` | `status <> 'x'` | negated equals |
+| `a == b` / `a != b` | `a = b` / `a <> b` | Java equality (for non-strings) |
+| `cond ? x : y` (ternary) | `case when cond then x else y end` | |
+| `row1.a.compareTo(row1.b) > 0` | `a > b` | |
+
+Worked example (a real `tMap` output): Talend
+`StringHandling.TRIM(row1.first_name) + " " + StringHandling.TRIM(row1.last_name)` →
+`trim(first_name) || ' ' || trim(last_name)`; Talend `row1.status.equals("premium")` →
+`status = 'premium'`; filter `row1.status.equals("active") || row1.status.equals("premium")` →
+`where status in ('active', 'premium')`.
+
 ## Structural rules
 
 1. Wrap logic in CTEs; name the final CTE `final`; last line `select * from final`.
@@ -77,3 +103,12 @@ Always emit `cast()` (never `::`) and `coalesce()` (never `nvl`/`ifnull`).
 4. No `CREATE TABLE`/`VIEW`/`INSERT` — dbt owns materialization.
 5. Give CTEs meaningful names (one per logical component: `source`, `filtered`, `joined`,
    `aggregated`, `final`).
+6. **Reuse, don't recompute.** If one component's FLOW output feeds **multiple** downstream
+   components, build it **once** as an intermediate (`int_`) model and `ref()` it from each — don't
+   duplicate the logic. Example: a `tMap` whose output goes to both a `tDBOutput` (a fact) *and* a
+   `tAggregateRow` (a summary) → make `int_<entity>` for the tMap result, then `fct_<entity>` and the
+   aggregate both `ref('int_<entity>')`.
+7. **Trigger edges are not data flow.** A `tDBOutput → tAggregateRow` link with `connectorName`
+   `ON_SUBJOB_OK`/`ON_COMPONENT_OK` only means "run after"; the aggregate's *data* comes from its
+   `FLOW`/`LOOKUP` input (often the same tMap), not from the fact table. Don't `ref()` the fact as
+   the aggregate's source because of a trigger edge.
