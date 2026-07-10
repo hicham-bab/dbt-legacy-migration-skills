@@ -1,7 +1,7 @@
 # PowerCenter transformation → dbt answer key (Step 3)
 
 The translation table for each PowerCenter transformation type. Grounded in
-`~/informatica-retail-legacy/snowflake/04_edw_load_simulation.sql`, where each mapping is
+`a reference SQL simulation of the workflow (each mapping replicated in SQL)`, where each mapping is
 replicated in SQL (tagged with its `[m_...]` name) — treat that file as the worked answer key.
 
 ## Contents

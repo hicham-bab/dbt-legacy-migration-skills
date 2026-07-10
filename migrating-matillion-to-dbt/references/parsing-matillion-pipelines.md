@@ -3,7 +3,7 @@
 Matillion workflows come in several forms across two product generations and multiple export
 mechanisms. This reference covers **all** of them. Structure below is grounded in Matillion docs
 and **real exported files** (DPC YAML and METL JSON verified from public repos; sample METL files
-live in `~/matillion-retail-demo/matillion/metl_samples/`).
+live in `real Matillion ETL JSON exports`).
 
 ## Contents
 
@@ -177,7 +177,7 @@ Regardless of form, the same split governs what maps to dbt:
 7. Hand the inventory to Step 2 (classification) and each component's parameters to Step 3
    ([matillion-component-mapping.md](matillion-component-mapping.md)).
 
-> **Reference fixtures:** `~/matillion-retail-demo/matillion/` holds hand-authored DPC YAML plus
+> **Reference fixtures:** `example Matillion exports` holds hand-authored DPC YAML plus
 > **real** METL JSON samples under `metl_samples/` (export form and a `.ORCHESTRATION` git-form
 > file), and `test_parse.py` walks both DPC YAML and METL JSON using this reference's algorithm.
 > Verify against the user's *actual* export early: if a component `type`/`implementationID` or

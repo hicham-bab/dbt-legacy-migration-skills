@@ -1,8 +1,8 @@
 # dbt best practices: SQL, tests, docs, contracts, snapshots (Step 4)
 
 Every migrated model must ship Fusion-conformant SQL, tests, docs, and (for public marts)
-contracts. Sourced from the `SCHEMA_WRITER_SYSTEM` prompt in `~/talend-to-dbt/.../generation/prompts.py`
-and the governance assets in `~/dbt-oracle-to-databricks/` (`_marts.yml`, `groups.yml`, `exposures.yml`).
+contracts. Sourced from the `SCHEMA_WRITER_SYSTEM` prompt in `a proven Talend→dbt schema/test-generation prompt`
+and the governance assets in `an Oracle→Databricks migration project` (`_marts.yml`, `groups.yml`, `exposures.yml`).
 
 **Use packages, don't hand-type** (see [dbt-packages.md](dbt-packages.md)): scaffold the YAML with
 **codegen** (`generate_model_yaml`, `generate_source`), then enrich it; add generic tests from

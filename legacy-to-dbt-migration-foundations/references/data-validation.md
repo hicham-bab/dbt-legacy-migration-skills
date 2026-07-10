@@ -4,9 +4,8 @@ Compilation success is not correctness. This step proves the migrated dbt models
 **same data** the legacy job produced, by comparing the **legacy production output** (the table the
 old tool populates in prod) against the **dbt dev output** (what the migrated models build in your
 dev target) — and, for every difference, explaining *why* it exists and deciding whether it's an
-accepted difference or a bug to fix. Patterns sourced from
-`~/dbt-gcp-retail-copilot/analyses/validate_ltv_migration.sql` (row-for-row diff) and
-`~/dbt-oracle-to-databricks/validation/parity_checks.sql` (aggregate baseline).
+accepted difference or a bug to fix. Two parity patterns are shown below: a row-for-row
+full-outer-join diff and an aggregate + row-count baseline.
 
 ## Contents
 

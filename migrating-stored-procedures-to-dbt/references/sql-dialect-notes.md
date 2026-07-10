@@ -3,7 +3,7 @@
 Stored procedures come in several dialects. This reference covers the **procedural** constructs
 per dialect (how to recognize and decompose them) and points to the right tool for **expression/
 function** dialect translation. Function-level translation detail is sourced from
-`~/dbt-oracle-to-databricks/MIGRATION_NOTES.md` (a full Oracle→Databricks answer key).
+`an Oracle→Databricks translation answer key` (a full Oracle→Databricks answer key).
 
 ## Contents
 
