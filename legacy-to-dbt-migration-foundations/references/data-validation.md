@@ -12,8 +12,9 @@ accepted difference or a bug to fix. Patterns sourced from
 
 - [The compile gate (free)](#the-compile-gate-free)
 - [Set up the comparison: legacy prod vs dbt dev](#set-up-the-comparison-legacy-prod-vs-dbt-dev)
-- [Pattern A: row-for-row parity](#pattern-a-row-for-row-parity)
-- [Pattern B: aggregate + row-count baseline](#pattern-b-aggregate--row-count-baseline)
+- [Preferred tool: audit_helper](#preferred-tool-audit_helper)
+- [Pattern A: row-for-row parity (fallback)](#pattern-a-row-for-row-parity-fallback)
+- [Pattern B: aggregate + row-count baseline (fallback)](#pattern-b-aggregate--row-count-baseline-fallback)
 - [Explaining the differences](#explaining-the-differences)
 - [Running the checks & recording the result](#running-the-checks--recording-the-result)
 
@@ -49,9 +50,46 @@ you compare — otherwise you'll misread an environment difference as a logic bu
 
 Only after inputs are aligned does a remaining difference point to the *transformation logic*.
 
-## Pattern A: row-for-row parity
+## Preferred tool: audit_helper
 
-Best when the legacy prod table is queryable. Full-outer-join the dbt dev model to the legacy prod
+**Use the `audit_helper` package rather than a hand-written diff** — it's dbt Labs' official
+migration-validation tooling and does row- and column-level classification for you. Add
+`dbt-labs/audit_helper` to `packages.yml` (`dbt deps`); see
+[dbt-packages.md](dbt-packages.md#audit_helper--the-validation-centerpiece). Use the current
+**classify** macros (not the legacy `compare_relations`/`compare_queries`).
+
+1. **Fast yes/no** — is the dbt-dev model already identical to legacy prod?
+   ```sql
+   {{ audit_helper.quick_are_relations_identical(
+        a_relation=ref('fct_sales'),
+        b_relation=source('legacy_prod', 'fct_sales')) }}
+   ```
+2. **Classified row comparison** — summary of identical / added / removed / modified rows:
+   ```sql
+   {{ audit_helper.compare_and_classify_relation_rows(
+        a_relation=ref('fct_sales'),
+        b_relation=source('legacy_prod', 'fct_sales'),
+        primary_key_columns=['sales_key']) }}
+   ```
+   (Or `compare_and_classify_query_results(a_query, b_query, primary_key_columns=[...])` to compare
+   two queries — e.g. to restrict both sides to the overlapping time window.)
+3. **Find the differing columns**, then drill in:
+   ```sql
+   {{ audit_helper.compare_which_relation_columns_differ(
+        a_relation=ref('fct_sales'), b_relation=source('legacy_prod','fct_sales'),
+        primary_key_columns=['sales_key']) }}
+   -- then compare_column_values(a_query, b_query, primary_key, column_to_compare) on each flagged column
+   ```
+4. **Schema diff** (column order + types): `audit_helper.compare_relation_columns(...)`.
+
+Put these in an `analyses/validate_<entity>.sql`, `dbt compile`, and run the compiled SQL (or via the
+dbt MCP `execute_sql`). Every non-identical row is a difference to **explain** (see below) — not
+automatically a bug. Use the classify output (added/removed/modified counts + differing columns) to
+drive the explanation.
+
+## Pattern A: row-for-row parity (fallback)
+
+Use only when audit_helper can't be installed. Full-outer-join the dbt dev model to the legacy prod
 table on the grain; return **only mismatches**. Zero rows = perfect parity.
 
 ```sql
@@ -82,7 +120,7 @@ where diff_type is not null
 Use `round()` on decimals to absorb legitimate cross-platform floating-point noise. Every returned
 row is a difference to **explain** (next section), not automatically a bug.
 
-## Pattern B: aggregate + row-count baseline
+## Pattern B: aggregate + row-count baseline (fallback)
 
 Best when a full row-level compare is too large, or the legacy prod table can't be queried directly
 but its metrics were captured. Take a baseline of row counts + key aggregates from the legacy prod

@@ -27,23 +27,33 @@ Every migration, regardless of source, must:
 the fast iteration gate; **data parity against the warehouse** is the proof the migration
 preserved business logic. Never declare a migration done on a clean compile alone.
 
+**Provision packages on demand — don't bundle or assume them.** The skill is smart about the dbt
+package ecosystem: as each step needs a maintained, Fusion-compatible package, it adds *only that
+package* to the **target project's** `packages.yml` (pinned to a Fusion-badged version), runs
+`dbt deps`, and uses it — **codegen** to scaffold, **audit_helper** to prove parity, **dbt_utils** +
+**dbt_expectations** for tests, **dbt_project_evaluator** as the quality gate, **datavault4dbt** /
+**dbt_date** only when the chosen architecture needs them. Never bloat `packages.yml` with unused
+packages. See [dbt-packages.md](references/dbt-packages.md).
+
 ## The shared 8-step workflow
 
 The migration skills implement these steps. Each links to the reference that carries the detail.
 
 - **Step 0 – Detect environment & cloud** → [cloud detection & materializations](references/cloud-detection-and-materializations.md)
 - **Step 1 – Inventory & map the legacy workload** → *source-specific* (see the calling skill's parsing reference)
-- **Step 2 – Classify into dbt layers + detect Mesh** → [layer classification](references/layer-classification.md)
-- **Step 3 – Translate to dbt SQL with cost-aware materializations** → *source-specific mapping* + [materializations](references/cloud-detection-and-materializations.md)
+- **Step 2 – Choose target architecture, then classify into it** → [target architecture](references/target-architecture.md) + [layer classification](references/layer-classification.md)
+- **Step 3 – Translate to dbt SQL (per chosen architecture) with cost-aware materializations** → *source-specific mapping* + [target architecture](references/target-architecture.md) + [materializations](references/cloud-detection-and-materializations.md)
 - **Step 4 – Apply best practices: tests, docs, contracts, snapshots** → [dbt best practices](references/dbt-best-practices.md)
 - **Step 5 – Validate: compile gate, then data parity** → [data validation](references/data-validation.md)
-- **Step 6 – Cost comparison: TCO + measured dev run** → [cost comparison](references/cost-comparison.md)
+- **Step 6 – Cost comparison: measured, apples-to-apples** → [cost comparison](references/cost-comparison.md)
 - **Step 7 – Coverage report (confirm ≥95%, flag residual)** → [coverage report](references/coverage-report.md)
 - **Step 8 – Document in migration_changes.md** → template in the calling skill
 
 ## Additional Resources
 
+- [dbt-packages.md](references/dbt-packages.md) — **provision packages on demand**: detect what this migration needs, add only those to the target `packages.yml` + `dbt deps` (codegen, audit_helper, dbt_utils, dbt_expectations, dbt_project_evaluator, dbt_date), Fusion-pinned
 - [cloud-detection-and-materializations.md](references/cloud-detection-and-materializations.md) — questions to ask up front; per-platform cost-aware materialization guidance
+- [target-architecture.md](references/target-architecture.md) — ask the migrator which paradigm (layered / Data Vault / Kimball / star) and generate accordingly
 - [layer-classification.md](references/layer-classification.md) — source → staging → intermediate → mart mapping with confidence scoring and Mesh detection
 - [dbt-best-practices.md](references/dbt-best-practices.md) — Fusion-conformant SQL, tests, docs, contracts, snapshots
 - [data-validation.md](references/data-validation.md) — compile gate + two data-parity patterns against the warehouse
@@ -68,3 +78,7 @@ These existing skills already do parts of the job — reference them, don't dupl
 - `running-dbt-commands` — selecting the right dbt executable and formatting commands
 - `migrating-dbt-project-across-platforms` — SQL dialect translation via Fusion real-time compile
 - `building-dbt-semantic-layer` — optional metrics on top of the migrated marts
+- `configuring-datavault4dbt`, `using-datavault4dbt`, `testing-a-datavault4dbt-project` — the three
+  Scalefree datavault4dbt skills (Apache-2.0) the Data Vault path hands off to in Step 3
+- `using-kimball4dbt`, `using-starschema4dbt` — the dimensional generation skills the Kimball and
+  Star paths hand off to in Step 3

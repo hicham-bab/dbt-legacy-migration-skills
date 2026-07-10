@@ -8,7 +8,18 @@ silently dropped.
 
 - [How to compute coverage](#how-to-compute-coverage)
 - [What counts as the residual](#what-counts-as-the-residual)
+- [Quality gate: dbt_project_evaluator](#quality-gate-dbt_project_evaluator)
 - [Report template](#report-template)
+
+## Quality gate: dbt_project_evaluator
+
+Alongside the coverage number, run **`dbt_project_evaluator`** (dbt-labs) as an automated
+best-practice gate on the migrated project — it flags undocumented/untested models, direct
+source references, model fanout, staging↔source 1:1 violations, and naming/structure issues.
+Install it, then `dbt build --select package:dbt_project_evaluator`; treat its failures as
+follow-ups (or exempt with justification via its seed). See
+[dbt-packages.md](dbt-packages.md). A migration isn't "done" just at ≥95% coverage — it should also
+pass (or have documented exceptions to) the evaluator.
 
 ## How to compute coverage
 
