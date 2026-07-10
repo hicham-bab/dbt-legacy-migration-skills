@@ -44,17 +44,28 @@ these terms (view / table / incremental / ephemeral)? Explain them from
 [dbt-concepts-explained.md](dbt-concepts-explained.md#materializations-view-table-incremental-ephemeral)
 as you go.
 
-| Legacy pattern | dbt materialization | Notes |
-|---|---|---|
-| Full rebuild of a table each run (`CREATE OR REPLACE TABLE`, truncate+insert) | `table` | Default for marts. |
-| Lightweight transform, no heavy compute, read often | `view` | Staging models. |
-| Append / merge-on-key / upsert (`MERGE`, Update Strategy insert-else-update) | `incremental` | Use `unique_key` + an incremental strategy; see per-platform notes. |
-| SCD Type 2 (history preserved: effective/expiry dates, current flag) | **snapshot** | Do NOT hand-roll SCD2 in a model — use a dbt snapshot. |
-| Reusable subroutine reused by several jobs (mapplet, `tRunJob`, shared proc) | `ephemeral` model or macro | Inline where small; intermediate model where reused. |
+dbt has five built-in materializations (`view`, `table`, `incremental`, `ephemeral`,
+`materialized view`); the default is `view`. Per the [dbt docs](https://docs.getdbt.com/docs/build/materializations),
+the rule is **progressive — start as a view, promote only when needed:**
 
-Default to `view` for staging and `table` for marts unless the legacy job clearly upserts on a
-key (then `incremental`) or preserves history (then snapshot). Prefer incremental for large,
-frequently-run fact loads — it is the single biggest compute saving in most migrations.
+| Legacy pattern / need | dbt materialization | Notes (dbt docs) |
+|---|---|---|
+| Light rename/cast, read often (staging) | `view` | The default; "start with views… only change when you notice performance problems." |
+| A mart/output that's **slow to query** (BI-facing, many downstream models) | `table` | Promote view → table when querying is slow. |
+| A large/event-style table whose **table build** is slow | `incremental` | Only after table is slow — "**don't start with incremental models.**" Needs `unique_key` (a **list**) + `is_incremental()` filter. |
+| SCD Type 2 (history preserved) | **snapshot** | Do NOT hand-roll SCD2 in a model — use a dbt snapshot. |
+| Light reusable logic used by 1–2 downstream models | `ephemeral` | Inlined as a CTE; can't be queried directly and doesn't support contracts. |
+
+**Incremental strategies** (`incremental_strategy`, per the
+[docs](https://docs.getdbt.com/docs/build/incremental-strategy)): `append`, `merge` (upsert on
+`unique_key`; mirrors SCD1), `delete+insert`, `insert_overwrite` (partition-based, ignores
+`unique_key`), and `microbatch` (large time-series via a configured `event_time`). Map legacy
+MERGE/upsert → `merge`; truncate+insert of a partition → `insert_overwrite`; append-only → `append`.
+`on_schema_change` handles new/changed columns (`ignore`/`append_new_columns`/`sync_all_columns`).
+
+So: recommend `view` first; go to `table` when it's slow to query and to `incremental` when it's
+slow to build. Incremental is still the biggest compute saving for large, frequently-run facts — but
+per the docs it's an optimization you reach for, not the starting point.
 
 ## Per-platform cost-aware guidance
 

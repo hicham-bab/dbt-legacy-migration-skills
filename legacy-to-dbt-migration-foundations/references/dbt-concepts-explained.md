@@ -61,7 +61,10 @@ A **materialization** is *how* dbt persists a model's `SELECT`:
 - **ephemeral** — not built in the warehouse at all; dbt inlines the SQL into whatever model
   `ref()`s it (like a reusable CTE). Good for small helper logic.
 
-Rule of thumb: view = staging, table = marts, incremental = big/frequently-updated tables.
+Rule of thumb (the dbt docs' progression): **start every model as a view**; promote it to a **table**
+once it's slow to *query*; switch to **incremental** only once that table is slow to *build* — "don't
+start with incremental models." So in practice staging stays views, marts become tables, and only big
+event/fact tables become incremental.
 
 ## Snapshots and SCD (tracking history)
 
@@ -113,3 +116,13 @@ and type-checks your SQL in real time (catching errors before you touch the ware
 migration prefers Fusion because that fast, free feedback loop makes the work quicker and safer.
 "Fusion-conformant SQL" just means standard SQL that Fusion accepts (`cast(...)` not `::`,
 `coalesce()` not `nvl()`).
+
+## Learn more (official dbt docs)
+
+Everything above is grounded in the dbt documentation — send newcomers to the source:
+[materializations](https://docs.getdbt.com/docs/build/materializations),
+[incremental models](https://docs.getdbt.com/docs/build/incremental-models),
+[snapshots](https://docs.getdbt.com/docs/build/snapshots),
+[data tests](https://docs.getdbt.com/docs/build/data-tests),
+[model contracts](https://docs.getdbt.com/docs/mesh/govern/model-contracts), and
+[How we structure our dbt projects](https://docs.getdbt.com/best-practices/how-we-structure/1-guide-overview).
