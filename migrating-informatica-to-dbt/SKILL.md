@@ -53,7 +53,7 @@ link into its references for the common work.
 
 ```
 Informatica → dbt Migration Progress:
-- [ ] Step 0: Detect environment & cloud (warehouse, Fusion/Core, dev target, parity access)
+- [ ] Step 0: Detect environment & cloud (warehouse, Fusion/Core, dev target, parity access, packages-vs-macros)
 - [ ] Step 1: Inventory & map the PowerCenter workload (count all mappings/transformations)
 - [ ] Step 2: Choose target architecture (layered / Data Vault / Kimball / star), then classify into it
 - [ ] Step 3: Translate to dbt SQL for the chosen architecture, with cost-aware materializations

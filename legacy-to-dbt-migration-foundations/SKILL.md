@@ -27,13 +27,15 @@ Every migration, regardless of source, must:
 the fast iteration gate; **data parity against the warehouse** is the proof the migration
 preserved business logic. Never declare a migration done on a clean compile alone.
 
-**Provision packages on demand — don't bundle or assume them.** The skill is smart about the dbt
-package ecosystem: as each step needs a maintained, Fusion-compatible package, it adds *only that
-package* to the **target project's** `packages.yml` (pinned to a Fusion-badged version), runs
-`dbt deps`, and uses it — **codegen** to scaffold, **audit_helper** to prove parity, **dbt_utils** +
-**dbt_expectations** for tests, **dbt_project_evaluator** as the quality gate, **datavault4dbt** /
-**dbt_date** only when the chosen architecture needs them. Never bloat `packages.yml` with unused
-packages. See [dbt-packages.md](references/dbt-packages.md).
+**Packages: ask first, provision on demand, hub-only.** The skill doesn't bundle or assume packages.
+At Step 0 it **asks the migrator** whether to use external dbt packages or stay self-contained
+(skill-written macros). If packages are allowed, it installs **only from hub.getdbt.com** (never
+git/tarball/private sources) and **only** what each step detects it needs — `dbt_utils`, `codegen`,
+`audit_helper`, `dbt_expectations`, `dbt_project_evaluator`, `datavault4dbt`/`dbt_date` per
+architecture — pinned to a Fusion-badged version, then `dbt deps`. It never hand-rolls boilerplate a
+hub package solves (when packages are allowed), and never bloats `packages.yml`. If the migrator
+declines packages, it generates the equivalent macros instead. See
+[dbt-packages.md](references/dbt-packages.md).
 
 ## The shared 8-step workflow
 
@@ -51,7 +53,7 @@ The migration skills implement these steps. Each links to the reference that car
 
 ## Additional Resources
 
-- [dbt-packages.md](references/dbt-packages.md) — **provision packages on demand**: detect what this migration needs, add only those to the target `packages.yml` + `dbt deps` (codegen, audit_helper, dbt_utils, dbt_expectations, dbt_project_evaluator, dbt_date), Fusion-pinned
+- [dbt-packages.md](references/dbt-packages.md) — **packages vs macros**: ask the migrator, then either install only-what's-needed from **hub.getdbt.com** (Fusion-pinned) or generate self-contained macros; the need→package/macro map
 - [cloud-detection-and-materializations.md](references/cloud-detection-and-materializations.md) — questions to ask up front; per-platform cost-aware materialization guidance
 - [target-architecture.md](references/target-architecture.md) — ask the migrator which paradigm (layered / Data Vault / Kimball / star) and map the workload into it
 - [building-datavault.md](references/building-datavault.md) — generate a Data Vault with the datavault4dbt package (distilled from Scalefree, Apache-2.0)

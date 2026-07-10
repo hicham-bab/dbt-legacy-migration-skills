@@ -53,7 +53,7 @@ link into its references for the common work.
 
 ```
 Talend → dbt Migration Progress:
-- [ ] Step 0: Detect environment & cloud (warehouse, Fusion/Core, dev target, parity access)
+- [ ] Step 0: Detect environment & cloud (warehouse, Fusion/Core, dev target, parity access, packages-vs-macros)
 - [ ] Step 1: Inventory & map the Talend jobs (count all components)
 - [ ] Step 2: Choose target architecture (layered / Data Vault / Kimball / star), then classify into it
 - [ ] Step 3: Translate to dbt SQL for the chosen architecture, with cost-aware materializations

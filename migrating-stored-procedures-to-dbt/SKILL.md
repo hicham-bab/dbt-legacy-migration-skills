@@ -55,7 +55,7 @@ link into its references for the common work.
 
 ```
 Stored Procedure → dbt Migration Progress:
-- [ ] Step 0: Detect environment & cloud (warehouse, source dialect, Fusion/Core, dev target, parity access)
+- [ ] Step 0: Detect environment & cloud (warehouse, source dialect, Fusion/Core, dev target, parity access, packages-vs-macros)
 - [ ] Step 1: Inventory & map the procedure (count all procedural steps)
 - [ ] Step 2: Choose target architecture (layered / Data Vault / Kimball / star), then classify into it
 - [ ] Step 3: Decompose to dbt SQL for the chosen architecture, with cost-aware materializations
