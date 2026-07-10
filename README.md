@@ -69,22 +69,29 @@ performance), `building-datavault.md`, `building-kimball.md`, `building-starsche
 
 ## Install
 
-Clone, then copy the skill folders into your agent's skills directory.
-
-dbt Wizard CLI:
+**One command** — installs (or updates) all five skills, then restart your agent:
 
 ```bash
 git clone https://github.com/hicham-bab/dbt-legacy-migration-skills.git
-cp -R dbt-legacy-migration-skills/{legacy-to-dbt-migration-foundations,migrating-*} ~/.dbt/wizard/skills/
+cd dbt-legacy-migration-skills && ./install.sh          # dbt Wizard (~/.dbt/wizard/skills)
+#                                  ./install.sh --claude # Claude Code (~/.agents/skills)
 ```
 
-Claude Code (user-level skills):
+`install.sh` copies just the five skill folders into your skills directory and leaves everything
+else untouched. **It's safe to re-run to update** — it cleanly replaces only these folders. (Use
+`--dest <path>` for a custom location.) After it finishes, **restart the agent** so it reloads the
+skill list.
 
-```bash
-cp -R dbt-legacy-migration-skills/{legacy-to-dbt-migration-foundations,migrating-*} ~/.agents/skills/
-```
+<details><summary>Alternatives (no script)</summary>
 
-Install all five together — the four migration skills reference
+- **From inside dbt Wizard**, ask it to install with the built-in installer:
+  `install-skill-from-github.py --repo hicham-bab/dbt-legacy-migration-skills --path legacy-to-dbt-migration-foundations migrating-informatica-to-dbt migrating-talend-to-dbt migrating-stored-procedures-to-dbt migrating-matillion-to-dbt`
+  (clean download; note it aborts if a skill folder already exists, so remove the old ones first when updating).
+- **Manual copy:** `cp -R {legacy-to-dbt-migration-foundations,migrating-*} ~/.dbt/wizard/skills/`.
+
+</details>
+
+Install **all five together** — the four migration skills reference
 `legacy-to-dbt-migration-foundations` by relative path, so it must sit alongside them.
 
 ## Usage
