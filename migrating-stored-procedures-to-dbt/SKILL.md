@@ -99,8 +99,10 @@ foundations → [dbt-best-practices.md](../legacy-to-dbt-migration-foundations/r
 
 ### Step 5 — Validate: compile gate, then row-for-row parity
 
-`dbt compile` to 0 errors/warnings, then `dbt build`, then full-outer-join the mart to the
-procedure's current output table on the grain — zero mismatches = parity. See foundations →
+`dbt compile` to 0 errors/warnings, then `dbt build` into dev, then full-outer-join the **dbt dev**
+mart to the procedure's **production** output table on the grain (align the inputs first) — zero
+mismatches = parity, and **explain every difference** (accept legitimate environment/platform
+differences, fix real logic bugs). See foundations →
 [data-validation.md](../legacy-to-dbt-migration-foundations/references/data-validation.md).
 
 ### Step 6 — Cost comparison: TCO + measured dev run
