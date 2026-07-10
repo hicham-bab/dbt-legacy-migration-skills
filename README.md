@@ -1,5 +1,7 @@
 # dbt legacy migration skills
 
+[![CI](https://github.com/hicham-bab/dbt-legacy-migration-skills/actions/workflows/ci.yml/badge.svg)](https://github.com/hicham-bab/dbt-legacy-migration-skills/actions/workflows/ci.yml)
+
 A set of agent skills that migrate legacy ETL/ELT workloads to dbt — mapping the original
 workload, translating it into dbt with best practices (tests, docs, contracts), validating the
 result against real warehouse data, choosing cost-aware materializations for the target cloud, and
@@ -98,6 +100,20 @@ Once installed, ask the agent to migrate a project and point it at the source ar
 
 The skill runs the 8-step workflow, asks which cloud you're targeting, and produces the dbt
 models, tests, docs, a parity check, a cost comparison, and a coverage report.
+
+## Runnable example (no warehouse needed)
+
+[`examples/stored-proc-to-dbt-duckdb/`](examples/stored-proc-to-dbt-duckdb) is a complete
+stored-procedure → dbt migration you can run in ~10 seconds on **DuckDB** — no cloud, no
+credentials — that **proves the migrated model matches the legacy output** via a real `dbt build`:
+
+```bash
+pip install dbt-duckdb
+cd examples/stored-proc-to-dbt-duckdb && DBT_PROFILES_DIR=. dbt deps && DBT_PROFILES_DIR=. dbt build
+```
+
+A green build = the parity gate passed (mart == legacy output, row-for-row) and the tests pass. CI
+runs this on every push/PR.
 
 ## Scope & caveats
 

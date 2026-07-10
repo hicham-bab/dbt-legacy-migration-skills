@@ -1,0 +1,36 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  skills:
+    name: Validate skills & links
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Validate skill frontmatter and links
+        run: python ci/check_skills.py
+
+  example:
+    name: Run stored-proc → dbt example on DuckDB
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install dbt-duckdb
+        run: pip install dbt-duckdb
+      - name: dbt deps + build (parity gate must pass)
+        working-directory: examples/stored-proc-to-dbt-duckdb
+        env:
+          DBT_PROFILES_DIR: .
+        run: |
+          dbt deps
+          dbt build

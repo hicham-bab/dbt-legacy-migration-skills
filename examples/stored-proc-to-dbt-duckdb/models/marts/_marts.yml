@@ -1,0 +1,19 @@
+models:
+  - name: mart_customer_ltv
+    description: Customer lifetime value over completed orders. Grain - one row per customer. Migrated from the legacy sp_customer_ltv stored procedure.
+    columns:
+      - name: customer_id
+        description: Customer identifier (grain).
+        data_tests:
+          - unique
+          - not_null
+      - name: lifetime_value
+        description: Sum of completed-order amounts for the customer.
+        data_tests:
+          - not_null
+      - name: ltv_segment
+        description: Value tier derived from lifetime_value.
+        data_tests:
+          - accepted_values:
+              arguments:
+                values: ['high', 'low']

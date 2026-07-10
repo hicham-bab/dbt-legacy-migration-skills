@@ -1,0 +1,16 @@
+name: stored_proc_duckdb
+version: 1.0.0
+profile: stored_proc_duckdb
+require-dbt-version: [">=1.9.0"]
+
+model-paths: ["models"]
+seed-paths: ["seeds"]
+analysis-paths: ["analyses"]
+test-paths: ["tests"]
+
+models:
+  stored_proc_duckdb:
+    staging:
+      +materialized: view
+    marts:
+      +materialized: table

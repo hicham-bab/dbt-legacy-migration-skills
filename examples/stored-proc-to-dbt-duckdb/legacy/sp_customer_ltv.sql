@@ -1,0 +1,21 @@
+-- LEGACY stored procedure (reference only — not executed by dbt).
+-- This is the kind of artifact `migrating-stored-procedures-to-dbt` takes as input:
+-- a procedural rebuild of a target table using temp tables + a full CREATE OR REPLACE.
+--
+-- CREATE OR REPLACE PROCEDURE build_customer_ltv() AS
+-- BEGIN
+--   CREATE TEMP TABLE _completed AS
+--     SELECT customer_id, amount FROM raw_orders WHERE status = 'completed';
+--   CREATE OR REPLACE TABLE analytics.customer_ltv AS
+--     SELECT
+--       customer_id,
+--       SUM(amount)               AS lifetime_value,
+--       COUNT(*)                  AS order_count,
+--       CASE WHEN SUM(amount) >= 150 THEN 'high' ELSE 'low' END AS ltv_segment
+--     FROM _completed
+--     GROUP BY customer_id;
+-- END;
+--
+-- The migration decomposes this into ref()-based dbt models (see models/) and proves the
+-- new mart matches this procedure's output (captured as seeds/legacy_customer_ltv.csv).
+select 1 as placeholder
