@@ -90,8 +90,8 @@ foundations → [layer-classification.md](../legacy-to-dbt-migration-foundations
 Translate each component using [talend-component-mapping.md](references/talend-component-mapping.md)
 for the SQL logic, and apply the chosen architecture's generation pattern (foundations →
 target-architecture.md): **layered** → CTE models (+ snapshots for change-data-capture);
-**Kimball / Star** → hand off to the `using-kimball4dbt` / `using-starschema4dbt` skill;
-**Data Vault** → hand off to the `using-datavault4dbt` skill (stage → hub/link/satellite), building
+**Kimball / Star** → follow foundations building-kimball.md / building-starschema.md;
+**Data Vault** → follow foundations building-datavault.md (stage → hub/link/satellite), building
 info marts on top. Pick materializations per the target cloud
 (foundations → cloud-detection-and-materializations.md). Emit Fusion-conformant SQL
 (`cast()`, `coalesce()`, CTEs, `ref()`/`source()`).

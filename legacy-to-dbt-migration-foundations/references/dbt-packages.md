@@ -47,7 +47,7 @@ once). Don't pre-install packages a given migration won't touch.
 | Generic tests beyond the built-ins | **dbt-labs/dbt_utils** (`unique_combination_of_columns`, `accepted_range`) + **metaplane/dbt_expectations** (`expect_column_values_to_be_between`, `_to_match_regex`, `_to_be_in_set`) |
 | Prove legacy-prod = dbt-dev (data parity) | **dbt-labs/audit_helper** (see below) |
 | Post-migration quality gate | **dbt-labs/dbt_project_evaluator** — flags missing tests/docs, structure, fanout |
-| Build a Data Vault (architecture = Data Vault) | **datavault4dbt** (via the `using-datavault4dbt` skill, which configures it) |
+| Build a Data Vault (architecture = Data Vault) | **datavault4dbt** (config + usage in [building-datavault.md](building-datavault.md)) |
 | Build a Kimball/Star calendar dimension | **godatadriven/dbt_date** · `get_date_dimension` |
 
 Emit package generic tests with the Fusion **`arguments:`** nested spec — required under Fusion.

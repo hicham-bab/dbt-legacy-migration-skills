@@ -53,7 +53,10 @@ The migration skills implement these steps. Each links to the reference that car
 
 - [dbt-packages.md](references/dbt-packages.md) — **provision packages on demand**: detect what this migration needs, add only those to the target `packages.yml` + `dbt deps` (codegen, audit_helper, dbt_utils, dbt_expectations, dbt_project_evaluator, dbt_date), Fusion-pinned
 - [cloud-detection-and-materializations.md](references/cloud-detection-and-materializations.md) — questions to ask up front; per-platform cost-aware materialization guidance
-- [target-architecture.md](references/target-architecture.md) — ask the migrator which paradigm (layered / Data Vault / Kimball / star) and generate accordingly
+- [target-architecture.md](references/target-architecture.md) — ask the migrator which paradigm (layered / Data Vault / Kimball / star) and map the workload into it
+- [building-datavault.md](references/building-datavault.md) — generate a Data Vault with the datavault4dbt package (distilled from Scalefree, Apache-2.0)
+- [building-kimball.md](references/building-kimball.md) — generate conformed dimensions + facts (SCD2 via snapshots, surrogate keys)
+- [building-starschema.md](references/building-starschema.md) — generate a single lightweight star
 - [layer-classification.md](references/layer-classification.md) — source → staging → intermediate → mart mapping with confidence scoring and Mesh detection
 - [dbt-best-practices.md](references/dbt-best-practices.md) — Fusion-conformant SQL, tests, docs, contracts, snapshots
 - [data-validation.md](references/data-validation.md) — compile gate + two data-parity patterns against the warehouse
@@ -78,7 +81,7 @@ These existing skills already do parts of the job — reference them, don't dupl
 - `running-dbt-commands` — selecting the right dbt executable and formatting commands
 - `migrating-dbt-project-across-platforms` — SQL dialect translation via Fusion real-time compile
 - `building-dbt-semantic-layer` — optional metrics on top of the migrated marts
-- `configuring-datavault4dbt`, `using-datavault4dbt`, `testing-a-datavault4dbt-project` — the three
-  Scalefree datavault4dbt skills (Apache-2.0) the Data Vault path hands off to in Step 3
-- `using-kimball4dbt`, `using-starschema4dbt` — the dimensional generation skills the Kimball and
-  Star paths hand off to in Step 3
+- architecture generation lives in this skill's own references (`building-datavault.md`,
+  `building-kimball.md`, `building-starschema.md`) — not separate skills. The Data Vault reference is
+  distilled from Scalefree's datavault4dbt skills (Apache-2.0); install that full skill set from
+  `ScalefreeCOM/datavault4dbt-agent-skills` if you want its deeper coverage.
