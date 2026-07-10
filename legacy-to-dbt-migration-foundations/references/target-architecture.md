@@ -9,26 +9,30 @@ whether to re-architect, and it's the migrator's call.
 ## Contents
 
 - [The question to ask](#the-question-to-ask)
-- [1. Layered / source-aligned (default)](#1-layered--source-aligned-default)
-- [2. Data Vault 2.0](#2-data-vault-20)
-- [3. Kimball dimensional](#3-kimball-dimensional)
-- [4. Star schema (pragmatic)](#4-star-schema-pragmatic)
+- [Data Vault 2.0](#data-vault-20)
+- [Kimball dimensional](#kimball-dimensional)
+- [Star schema](#star-schema)
+- [Layered fallback (no re-architecture)](#layered-fallback-no-re-architecture)
+- [Tests, docs & contracts per architecture](#tests-docs--contracts-per-architecture)
 - [Performance cheat-sheet](#performance-cheat-sheet)
 
 ## The question to ask
 
-Present the mapped inventory, then ask:
+Present the mapped inventory, then ask the migrator to pick one of the three target architectures:
 
-> "I've mapped the legacy workload. Before I build the dbt models, which target architecture do you
-> want?
-> - **Layered (default)** — faithful, source-aligned staging → intermediate → mart. Fastest, lowest
->   risk; keeps the legacy structure.
+> "I've mapped the legacy workload. Before I build the dbt models, which target architecture should
+> I follow?
 > - **Data Vault 2.0** — hubs / links / satellites (auditable, insert-only), with dimensional info
 >   marts on top. Best for highly-governed, multi-source, audit-heavy warehouses.
 > - **Kimball dimensional** — conformed dimensions + fact tables (full bus architecture, SCD2).
 >   Best when many business processes share dimensions and BI is the goal.
-> - **Star schema (pragmatic)** — facts + dimensions for a focused subject area, minimal ceremony.
->   Good for a single mart / quick BI."
+> - **Star schema** — facts + dimensions for a focused subject area, minimal ceremony. Good for a
+>   single mart / quick BI."
+
+Whichever they choose, the migration still applies data **tests, docs, and contracts** (Step 4) —
+see [tests, docs & contracts per architecture](#tests-docs--contracts-per-architecture). If the
+migrator explicitly wants **no re-architecture** (a faithful like-for-like port), fall back to the
+plain layered structure in [layer-classification.md](layer-classification.md).
 
 Guidance to offer:
 - **Kimball ⊃ star schema.** Kimball dimensional *produces* star schemas; the difference is
@@ -42,30 +46,22 @@ Guidance to offer:
   explicit requirement, and confirm the team will maintain a vault.
 - The choice is per-project (or per-Mesh-domain), not per-model. Record it; it drives Steps 3-4.
 
-## 1. Layered / source-aligned (default)
-
-The behavior already described in [layer-classification.md](layer-classification.md): source →
-staging (`stg_`, view) → intermediate (`int_`) → mart (`fct_`/`dim_`, table/incremental). The legacy
-target maps 1:1 to a mart, so parity is straightforward. Use the per-platform materializations in
-[cloud-detection-and-materializations.md](cloud-detection-and-materializations.md). No extra
-reference needed — this is the path the other references assume by default.
-
-## 2. Data Vault 2.0
+## Data Vault 2.0
 
 A Data Vault splits data into **hubs** (business keys), **links** (relationships), and **satellites**
 (descriptive history), loaded insert-only, with dimensional **info marts** built on top. Use the
 **datavault4dbt** package (Scalefree) — do not hand-roll hashing/loading SQL.
 
 **Reuse the datavault4dbt skills — don't reinvent them.** This skill decides the *modeling* (which
-legacy unit becomes which entity); the package mechanics come from the Scalefree skill set. Hand off
-by name:
+legacy unit becomes which entity); the package mechanics come from the Scalefree skill set
+(Apache-2.0), bundled here as the three needed for a migration:
+- `configuring-datavault4dbt` — `packages.yml`, global variables, hashing, per-adapter setup (do this first)
 - `using-datavault4dbt` — building stage/hub/link/satellite/PIT models (the YAML-metadata macro pattern)
-- `configuring-datavault4dbt` — `packages.yml`, global variables, hashing, per-adapter setup
-- `testing-a-datavault4dbt-project` — hub/link/satellite tests
-- `troubleshooting-datavault4dbt`, `rehashing-datavault4dbt-entities` — as needed
+- `testing-a-datavault4dbt-project` — hub/link/satellite technical tests
 
-If those skills aren't installed, tell the user to add them first (Scalefree:
-`ScalefreeCOM/datavault4dbt-agent-skills`) — the Data Vault path depends on them.
+(The upstream `troubleshooting-datavault4dbt` and `rehashing-datavault4dbt-entities` skills aren't
+bundled — they're for fixing/upgrading an existing vault, not producing a migration; install them
+from `ScalefreeCOM/datavault4dbt-agent-skills` if needed.)
 
 **Map the legacy workload → Data Vault entities:**
 
@@ -99,7 +95,7 @@ If those skills aren't installed, tell the user to add them first (Scalefree:
 at the **info-mart** layer — the dim/fact built on the vault must match the legacy output — and rely
 on the datavault4dbt hashkey uniqueness/not-null tests for the raw vault itself.
 
-## 3. Kimball dimensional
+## Kimball dimensional
 
 Conformed **dimensions** shared across business processes + **fact** tables, laid out as star schemas.
 
@@ -128,7 +124,7 @@ incremental). Snapshots live in `snapshots/`.
 - Keep facts **narrow** (keys + measures + degenerate dims); push descriptive attributes into dims to
   avoid re-scanning wide facts.
 
-## 4. Star schema (pragmatic)
+## Star schema
 
 A single star for one subject area: one (or few) `fct_` + its `dim_`s, minimal governance. Same
 generation as Kimball but without the conformed-dimension/bus-matrix ceremony — good for a focused
@@ -141,6 +137,27 @@ mart or a quick migration to BI-friendly shape.
   otherwise.
 - **Performance:** same as Kimball facts/dims (partition/cluster the fact by date + main FK; dims as
   clustered tables). Simpler DAG = cheaper to build and validate.
+
+## Layered fallback (no re-architecture)
+
+If the migrator declines all three paradigms and wants a faithful like-for-like port, use the plain
+layered structure from [layer-classification.md](layer-classification.md): source → staging (`stg_`,
+view) → intermediate (`int_`) → mart (`fct_`/`dim_`, table/incremental). The legacy target maps 1:1
+to a mart, so parity is the most straightforward. Tests/docs/contracts still apply (below).
+
+## Tests, docs & contracts per architecture
+
+Whichever paradigm is chosen, Step 4 still applies — adapted to the architecture:
+
+| | Data Vault | Kimball / Star |
+|---|---|---|
+| **Data tests** | Hashkey `unique` + `not_null` on hubs/links; link→hub `relationships`; satellite key+ldts uniqueness — via the `testing-a-datavault4dbt-project` skill. Plus grain tests on the info marts. | `unique` + `not_null` on the dim surrogate key and the fact grain; `relationships` from every fact FK to its dim; `accepted_values` on low-cardinality columns — via the `arguments:` spec ([dbt-best-practices.md](dbt-best-practices.md)). |
+| **Docs** | Model + column descriptions on staging, entities, and info marts; state each hub's business key and each satellite's source/rate-of-change. | Model + column descriptions on every dim and fact; state the fact **grain** explicitly and each dimension's SCD type. |
+| **Contracts** | `contract: enforced` on the **public info marts** (the query-facing dims/facts). The raw vault is internal. | `contract: enforced` on published dims and facts (especially conformed dims in a Mesh producer); version them. |
+
+Data Vault history is captured by satellites (insert-only), so SCD is inherent; Kimball/star track
+history via **snapshots** feeding Type-2 dims. See [dbt-best-practices.md](dbt-best-practices.md)
+for the test/doc/contract syntax.
 
 ## Performance cheat-sheet
 

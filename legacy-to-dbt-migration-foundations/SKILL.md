@@ -69,6 +69,5 @@ These existing skills already do parts of the job — reference them, don't dupl
 - `running-dbt-commands` — selecting the right dbt executable and formatting commands
 - `migrating-dbt-project-across-platforms` — SQL dialect translation via Fusion real-time compile
 - `building-dbt-semantic-layer` — optional metrics on top of the migrated marts
-- `using-datavault4dbt` (+ `configuring-`/`testing-a-`/`troubleshooting-`/`rehashing-datavault4dbt`)
-  — the Scalefree datavault4dbt skill set, used by the Data Vault path in Step 3 (install from
-  `ScalefreeCOM/datavault4dbt-agent-skills` if not present)
+- `configuring-datavault4dbt`, `using-datavault4dbt`, `testing-a-datavault4dbt-project` — the three
+  Scalefree datavault4dbt skills (Apache-2.0) the Data Vault path hands off to in Step 3

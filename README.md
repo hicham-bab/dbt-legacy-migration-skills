@@ -19,6 +19,7 @@ skills are plain `SKILL.md` folders and work in any agent that supports the skil
 | [`migrating-stored-procedures-to-dbt`](migrating-stored-procedures-to-dbt) | SQL stored procedures (Snowflake, BigQuery, Databricks, T-SQL, PL/SQL) |
 | [`migrating-matillion-to-dbt`](migrating-matillion-to-dbt) | Matillion pipelines/jobs — DPC YAML (`.tran.yaml`/`.orch.yaml`), Matillion ETL JSON (export + git per-job forms), CDC/streaming, shared jobs |
 | [`legacy-to-dbt-migration-foundations`](legacy-to-dbt-migration-foundations) | *Shared reference library* — not invoked directly; the four migration skills link to it |
+| [`configuring-datavault4dbt`](configuring-datavault4dbt) · [`using-datavault4dbt`](using-datavault4dbt) · [`testing-a-datavault4dbt-project`](testing-a-datavault4dbt-project) | *Data Vault path* — Scalefree's datavault4dbt skills (Apache-2.0, vendored; see [ATTRIBUTION.md](ATTRIBUTION.md)) |
 
 ## How they fit together
 
@@ -54,11 +55,14 @@ then generates the dbt models accordingly:
 See `legacy-to-dbt-migration-foundations/references/target-architecture.md` for the legacy→paradigm
 mappings and per-paradigm performance guidance.
 
-> **Data Vault path dependency:** the Data Vault option hands off to Scalefree's **datavault4dbt
-> agent skills** (`using-datavault4dbt`, `configuring-datavault4dbt`, `testing-a-datavault4dbt-project`,
-> …). Those are **not** bundled here — install them separately from
+> **Data Vault path:** the Data Vault option hands off to Scalefree's **datavault4dbt agent skills**.
+> The three needed to produce a migration — `configuring-datavault4dbt`, `using-datavault4dbt`,
+> `testing-a-datavault4dbt-project` — are **vendored here** (Apache-2.0). See
+> [ATTRIBUTION.md](ATTRIBUTION.md) for credit, source, and the modifications made. The upstream
+> `troubleshooting-` and `rehashing-datavault4dbt` skills (for fixing/upgrading an existing vault)
+> are not included — get them from
 > [`ScalefreeCOM/datavault4dbt-agent-skills`](https://github.com/ScalefreeCOM/datavault4dbt-agent-skills)
-> if you want the Data Vault architecture. The other three architectures need nothing extra.
+> if needed. Kimball and star schema need nothing extra.
 
 ## Install
 
@@ -68,7 +72,7 @@ dbt Wizard CLI:
 
 ```bash
 git clone https://github.com/hicham-bab/dbt-legacy-migration-skills.git
-cp -R dbt-legacy-migration-skills/{legacy-to-dbt-migration-foundations,migrating-*} ~/.dbt/wizard/skills/
+cp -R dbt-legacy-migration-skills/{legacy-to-dbt-migration-foundations,migrating-*,configuring-datavault4dbt,using-datavault4dbt,testing-a-datavault4dbt-project} ~/.dbt/wizard/skills/
 ```
 
 Claude Code (user-level skills):
