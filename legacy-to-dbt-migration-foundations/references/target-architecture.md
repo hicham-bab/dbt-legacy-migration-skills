@@ -46,6 +46,31 @@ Guidance to offer:
   explicit requirement, and confirm the team will maintain a vault.
 - The choice is per-project (or per-Mesh-domain), not per-model. Record it; it drives Steps 3-4.
 
+## Why each architecture exists (explain this to the migrator)
+
+Don't just name the options — explain *why* someone picks each, so a migrator new to warehouse
+modeling can choose on purpose. The migration is the cheap moment to decide the target shape, but
+re-architecting trades short-term risk (proving parity against a differently-shaped output) for
+long-term benefit; a faithful port trades the opposite.
+
+- **Layered (faithful port).** *Reason:* lowest risk and fastest to trust — the final mart has the
+  **same grain as the legacy output**, so parity (Step 5) is a direct row-for-row check. Choose it
+  when the goal is "get onto dbt with identical results," not to redesign the warehouse.
+- **Data Vault 2.0.** *Reason:* **auditability and integrating many sources over time.** It splits
+  data into business keys (hubs), relationships (links), and history (satellites), all insert-only —
+  so you never lose history, you can add a new source without reshaping existing tables, and every
+  row is traceable. The cost: many more objects and a steeper learning curve, plus you build
+  dimensional "info marts" on top for anyone to actually query. Choose it when regulatory/audit needs
+  or multi-source integration are explicit — and the team will maintain a vault.
+- **Kimball dimensional.** *Reason:* **consistent, BI-friendly reporting across the business.**
+  Conformed dimensions (one shared `customer`/`product`/`date`) mean every fact slices by the same
+  definitions, so two reports can't disagree; SCD Type-2 dimensions preserve history. The cost: up-
+  front modeling discipline (declare grains, build the shared dimensions once). Choose it when many
+  business processes share dimensions and BI/analytics is the goal.
+- **Star schema (pragmatic).** *Reason:* **simplicity and speed for one subject area.** One fact +
+  its dimensions, minimal ceremony — fastest path to a clean, query-friendly mart. Choose it for a
+  focused use case; graduate to full Kimball if it grows to span many processes.
+
 ## Data Vault 2.0
 
 A Data Vault splits data into **hubs** (business keys), **links** (relationships), and **satellites**

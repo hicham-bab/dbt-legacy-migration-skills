@@ -33,7 +33,10 @@ do not start parsing until the warehouse is known.
 
 ## Choosing a materialization
 
-Map the legacy write pattern to a dbt materialization, then apply the platform tuning below.
+Map the legacy write pattern to a dbt materialization, then apply the platform tuning below. New to
+these terms (view / table / incremental / ephemeral)? Explain them from
+[dbt-concepts-explained.md](dbt-concepts-explained.md#materializations-view-table-incremental-ephemeral)
+as you go.
 
 | Legacy pattern | dbt materialization | Notes |
 |---|---|---|

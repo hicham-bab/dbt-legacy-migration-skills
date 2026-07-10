@@ -27,6 +27,15 @@ Every migration, regardless of source, must:
 the fast iteration gate; **data parity against the warehouse** is the proof the migration
 preserved business logic. Never declare a migration done on a clean compile alone.
 
+**Teach as you migrate — assume the migrator may be new to dbt.** The person may know their legacy
+tool well but not dbt. Whenever you introduce a dbt concept — a model, `ref()`/`source()`, a
+materialization (**view / table / incremental / ephemeral**), a **snapshot** (SCD history), tests,
+contracts, Fusion — explain it in one plain sentence and point to
+[dbt-concepts-explained.md](references/dbt-concepts-explained.md). Explain the **reasons**, not just
+the mechanics: *why* this table is incremental, *why* history uses a snapshot, *why* this target
+architecture (see [target-architecture.md](references/target-architecture.md)). The migration should
+leave the person **understanding** their dbt project, not just possessing it.
+
 **Packages: ask first, provision on demand, hub-only.** The skill doesn't bundle or assume packages.
 At Step 0 it **asks the migrator** whether to use external dbt packages or stay self-contained
 (skill-written macros). If packages are allowed, it installs **only from hub.getdbt.com** (never
@@ -53,6 +62,7 @@ The migration skills implement these steps. Each links to the reference that car
 
 ## Additional Resources
 
+- [dbt-concepts-explained.md](references/dbt-concepts-explained.md) — **plain-language primer** for migrators new to dbt (models, materializations incl. incremental, snapshots/SCD, tests, contracts, Fusion) — explain concepts from here as they come up
 - [dbt-packages.md](references/dbt-packages.md) — **packages vs macros**: ask the migrator, then either install only-what's-needed from **hub.getdbt.com** (Fusion-pinned) or generate self-contained macros; the need→package/macro map
 - [cloud-detection-and-materializations.md](references/cloud-detection-and-materializations.md) — questions to ask up front; per-platform cost-aware materialization guidance
 - [target-architecture.md](references/target-architecture.md) — ask the migrator which paradigm (layered / Data Vault / Kimball / star) and map the workload into it

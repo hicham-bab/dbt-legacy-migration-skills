@@ -30,7 +30,7 @@ and report coverage and cost.
 the parity queries touch the warehouse — run those after compile is clean.
 
 This skill shares its workflow with the `legacy-to-dbt-migration-foundations` skill; steps below
-link into its references for the common work.
+link into its references for the common work. **Assume the migrator may be new to dbt** — explain each dbt concept (materializations, incremental, snapshots, contracts, Fusion) in plain language as it comes up (foundations → dbt-concepts-explained.md), and explain the *reason* behind each choice, not just the mechanics.
 
 ## Contents
 
