@@ -51,6 +51,26 @@ link into its references for the common work. **Assume the migrator may be new t
 
 ## Migration Workflow
 
+## Decision gate — ASK before you build (blocking)
+
+**Stop. Before Step 1, present these choices to the migrator and _wait_ for their answers. Do not
+start building on assumptions.** Recommend the best-fit option *with a one-line why*, but the
+migrator decides. **Even when the README, DDL, environment, or the source workload strongly implies
+an answer (e.g. "the README says Kimball"), you must still ASK and let them confirm** — surface each
+as a question, never as a decision you have already made. Getting these wrong means redoing dozens of
+files.
+
+1. **Target architecture** — Data Vault / Kimball / Star / faithful layered port.
+2. **Packages vs self-contained macros** — external hub packages, or skill-written macros.
+3. **Target platform** (+ dev target), and **landing spot** — new standalone project or fold into an existing one.
+
+These are the migrator's calls, not yours. Present your recommendation, ask, and **wait for the
+answer** before proceeding. Full rationale + options: foundations →
+[target-architecture.md](../legacy-to-dbt-migration-foundations/references/target-architecture.md),
+[dbt-packages.md](../legacy-to-dbt-migration-foundations/references/dbt-packages.md),
+[cloud-detection-and-materializations.md](../legacy-to-dbt-migration-foundations/references/cloud-detection-and-materializations.md).
+
+
 ### Progress Checklist
 
 ```
