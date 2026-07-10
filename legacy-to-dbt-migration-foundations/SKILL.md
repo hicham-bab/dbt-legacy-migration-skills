@@ -33,17 +33,18 @@ The migration skills implement these steps. Each links to the reference that car
 
 - **Step 0 – Detect environment & cloud** → [cloud detection & materializations](references/cloud-detection-and-materializations.md)
 - **Step 1 – Inventory & map the legacy workload** → *source-specific* (see the calling skill's parsing reference)
-- **Step 2 – Classify into dbt layers + detect Mesh** → [layer classification](references/layer-classification.md)
-- **Step 3 – Translate to dbt SQL with cost-aware materializations** → *source-specific mapping* + [materializations](references/cloud-detection-and-materializations.md)
+- **Step 2 – Choose target architecture, then classify into it** → [target architecture](references/target-architecture.md) + [layer classification](references/layer-classification.md)
+- **Step 3 – Translate to dbt SQL (per chosen architecture) with cost-aware materializations** → *source-specific mapping* + [target architecture](references/target-architecture.md) + [materializations](references/cloud-detection-and-materializations.md)
 - **Step 4 – Apply best practices: tests, docs, contracts, snapshots** → [dbt best practices](references/dbt-best-practices.md)
 - **Step 5 – Validate: compile gate, then data parity** → [data validation](references/data-validation.md)
-- **Step 6 – Cost comparison: TCO + measured dev run** → [cost comparison](references/cost-comparison.md)
+- **Step 6 – Cost comparison: measured, apples-to-apples** → [cost comparison](references/cost-comparison.md)
 - **Step 7 – Coverage report (confirm ≥95%, flag residual)** → [coverage report](references/coverage-report.md)
 - **Step 8 – Document in migration_changes.md** → template in the calling skill
 
 ## Additional Resources
 
 - [cloud-detection-and-materializations.md](references/cloud-detection-and-materializations.md) — questions to ask up front; per-platform cost-aware materialization guidance
+- [target-architecture.md](references/target-architecture.md) — ask the migrator which paradigm (layered / Data Vault / Kimball / star) and generate accordingly
 - [layer-classification.md](references/layer-classification.md) — source → staging → intermediate → mart mapping with confidence scoring and Mesh detection
 - [dbt-best-practices.md](references/dbt-best-practices.md) — Fusion-conformant SQL, tests, docs, contracts, snapshots
 - [data-validation.md](references/data-validation.md) — compile gate + two data-parity patterns against the warehouse
@@ -68,3 +69,6 @@ These existing skills already do parts of the job — reference them, don't dupl
 - `running-dbt-commands` — selecting the right dbt executable and formatting commands
 - `migrating-dbt-project-across-platforms` — SQL dialect translation via Fusion real-time compile
 - `building-dbt-semantic-layer` — optional metrics on top of the migrated marts
+- `using-datavault4dbt` (+ `configuring-`/`testing-a-`/`troubleshooting-`/`rehashing-datavault4dbt`)
+  — the Scalefree datavault4dbt skill set, used by the Data Vault path in Step 3 (install from
+  `ScalefreeCOM/datavault4dbt-agent-skills` if not present)

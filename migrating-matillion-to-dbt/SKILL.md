@@ -64,8 +64,8 @@ link into its references for the common work.
 Matillion → dbt Migration Progress:
 - [ ] Step 0: Detect environment & cloud (warehouse, Fusion/Core, dev target, parity access)
 - [ ] Step 1: Inventory & map pipelines (transformation components = denominator; orchestration/EL noted)
-- [ ] Step 2: Classify each component into dbt layers + detect Mesh
-- [ ] Step 3: Translate to dbt SQL with cost-aware materializations
+- [ ] Step 2: Choose target architecture (layered / Data Vault / Kimball / star), then classify into it
+- [ ] Step 3: Translate to dbt SQL for the chosen architecture, with cost-aware materializations
 - [ ] Step 4: Apply tests, docs, contracts, snapshots (Detect Changes → snapshot)
 - [ ] Step 5: Validate — compile gate, then data parity vs warehouse
 - [ ] Step 6: Cost comparison — measured warehouse consumption (legacy vs dbt), auditable
@@ -87,19 +87,26 @@ transformation data flow, `transitions:` for orchestration control flow). Record
 transformation-component count** as the coverage denominator; list orchestration/EL components
 separately as out-of-scope-for-dbt. See [parsing-matillion-pipelines.md](references/parsing-matillion-pipelines.md).
 
-### Step 2 — Classify into dbt layers + detect Mesh
+### Step 2 — Choose target architecture, then classify into it
 
-Assign each transformation output to source / staging / intermediate / mart with a confidence
-score; detect domain boundaries (folders, schemas) for a possible Mesh split. See foundations →
-[layer-classification.md](../legacy-to-dbt-migration-foundations/references/layer-classification.md).
+**First ask the migrator which target architecture to build** — layered (default) / Data Vault 2.0 /
+Kimball dimensional / pragmatic star — since it reshapes Steps 3-4. See foundations →
+[target-architecture.md](../legacy-to-dbt-migration-foundations/references/target-architecture.md).
+Then classify each transformation output into that architecture's structures (layered: source /
+staging / intermediate / mart; Data Vault: hubs / links / satellites; dimensional: dims / facts),
+with a confidence score, and detect domain boundaries (folders, schemas) for a possible Mesh split.
+See foundations → [layer-classification.md](../legacy-to-dbt-migration-foundations/references/layer-classification.md).
 
-### Step 3 — Translate to dbt SQL with cost-aware materializations
+### Step 3 — Translate to dbt SQL for the chosen architecture
 
-Translate each component using [matillion-component-mapping.md](references/matillion-component-mapping.md).
-Because Matillion is push-down ELT, the component graph already implies warehouse SQL — express it
-as CTEs in a model, `ref()`-ing upstream models where a `Table Input` reads a table another
-pipeline produced. Pick materializations per the target cloud (foundations →
-cloud-detection-and-materializations.md). Emit Fusion-conformant SQL (`cast()`, `coalesce()`).
+Translate each component using [matillion-component-mapping.md](references/matillion-component-mapping.md)
+for the SQL logic. Because Matillion is push-down ELT, the component graph already implies warehouse
+SQL. Apply the chosen architecture's generation pattern (foundations → target-architecture.md):
+**layered/dimensional** → express as CTE models, `ref()`-ing upstream models where a `Table Input`
+reads a table another pipeline produced (Detect Changes → snapshot); **Data Vault** → hand off to
+the `using-datavault4dbt` skill (stage → hub/link/satellite), building info marts on top. Pick
+materializations per the target cloud (foundations → cloud-detection-and-materializations.md). Emit
+Fusion-conformant SQL (`cast()`, `coalesce()`).
 
 ### Step 4 — Apply best practices: tests, docs, contracts, snapshots
 

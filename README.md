@@ -27,11 +27,11 @@ The four migration skills share the same 8-step workflow and defer the common st
 
 - **Step 0** — Detect environment & cloud (Snowflake / Databricks / BigQuery / Redshift; Fusion vs Core)
 - **Step 1** — Inventory & map the legacy workload *(source-specific)*
-- **Step 2** — Classify into dbt layers (source → staging → intermediate → mart) + detect Mesh
-- **Step 3** — Translate to dbt SQL with cost-aware materializations *(source-specific answer key)*
+- **Step 2** — **Choose the target architecture** (see below), then classify the workload into it + detect Mesh
+- **Step 3** — Translate to dbt SQL for the chosen architecture, with cost-aware materializations *(source-specific answer key)*
 - **Step 4** — Apply best practices: tests (`arguments:` spec), docs, contracts, snapshots
-- **Step 5** — Validate: `dbt compile` gate (free), then data parity against the warehouse
-- **Step 6** — Cost comparison: TCO + measured dev run
+- **Step 5** — Validate: `dbt compile` gate (free), then **legacy-prod vs dbt-dev** data parity (explain every difference)
+- **Step 6** — Cost comparison: **measured** warehouse consumption (legacy vs dbt), auditable
 - **Step 7** — Coverage report (confirm ≥95%, flag residual)
 - **Step 8** — Document changes in `migration_changes.md`
 
@@ -39,6 +39,26 @@ Each migration skill carries a `references/` folder with two source-specific doc
 the source artifact, and the component/transformation → dbt answer key. All generated SQL is dbt
 Fusion-conformant (`cast()` not `::`, `coalesce()` not `nvl`/`ifnull`, tests via the `arguments:`
 nested spec).
+
+## Target architecture (Step 2)
+
+After mapping the legacy workload, the skill **asks which target modeling architecture to build**,
+then generates the dbt models accordingly:
+
+- **Layered (default)** — faithful source-aligned staging → intermediate → mart. Lowest risk.
+- **Data Vault 2.0** — hubs / links / satellites via the [datavault4dbt](https://github.com/ScalefreeCOM/datavault4dbt)
+  package, with dimensional info marts on top.
+- **Kimball dimensional** — conformed dimensions + fact tables, SCD2 via snapshots, surrogate keys.
+- **Star schema (pragmatic)** — facts + dimensions for a focused subject area.
+
+See `legacy-to-dbt-migration-foundations/references/target-architecture.md` for the legacy→paradigm
+mappings and per-paradigm performance guidance.
+
+> **Data Vault path dependency:** the Data Vault option hands off to Scalefree's **datavault4dbt
+> agent skills** (`using-datavault4dbt`, `configuring-datavault4dbt`, `testing-a-datavault4dbt-project`,
+> …). Those are **not** bundled here — install them separately from
+> [`ScalefreeCOM/datavault4dbt-agent-skills`](https://github.com/ScalefreeCOM/datavault4dbt-agent-skills)
+> if you want the Data Vault architecture. The other three architectures need nothing extra.
 
 ## Install
 

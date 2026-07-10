@@ -55,8 +55,8 @@ link into its references for the common work.
 Informatica → dbt Migration Progress:
 - [ ] Step 0: Detect environment & cloud (warehouse, Fusion/Core, dev target, parity access)
 - [ ] Step 1: Inventory & map the PowerCenter workload (count all mappings/transformations)
-- [ ] Step 2: Classify each unit into dbt layers + detect Mesh
-- [ ] Step 3: Translate to dbt SQL with cost-aware materializations
+- [ ] Step 2: Choose target architecture (layered / Data Vault / Kimball / star), then classify into it
+- [ ] Step 3: Translate to dbt SQL for the chosen architecture, with cost-aware materializations
 - [ ] Step 4: Apply tests, docs, contracts, snapshots (SCD2)
 - [ ] Step 5: Validate — compile gate, then data parity vs warehouse
 - [ ] Step 6: Cost comparison — measured warehouse consumption (legacy vs dbt), auditable
@@ -76,16 +76,23 @@ transformation, mapplet, worklet, and the workflow orchestration (task order, co
 schedule). Record the **total transformation count** — this is the denominator for coverage.
 See [parsing-powercenter-xml.md](references/parsing-powercenter-xml.md).
 
-### Step 2 — Classify into dbt layers + detect Mesh
+### Step 2 — Choose target architecture, then classify into it
 
-Assign each mapping/target to source / staging / intermediate / mart with a confidence score;
-detect domain boundaries for a possible Mesh split. See foundations →
+**First ask the migrator which target architecture to build** — layered (default) / Data Vault 2.0 /
+Kimball dimensional / pragmatic star — since it reshapes Steps 3-4. See foundations →
+[target-architecture.md](../legacy-to-dbt-migration-foundations/references/target-architecture.md).
+Then classify each mapping/target into that architecture's structures (layered: source / staging /
+intermediate / mart; Data Vault: hubs / links / satellites; dimensional: dims / facts), with a
+confidence score, and detect domain boundaries for a possible Mesh split. See foundations →
 [layer-classification.md](../legacy-to-dbt-migration-foundations/references/layer-classification.md).
 
-### Step 3 — Translate to dbt SQL with cost-aware materializations
+### Step 3 — Translate to dbt SQL for the chosen architecture
 
-Translate each transformation using [powercenter-transformation-mapping.md](references/powercenter-transformation-mapping.md).
-SCD2 mappings become **snapshots**, not models. Pick materializations per the target cloud
+Translate each transformation using [powercenter-transformation-mapping.md](references/powercenter-transformation-mapping.md)
+for the SQL logic, and apply the chosen architecture's generation pattern (foundations →
+target-architecture.md): **layered/dimensional** → CTE models, SCD2 mappings become **snapshots**;
+**Data Vault** → hand off to the `using-datavault4dbt` skill (stage → hub/link/satellite), building
+info marts on top. Pick materializations per the target cloud
 (foundations → cloud-detection-and-materializations.md). Emit Fusion-conformant SQL
 (`cast()`, `coalesce()`, CTEs, `ref()`/`source()`).
 

@@ -57,8 +57,8 @@ link into its references for the common work.
 Stored Procedure → dbt Migration Progress:
 - [ ] Step 0: Detect environment & cloud (warehouse, source dialect, Fusion/Core, dev target, parity access)
 - [ ] Step 1: Inventory & map the procedure (count all procedural steps)
-- [ ] Step 2: Classify each step into dbt layers + detect Mesh
-- [ ] Step 3: Decompose to dbt SQL with cost-aware materializations
+- [ ] Step 2: Choose target architecture (layered / Data Vault / Kimball / star), then classify into it
+- [ ] Step 3: Decompose to dbt SQL for the chosen architecture, with cost-aware materializations
 - [ ] Step 4: Apply tests, docs, contracts, snapshots
 - [ ] Step 5: Validate — compile gate, then row-for-row parity vs the legacy output
 - [ ] Step 6: Cost comparison — measured warehouse consumption (legacy vs dbt), auditable
@@ -79,16 +79,23 @@ each branch, and the final target write. Identify the **output grain** and every
 business rule (thresholds, filters, lifecycle logic). Record the **total step count** — the
 coverage denominator. See [stored-proc-decomposition.md](references/stored-proc-decomposition.md).
 
-### Step 2 — Classify into dbt layers + detect Mesh
+### Step 2 — Choose target architecture, then classify into it
 
-Map each step to source / staging / intermediate / mart. Prefer building on **existing** staging/
-intermediate models over re-reading raw tables. See foundations →
+**First ask the migrator which target architecture to build** — layered (default) / Data Vault 2.0 /
+Kimball dimensional / pragmatic star — since it reshapes Steps 3-4. See foundations →
+[target-architecture.md](../legacy-to-dbt-migration-foundations/references/target-architecture.md).
+Then map each procedural step into that architecture's structures (layered: source / staging /
+intermediate / mart, preferring **existing** staging/intermediate models over re-reading raw tables;
+Data Vault: hubs / links / satellites; dimensional: dims / facts). See foundations →
 [layer-classification.md](../legacy-to-dbt-migration-foundations/references/layer-classification.md).
 
-### Step 3 — Decompose to dbt SQL with cost-aware materializations
+### Step 3 — Decompose to dbt SQL for the chosen architecture
 
 Turn temp tables into CTEs/intermediate models, MERGE/upsert into `incremental`, full rebuilds into
-`table`, per [stored-proc-decomposition.md](references/stored-proc-decomposition.md). Use
+`table`, per [stored-proc-decomposition.md](references/stored-proc-decomposition.md), and apply the
+chosen architecture's generation pattern (foundations → target-architecture.md): **layered/
+dimensional** → CTE models (+ snapshots for history); **Data Vault** → hand off to the
+`using-datavault4dbt` skill, building info marts on top. Use
 [sql-dialect-notes.md](references/sql-dialect-notes.md) for dialect specifics; defer heavy dialect
 translation to the `migrating-dbt-project-across-platforms` skill. Emit Fusion-conformant SQL.
 
