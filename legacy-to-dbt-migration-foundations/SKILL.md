@@ -27,6 +27,20 @@ Every migration, regardless of source, must:
 the fast iteration gate; **data parity against the warehouse** is the proof the migration
 preserved business logic. Never declare a migration done on a clean compile alone.
 
+**Suggest, don't decide — put every up-front choice to the migrator.** A handful of decisions
+reshape the whole migration (file layout, SQL dialect, what validation can reach), so getting them
+wrong means redoing dozens of files. Before writing **any** models, present them as one
+**consolidated set of choices**, each with your **recommended default + a one-line why** *and* the
+alternatives, then wait for the migrator's answer:
+1. **Target platform** (+ dev target) — Snowflake / Databricks / BigQuery / Redshift; Fusion vs Core.
+2. **Target architecture** — Data Vault / Kimball / Star (or a faithful layered port).
+3. **Packages vs self-contained macros** — external hub packages, or skill-written macros.
+4. **Landing spot** — a new standalone dbt project, or fold into an existing one.
+
+Recommend based on the signals (e.g. "the workload looks Kimball, so I suggest Kimball"), but
+**never silently default even when a choice looks obvious** — offer it, recommend, and let them
+choose. This is the Step 0 / Step 2 gate; treat it as blocking.
+
 **Teach as you migrate — assume the migrator may be new to dbt.** The person may know their legacy
 tool well but not dbt. Whenever you introduce a dbt concept — a model, `ref()`/`source()`, a
 materialization (**view / table / incremental / ephemeral**), a **snapshot** (SCD history), tests,

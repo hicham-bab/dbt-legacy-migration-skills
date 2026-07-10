@@ -1,0 +1,1846 @@
+[0m22:52:23.321967 [debug] [MainThread]: Sending event: {'category': 'dbt', 'action': 'invocation', 'label': 'start', 'context': [<snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x105283860>, <snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x10d12f620>, <snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x10bc9e240>]}
+
+
+============================== 22:52:23.353158 | 1061e0c5-5132-4044-aea5-a10f01785ebf ==============================
+[0m22:52:23.353158 [info ] [MainThread]: Running with dbt=1.11.12
+[0m22:52:23.353534 [debug] [MainThread]: running dbt with arguments {'partial_parse': 'True', 'target_path': 'None', 'warn_error': 'None', 'use_experimental_parser': 'False', 'printer_width': '80', 'use_colors': 'True', 'log_path': '/Users/hichambabahmed/dbt-legacy-migration-skills/examples/stored-proc-to-dbt-duckdb/logs', 'no_print': 'None', 'static_parser': 'True', 'version_check': 'True', 'fail_fast': 'False', 'introspect': 'True', 'invocation_command': 'dbt deps', 'debug': 'False', 'empty': 'None', 'warn_error_options': 'WarnErrorOptionsV2(error=[], warn=[], silence=[])', 'send_anonymous_usage_stats': 'True', 'log_format': 'default', 'indirect_selection': 'eager', 'profiles_dir': '/Users/hichambabahmed/dbt-legacy-migration-skills/examples/stored-proc-to-dbt-duckdb', 'log_cache_events': 'False', 'cache_selected_only': 'False', 'quiet': 'False', 'write_json': 'True'}
+[0m22:52:23.434282 [debug] [MainThread]: Sending event: {'category': 'dbt', 'action': 'project_id', 'label': '1061e0c5-5132-4044-aea5-a10f01785ebf', 'context': [<snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x10d4493d0>]}
+[0m22:52:23.488950 [debug] [MainThread]: Set downloads directory='/var/folders/7v/j0mhclhj03s3pllq3bl62kn80000gr/T/dbt-downloads-d9dolas6'
+[0m22:52:23.489495 [debug] [MainThread]: Making package index registry request: GET https://hub.getdbt.com/api/v1/index.json
+[0m22:52:23.645508 [debug] [MainThread]: Response from registry index: GET https://hub.getdbt.com/api/v1/index.json 200
+[0m22:52:23.646586 [debug] [MainThread]: Making package registry request: GET https://hub.getdbt.com/api/v1/dbt-labs/dbt_utils.json
+[0m22:52:23.709779 [debug] [MainThread]: Response from registry: GET https://hub.getdbt.com/api/v1/dbt-labs/dbt_utils.json 200
+[0m22:52:23.716745 [debug] [MainThread]: Making package registry request: GET https://hub.getdbt.com/api/v1/dbt-labs/audit_helper.json
+[0m22:52:23.782596 [debug] [MainThread]: Response from registry: GET https://hub.getdbt.com/api/v1/dbt-labs/audit_helper.json 200
+[0m22:52:23.797763 [info ] [MainThread]: Updating lock file in file path: /Users/hichambabahmed/dbt-legacy-migration-skills/examples/stored-proc-to-dbt-duckdb/package-lock.yml
+[0m22:52:23.801177 [debug] [MainThread]: Set downloads directory='/var/folders/7v/j0mhclhj03s3pllq3bl62kn80000gr/T/dbt-downloads-lzmx1kv3'
+[0m22:52:23.804649 [info ] [MainThread]: Installing dbt-labs/dbt_utils
+[0m22:52:24.275965 [info ] [MainThread]: Installed from version 1.4.1
+[0m22:52:24.276344 [info ] [MainThread]: Up to date!
+[0m22:52:24.276610 [debug] [MainThread]: Sending event: {'category': 'dbt', 'action': 'package', 'label': '1061e0c5-5132-4044-aea5-a10f01785ebf', 'property_': 'install', 'context': [<snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x10d464770>, <snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x10d4f9bb0>]}
+[0m22:52:24.276835 [info ] [MainThread]: Installing dbt-labs/audit_helper
+[0m22:52:24.585893 [info ] [MainThread]: Installed from version 0.14.0
+[0m22:52:24.586165 [info ] [MainThread]: Up to date!
+[0m22:52:24.586370 [debug] [MainThread]: Sending event: {'category': 'dbt', 'action': 'package', 'label': '1061e0c5-5132-4044-aea5-a10f01785ebf', 'property_': 'install', 'context': [<snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x10d53fa70>, <snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x10d7fc3e0>]}
+[0m22:52:24.587564 [debug] [MainThread]: Resource report: {"command_name": "deps", "command_success": true, "command_wall_clock_time": 1.4974381, "process_in_blocks": "0", "process_kernel_time": 0.366055, "process_mem_max_rss": "136904704", "process_out_blocks": "0", "process_user_time": 0.997035}
+[0m22:52:24.587946 [debug] [MainThread]: Command `dbt deps` succeeded at 22:52:24.587876 after 1.50 seconds
+[0m22:52:24.588173 [debug] [MainThread]: Sending event: {'category': 'dbt', 'action': 'invocation', 'label': 'end', 'context': [<snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x10bc9e240>, <snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x10d424d10>, <snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x10d44a090>]}
+[0m22:52:24.588368 [debug] [MainThread]: Flushing usage events
+[0m22:52:25.091930 [debug] [MainThread]: An error was encountered while trying to flush usage events
+[0m22:52:26.285066 [debug] [MainThread]: Sending event: {'category': 'dbt', 'action': 'invocation', 'label': 'start', 'context': [<snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x10baae5d0>, <snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x10bcf3fe0>, <snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x10bcf3e00>]}
+
+
+============================== 22:52:26.288281 | b4f8775c-c65c-4384-9aab-248113956484 ==============================
+[0m22:52:26.288281 [info ] [MainThread]: Running with dbt=1.11.12
+[0m22:52:26.288646 [debug] [MainThread]: running dbt with arguments {'use_experimental_parser': 'False', 'warn_error': 'None', 'send_anonymous_usage_stats': 'True', 'version_check': 'True', 'empty': 'False', 'write_json': 'True', 'log_path': '/Users/hichambabahmed/dbt-legacy-migration-skills/examples/stored-proc-to-dbt-duckdb/logs', 'debug': 'False', 'no_print': 'None', 'indirect_selection': 'eager', 'invocation_command': 'dbt build', 'static_parser': 'True', 'introspect': 'True', 'printer_width': '80', 'cache_selected_only': 'False', 'profiles_dir': '/Users/hichambabahmed/dbt-legacy-migration-skills/examples/stored-proc-to-dbt-duckdb', 'log_cache_events': 'False', 'target_path': 'None', 'warn_error_options': 'WarnErrorOptionsV2(error=[], warn=[], silence=[])', 'fail_fast': 'False', 'partial_parse': 'True', 'quiet': 'False', 'use_colors': 'True', 'log_format': 'default'}
+[0m22:52:26.489066 [debug] [MainThread]: Sending event: {'category': 'dbt', 'action': 'project_id', 'label': 'b4f8775c-c65c-4384-9aab-248113956484', 'context': [<snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x10bd87770>]}
+[0m22:52:26.522886 [debug] [MainThread]: Sending event: {'category': 'dbt', 'action': 'adapter_info', 'label': 'b4f8775c-c65c-4384-9aab-248113956484', 'context': [<snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x10be40380>]}
+[0m22:52:26.524979 [info ] [MainThread]: Registered adapter: duckdb=1.10.1
+[0m22:52:26.600790 [debug] [MainThread]: checksum: f368f5348cf42803b94ef7fb8257ecf3bf9a9a16dd9c8c51fe5172f2dbeb457f, vars: {}, profile: , target: , version: 1.11.12
+[0m22:52:26.601739 [info ] [MainThread]: Unable to do partial parsing because saved manifest not found. Starting full parse.
+[0m22:52:26.601953 [debug] [MainThread]: Sending event: {'category': 'dbt', 'action': 'partial_parser', 'label': 'b4f8775c-c65c-4384-9aab-248113956484', 'context': [<snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x10bd84f20>]}
+[0m22:52:27.702678 [debug] [MainThread]: Sending event: {'category': 'dbt', 'action': 'load_project', 'label': 'b4f8775c-c65c-4384-9aab-248113956484', 'context': [<snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x10c929760>]}
+[0m22:52:27.769318 [debug] [MainThread]: Wrote artifact WritableManifest to /Users/hichambabahmed/dbt-legacy-migration-skills/examples/stored-proc-to-dbt-duckdb/target/manifest.json
+[0m22:52:27.771263 [debug] [MainThread]: Wrote artifact SemanticManifest to /Users/hichambabahmed/dbt-legacy-migration-skills/examples/stored-proc-to-dbt-duckdb/target/semantic_manifest.json
+[0m22:52:27.872865 [debug] [MainThread]: Sending event: {'category': 'dbt', 'action': 'resource_counts', 'label': 'b4f8775c-c65c-4384-9aab-248113956484', 'context': [<snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x10c665130>]}
+[0m22:52:27.873264 [info ] [MainThread]: Found 3 models, 1 analysis, 5 data tests, 3 seeds, 651 macros
+[0m22:52:27.874677 [info ] [MainThread]: 
+[0m22:52:27.874894 [info ] [MainThread]: Concurrency: 1 threads (target='dev')
+[0m22:52:27.875038 [info ] [MainThread]: 
+[0m22:52:27.875282 [debug] [MainThread]: Acquiring new duckdb connection 'master'
+[0m22:52:27.878028 [debug] [ThreadPool]: Acquiring new duckdb connection 'list_dev'
+[0m22:52:27.959342 [debug] [ThreadPool]: Using duckdb connection "list_dev"
+[0m22:52:27.959652 [debug] [ThreadPool]: On list_dev: /* {"app": "dbt", "dbt_version": "1.11.12", "profile_name": "stored_proc_duckdb", "target_name": "dev", "connection_name": "list_dev"} */
+
+    
+    select schema_name
+    from system.information_schema.schemata
+    
+    where lower(catalog_name) = '"dev"'
+    
+  
+  
+[0m22:52:27.959827 [debug] [ThreadPool]: Opening a new connection, currently in state init
+[0m22:52:27.975167 [debug] [ThreadPool]: SQL status: OK in 0.015 seconds
+[0m22:52:27.976364 [debug] [ThreadPool]: On list_dev: Close
+[0m22:52:27.976774 [debug] [ThreadPool]: Re-using an available connection from the pool (formerly list_dev, now create_dev_main)
+[0m22:52:27.977033 [debug] [ThreadPool]: Creating schema "database: "dev"
+schema: "main"
+"
+[0m22:52:27.980897 [debug] [ThreadPool]: Using duckdb connection "create_dev_main"
+[0m22:52:27.981075 [debug] [ThreadPool]: On create_dev_main: /* {"app": "dbt", "dbt_version": "1.11.12", "profile_name": "stored_proc_duckdb", "target_name": "dev", "connection_name": "create_dev_main"} */
+
+    
+        select type from duckdb_databases()
+        where lower(database_name)='dev'
+        and type='sqlite'
+    
+  
+[0m22:52:27.981220 [debug] [ThreadPool]: Opening a new connection, currently in state closed
+[0m22:52:27.981951 [debug] [ThreadPool]: SQL status: OK in 0.001 seconds
+[0m22:52:27.982575 [debug] [ThreadPool]: Using duckdb connection "create_dev_main"
+[0m22:52:27.982721 [debug] [ThreadPool]: On create_dev_main: BEGIN
+[0m22:52:27.982936 [debug] [ThreadPool]: SQL status: OK in 0.000 seconds
+[0m22:52:27.983060 [debug] [ThreadPool]: Using duckdb connection "create_dev_main"
+[0m22:52:27.983190 [debug] [ThreadPool]: On create_dev_main: /* {"app": "dbt", "dbt_version": "1.11.12", "profile_name": "stored_proc_duckdb", "target_name": "dev", "connection_name": "create_dev_main"} */
+
+    
+    
+        create schema if not exists "dev"."main"
+    
+[0m22:52:27.983663 [debug] [ThreadPool]: SQL status: OK in 0.000 seconds
+[0m22:52:27.984117 [debug] [ThreadPool]: On create_dev_main: COMMIT
+[0m22:52:27.984276 [debug] [ThreadPool]: Using duckdb connection "create_dev_main"
+[0m22:52:27.984406 [debug] [ThreadPool]: On create_dev_main: COMMIT
+[0m22:52:27.984617 [debug] [ThreadPool]: SQL status: OK in 0.000 seconds
+[0m22:52:27.984750 [debug] [ThreadPool]: On create_dev_main: Close
+[0m22:52:27.985421 [debug] [ThreadPool]: Re-using an available connection from the pool (formerly create_dev_main, now list_dev_main)
+[0m22:52:27.988451 [debug] [ThreadPool]: Using duckdb connection "list_dev_main"
+[0m22:52:27.988602 [debug] [ThreadPool]: On list_dev_main: BEGIN
+[0m22:52:27.988729 [debug] [ThreadPool]: Opening a new connection, currently in state closed
+[0m22:52:27.988947 [debug] [ThreadPool]: SQL status: OK in 0.000 seconds
+[0m22:52:27.989070 [debug] [ThreadPool]: Using duckdb connection "list_dev_main"
+[0m22:52:27.989200 [debug] [ThreadPool]: On list_dev_main: /* {"app": "dbt", "dbt_version": "1.11.12", "profile_name": "stored_proc_duckdb", "target_name": "dev", "connection_name": "list_dev_main"} */
+select
+      'dev' as database,
+      table_name as name,
+      table_schema as schema,
+      CASE table_type
+        WHEN 'BASE TABLE' THEN 'table'
+        WHEN 'VIEW' THEN 'view'
+        WHEN 'LOCAL TEMPORARY' THEN 'table'
+        END as type
+    from system.information_schema.tables
+    where lower(table_schema) = 'main'
+    and lower(table_catalog) = 'dev'
+  
+[0m22:52:27.991823 [debug] [ThreadPool]: SQL status: OK in 0.002 seconds
+[0m22:52:27.992433 [debug] [ThreadPool]: On list_dev_main: ROLLBACK
+[0m22:52:27.993436 [debug] [ThreadPool]: Failed to rollback 'list_dev_main'
+[0m22:52:27.993597 [debug] [ThreadPool]: On list_dev_main: Close
+[0m22:52:27.994064 [debug] [MainThread]: Sending event: {'category': 'dbt', 'action': 'runnable_timing', 'label': 'b4f8775c-c65c-4384-9aab-248113956484', 'context': [<snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x10c7c4440>]}
+[0m22:52:27.994293 [debug] [MainThread]: Using duckdb connection "master"
+[0m22:52:27.994428 [debug] [MainThread]: On master: BEGIN
+[0m22:52:27.994558 [debug] [MainThread]: Opening a new connection, currently in state init
+[0m22:52:27.994788 [debug] [MainThread]: SQL status: OK in 0.000 seconds
+[0m22:52:27.994917 [debug] [MainThread]: On master: COMMIT
+[0m22:52:27.995049 [debug] [MainThread]: Using duckdb connection "master"
+[0m22:52:27.995169 [debug] [MainThread]: On master: COMMIT
+[0m22:52:27.995368 [debug] [MainThread]: SQL status: OK in 0.000 seconds
+[0m22:52:27.995517 [debug] [MainThread]: On master: Close
+[0m22:52:27.998665 [debug] [Thread-1 (]: Began running node seed.stored_proc_duckdb.legacy_customer_ltv
+[0m22:52:27.998942 [info ] [Thread-1 (]: 1 of 11 START seed file main.legacy_customer_ltv ............................... [RUN]
+[0m22:52:27.999167 [debug] [Thread-1 (]: Re-using an available connection from the pool (formerly list_dev_main, now seed.stored_proc_duckdb.legacy_customer_ltv)
+[0m22:52:27.999338 [debug] [Thread-1 (]: Began compiling node seed.stored_proc_duckdb.legacy_customer_ltv
+[0m22:52:27.999515 [debug] [Thread-1 (]: Began executing node seed.stored_proc_duckdb.legacy_customer_ltv
+[0m22:52:28.013927 [debug] [Thread-1 (]: Using duckdb connection "seed.stored_proc_duckdb.legacy_customer_ltv"
+[0m22:52:28.014126 [debug] [Thread-1 (]: On seed.stored_proc_duckdb.legacy_customer_ltv: BEGIN
+[0m22:52:28.014285 [debug] [Thread-1 (]: Opening a new connection, currently in state closed
+[0m22:52:28.014579 [debug] [Thread-1 (]: SQL status: OK in 0.000 seconds
+[0m22:52:28.014735 [debug] [Thread-1 (]: Using duckdb connection "seed.stored_proc_duckdb.legacy_customer_ltv"
+[0m22:52:28.014894 [debug] [Thread-1 (]: On seed.stored_proc_duckdb.legacy_customer_ltv: /* {"app": "dbt", "dbt_version": "1.11.12", "profile_name": "stored_proc_duckdb", "target_name": "dev", "node_id": "seed.stored_proc_duckdb.legacy_customer_ltv"} */
+
+    create table "dev"."main"."legacy_customer_ltv" ("customer_id" integer,"lifetime_value" integer,"order_count" integer,"ltv_segment" text)
+  
+[0m22:52:28.016073 [debug] [Thread-1 (]: SQL status: OK in 0.001 seconds
+[0m22:52:28.021780 [debug] [Thread-1 (]: Using duckdb connection "seed.stored_proc_duckdb.legacy_customer_ltv"
+[0m22:52:28.021977 [debug] [Thread-1 (]: On seed.stored_proc_duckdb.legacy_customer_ltv: 
+          COPY "dev"."main"."legacy_customer_ltv" FROM '/Users/hichambabahmed/dbt-legacy-migration-skills/examples/stored-proc-to-dbt-duckdb/seeds/legacy_customer_ltv.csv' (FORMAT CSV, HEADER TRUE, DELIMITER ',')
+        ...
+[0m22:52:28.028718 [debug] [Thread-1 (]: SQL status: OK in 0.007 seconds
+[0m22:52:28.031785 [debug] [Thread-1 (]: Writing runtime SQL for node "seed.stored_proc_duckdb.legacy_customer_ltv"
+[0m22:52:28.040079 [debug] [Thread-1 (]: On seed.stored_proc_duckdb.legacy_customer_ltv: COMMIT
+[0m22:52:28.040294 [debug] [Thread-1 (]: Using duckdb connection "seed.stored_proc_duckdb.legacy_customer_ltv"
+[0m22:52:28.040460 [debug] [Thread-1 (]: On seed.stored_proc_duckdb.legacy_customer_ltv: COMMIT
+[0m22:52:28.041193 [debug] [Thread-1 (]: SQL status: OK in 0.001 seconds
+[0m22:52:28.043023 [debug] [Thread-1 (]: On seed.stored_proc_duckdb.legacy_customer_ltv: Close
+[0m22:52:28.044499 [debug] [Thread-1 (]: Sending event: {'category': 'dbt', 'action': 'run_model', 'label': 'b4f8775c-c65c-4384-9aab-248113956484', 'context': [<snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x10c7f6ea0>]}
+[0m22:52:28.044804 [info ] [Thread-1 (]: 1 of 11 OK loaded seed file main.legacy_customer_ltv ........................... [[32mINSERT 3[0m in 0.04s]
+[0m22:52:28.045127 [debug] [Thread-1 (]: Finished running node seed.stored_proc_duckdb.legacy_customer_ltv
+[0m22:52:28.045339 [debug] [Thread-1 (]: Began running node seed.stored_proc_duckdb.raw_customers
+[0m22:52:28.045630 [info ] [Thread-1 (]: 2 of 11 START seed file main.raw_customers ..................................... [RUN]
+[0m22:52:28.045857 [debug] [Thread-1 (]: Re-using an available connection from the pool (formerly seed.stored_proc_duckdb.legacy_customer_ltv, now seed.stored_proc_duckdb.raw_customers)
+[0m22:52:28.046032 [debug] [Thread-1 (]: Began compiling node seed.stored_proc_duckdb.raw_customers
+[0m22:52:28.046192 [debug] [Thread-1 (]: Began executing node seed.stored_proc_duckdb.raw_customers
+[0m22:52:28.048312 [debug] [Thread-1 (]: Using duckdb connection "seed.stored_proc_duckdb.raw_customers"
+[0m22:52:28.048496 [debug] [Thread-1 (]: On seed.stored_proc_duckdb.raw_customers: BEGIN
+[0m22:52:28.048647 [debug] [Thread-1 (]: Opening a new connection, currently in state closed
+[0m22:52:28.048918 [debug] [Thread-1 (]: SQL status: OK in 0.000 seconds
+[0m22:52:28.049081 [debug] [Thread-1 (]: Using duckdb connection "seed.stored_proc_duckdb.raw_customers"
+[0m22:52:28.049236 [debug] [Thread-1 (]: On seed.stored_proc_duckdb.raw_customers: /* {"app": "dbt", "dbt_version": "1.11.12", "profile_name": "stored_proc_duckdb", "target_name": "dev", "node_id": "seed.stored_proc_duckdb.raw_customers"} */
+
+    create table "dev"."main"."raw_customers" ("customer_id" integer,"customer_name" text,"signup_date" date)
+  
+[0m22:52:28.049526 [debug] [Thread-1 (]: SQL status: OK in 0.000 seconds
+[0m22:52:28.050078 [debug] [Thread-1 (]: Using duckdb connection "seed.stored_proc_duckdb.raw_customers"
+[0m22:52:28.050241 [debug] [Thread-1 (]: On seed.stored_proc_duckdb.raw_customers: 
+          COPY "dev"."main"."raw_customers" FROM '/Users/hichambabahmed/dbt-legacy-migration-skills/examples/stored-proc-to-dbt-duckdb/seeds/raw_customers.csv' (FORMAT CSV, HEADER TRUE, DELIMITER ',')
+        ...
+[0m22:52:28.051461 [debug] [Thread-1 (]: SQL status: OK in 0.001 seconds
+[0m22:52:28.051782 [debug] [Thread-1 (]: Writing runtime SQL for node "seed.stored_proc_duckdb.raw_customers"
+[0m22:52:28.052762 [debug] [Thread-1 (]: On seed.stored_proc_duckdb.raw_customers: COMMIT
+[0m22:52:28.052932 [debug] [Thread-1 (]: Using duckdb connection "seed.stored_proc_duckdb.raw_customers"
+[0m22:52:28.053087 [debug] [Thread-1 (]: On seed.stored_proc_duckdb.raw_customers: COMMIT
+[0m22:52:28.053388 [debug] [Thread-1 (]: SQL status: OK in 0.000 seconds
+[0m22:52:28.053719 [debug] [Thread-1 (]: On seed.stored_proc_duckdb.raw_customers: Close
+[0m22:52:28.053963 [debug] [Thread-1 (]: Sending event: {'category': 'dbt', 'action': 'run_model', 'label': 'b4f8775c-c65c-4384-9aab-248113956484', 'context': [<snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x10ccd2390>]}
+[0m22:52:28.054214 [info ] [Thread-1 (]: 2 of 11 OK loaded seed file main.raw_customers ................................. [[32mINSERT 3[0m in 0.01s]
+[0m22:52:28.054593 [debug] [Thread-1 (]: Finished running node seed.stored_proc_duckdb.raw_customers
+[0m22:52:28.054800 [debug] [Thread-1 (]: Began running node seed.stored_proc_duckdb.raw_orders
+[0m22:52:28.055063 [info ] [Thread-1 (]: 3 of 11 START seed file main.raw_orders ........................................ [RUN]
+[0m22:52:28.055322 [debug] [Thread-1 (]: Re-using an available connection from the pool (formerly seed.stored_proc_duckdb.raw_customers, now seed.stored_proc_duckdb.raw_orders)
+[0m22:52:28.055500 [debug] [Thread-1 (]: Began compiling node seed.stored_proc_duckdb.raw_orders
+[0m22:52:28.055657 [debug] [Thread-1 (]: Began executing node seed.stored_proc_duckdb.raw_orders
+[0m22:52:28.057739 [debug] [Thread-1 (]: Using duckdb connection "seed.stored_proc_duckdb.raw_orders"
+[0m22:52:28.057920 [debug] [Thread-1 (]: On seed.stored_proc_duckdb.raw_orders: BEGIN
+[0m22:52:28.058068 [debug] [Thread-1 (]: Opening a new connection, currently in state closed
+[0m22:52:28.058319 [debug] [Thread-1 (]: SQL status: OK in 0.000 seconds
+[0m22:52:28.058468 [debug] [Thread-1 (]: Using duckdb connection "seed.stored_proc_duckdb.raw_orders"
+[0m22:52:28.058623 [debug] [Thread-1 (]: On seed.stored_proc_duckdb.raw_orders: /* {"app": "dbt", "dbt_version": "1.11.12", "profile_name": "stored_proc_duckdb", "target_name": "dev", "node_id": "seed.stored_proc_duckdb.raw_orders"} */
+
+    create table "dev"."main"."raw_orders" ("order_id" integer,"customer_id" integer,"order_date" date,"status" text,"amount" integer)
+  
+[0m22:52:28.058910 [debug] [Thread-1 (]: SQL status: OK in 0.000 seconds
+[0m22:52:28.059452 [debug] [Thread-1 (]: Using duckdb connection "seed.stored_proc_duckdb.raw_orders"
+[0m22:52:28.059617 [debug] [Thread-1 (]: On seed.stored_proc_duckdb.raw_orders: 
+          COPY "dev"."main"."raw_orders" FROM '/Users/hichambabahmed/dbt-legacy-migration-skills/examples/stored-proc-to-dbt-duckdb/seeds/raw_orders.csv' (FORMAT CSV, HEADER TRUE, DELIMITER ',')
+        ...
+[0m22:52:28.060764 [debug] [Thread-1 (]: SQL status: OK in 0.001 seconds
+[0m22:52:28.061066 [debug] [Thread-1 (]: Writing runtime SQL for node "seed.stored_proc_duckdb.raw_orders"
+[0m22:52:28.062221 [debug] [Thread-1 (]: On seed.stored_proc_duckdb.raw_orders: COMMIT
+[0m22:52:28.062386 [debug] [Thread-1 (]: Using duckdb connection "seed.stored_proc_duckdb.raw_orders"
+[0m22:52:28.062534 [debug] [Thread-1 (]: On seed.stored_proc_duckdb.raw_orders: COMMIT
+[0m22:52:28.062844 [debug] [Thread-1 (]: SQL status: OK in 0.000 seconds
+[0m22:52:28.063171 [debug] [Thread-1 (]: On seed.stored_proc_duckdb.raw_orders: Close
+[0m22:52:28.063432 [debug] [Thread-1 (]: Sending event: {'category': 'dbt', 'action': 'run_model', 'label': 'b4f8775c-c65c-4384-9aab-248113956484', 'context': [<snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x10c83c770>]}
+[0m22:52:28.063687 [info ] [Thread-1 (]: 3 of 11 OK loaded seed file main.raw_orders .................................... [[32mINSERT 6[0m in 0.01s]
+[0m22:52:28.063943 [debug] [Thread-1 (]: Finished running node seed.stored_proc_duckdb.raw_orders
+[0m22:52:28.064135 [debug] [Thread-1 (]: Began running node model.stored_proc_duckdb.stg_customers
+[0m22:52:28.064438 [info ] [Thread-1 (]: 4 of 11 START sql view model main.stg_customers ................................ [RUN]
+[0m22:52:28.064640 [debug] [Thread-1 (]: Re-using an available connection from the pool (formerly seed.stored_proc_duckdb.raw_orders, now model.stored_proc_duckdb.stg_customers)
+[0m22:52:28.064930 [debug] [Thread-1 (]: Began compiling node model.stored_proc_duckdb.stg_customers
+[0m22:52:28.068846 [debug] [Thread-1 (]: Writing injected SQL for node "model.stored_proc_duckdb.stg_customers"
+[0m22:52:28.069696 [debug] [Thread-1 (]: Began executing node model.stored_proc_duckdb.stg_customers
+[0m22:52:28.083446 [debug] [Thread-1 (]: Writing runtime sql for node "model.stored_proc_duckdb.stg_customers"
+[0m22:52:28.084129 [debug] [Thread-1 (]: Using duckdb connection "model.stored_proc_duckdb.stg_customers"
+[0m22:52:28.084304 [debug] [Thread-1 (]: On model.stored_proc_duckdb.stg_customers: BEGIN
+[0m22:52:28.084461 [debug] [Thread-1 (]: Opening a new connection, currently in state closed
+[0m22:52:28.084744 [debug] [Thread-1 (]: SQL status: OK in 0.000 seconds
+[0m22:52:28.084894 [debug] [Thread-1 (]: Using duckdb connection "model.stored_proc_duckdb.stg_customers"
+[0m22:52:28.085052 [debug] [Thread-1 (]: On model.stored_proc_duckdb.stg_customers: /* {"app": "dbt", "dbt_version": "1.11.12", "profile_name": "stored_proc_duckdb", "target_name": "dev", "node_id": "model.stored_proc_duckdb.stg_customers"} */
+
+  
+  create view "dev"."main"."stg_customers__dbt_tmp" as (
+    with source as (
+    select * from "dev"."main"."raw_customers"
+)
+
+select
+    cast(customer_id as integer) as customer_id,
+    customer_name,
+    cast(signup_date as date)    as signup_date
+from source
+  );
+
+[0m22:52:28.085437 [debug] [Thread-1 (]: SQL status: OK in 0.000 seconds
+[0m22:52:28.088556 [debug] [Thread-1 (]: Using duckdb connection "model.stored_proc_duckdb.stg_customers"
+[0m22:52:28.088732 [debug] [Thread-1 (]: On model.stored_proc_duckdb.stg_customers: /* {"app": "dbt", "dbt_version": "1.11.12", "profile_name": "stored_proc_duckdb", "target_name": "dev", "node_id": "model.stored_proc_duckdb.stg_customers"} */
+alter view "dev"."main"."stg_customers__dbt_tmp" rename to "stg_customers"
+[0m22:52:28.089336 [debug] [Thread-1 (]: SQL status: OK in 0.000 seconds
+[0m22:52:28.089978 [debug] [Thread-1 (]: On model.stored_proc_duckdb.stg_customers: COMMIT
+[0m22:52:28.090144 [debug] [Thread-1 (]: Using duckdb connection "model.stored_proc_duckdb.stg_customers"
+[0m22:52:28.090292 [debug] [Thread-1 (]: On model.stored_proc_duckdb.stg_customers: COMMIT
+[0m22:52:28.090736 [debug] [Thread-1 (]: SQL status: OK in 0.000 seconds
+[0m22:52:28.093495 [debug] [Thread-1 (]: Using duckdb connection "model.stored_proc_duckdb.stg_customers"
+[0m22:52:28.093668 [debug] [Thread-1 (]: On model.stored_proc_duckdb.stg_customers: /* {"app": "dbt", "dbt_version": "1.11.12", "profile_name": "stored_proc_duckdb", "target_name": "dev", "node_id": "model.stored_proc_duckdb.stg_customers"} */
+
+      drop view if exists "dev"."main"."stg_customers__dbt_backup" cascade
+    
+[0m22:52:28.093920 [debug] [Thread-1 (]: SQL status: OK in 0.000 seconds
+[0m22:52:28.094506 [debug] [Thread-1 (]: On model.stored_proc_duckdb.stg_customers: Close
+[0m22:52:28.094775 [debug] [Thread-1 (]: Sending event: {'category': 'dbt', 'action': 'run_model', 'label': 'b4f8775c-c65c-4384-9aab-248113956484', 'context': [<snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x10d12b020>]}
+[0m22:52:28.095089 [info ] [Thread-1 (]: 4 of 11 OK created sql view model main.stg_customers ........................... [[32mOK[0m in 0.03s]
+[0m22:52:28.095356 [debug] [Thread-1 (]: Finished running node model.stored_proc_duckdb.stg_customers
+[0m22:52:28.095542 [debug] [Thread-1 (]: Began running node model.stored_proc_duckdb.stg_orders
+[0m22:52:28.095780 [info ] [Thread-1 (]: 5 of 11 START sql view model main.stg_orders ................................... [RUN]
+[0m22:52:28.095986 [debug] [Thread-1 (]: Re-using an available connection from the pool (formerly model.stored_proc_duckdb.stg_customers, now model.stored_proc_duckdb.stg_orders)
+[0m22:52:28.096152 [debug] [Thread-1 (]: Began compiling node model.stored_proc_duckdb.stg_orders
+[0m22:52:28.098574 [debug] [Thread-1 (]: Writing injected SQL for node "model.stored_proc_duckdb.stg_orders"
+[0m22:52:28.098983 [debug] [Thread-1 (]: Began executing node model.stored_proc_duckdb.stg_orders
+[0m22:52:28.100764 [debug] [Thread-1 (]: Writing runtime sql for node "model.stored_proc_duckdb.stg_orders"
+[0m22:52:28.101142 [debug] [Thread-1 (]: Using duckdb connection "model.stored_proc_duckdb.stg_orders"
+[0m22:52:28.101305 [debug] [Thread-1 (]: On model.stored_proc_duckdb.stg_orders: BEGIN
+[0m22:52:28.101453 [debug] [Thread-1 (]: Opening a new connection, currently in state closed
+[0m22:52:28.101711 [debug] [Thread-1 (]: SQL status: OK in 0.000 seconds
+[0m22:52:28.101864 [debug] [Thread-1 (]: Using duckdb connection "model.stored_proc_duckdb.stg_orders"
+[0m22:52:28.102023 [debug] [Thread-1 (]: On model.stored_proc_duckdb.stg_orders: /* {"app": "dbt", "dbt_version": "1.11.12", "profile_name": "stored_proc_duckdb", "target_name": "dev", "node_id": "model.stored_proc_duckdb.stg_orders"} */
+
+  
+  create view "dev"."main"."stg_orders__dbt_tmp" as (
+    with source as (
+    select * from "dev"."main"."raw_orders"
+)
+
+select
+    cast(order_id as integer)       as order_id,
+    cast(customer_id as integer)    as customer_id,
+    cast(order_date as date)        as order_date,
+    status,
+    cast(amount as decimal(18, 2))  as amount
+from source
+  );
+
+[0m22:52:28.102719 [debug] [Thread-1 (]: SQL status: OK in 0.001 seconds
+[0m22:52:28.104181 [debug] [Thread-1 (]: Using duckdb connection "model.stored_proc_duckdb.stg_orders"
+[0m22:52:28.104351 [debug] [Thread-1 (]: On model.stored_proc_duckdb.stg_orders: /* {"app": "dbt", "dbt_version": "1.11.12", "profile_name": "stored_proc_duckdb", "target_name": "dev", "node_id": "model.stored_proc_duckdb.stg_orders"} */
+alter view "dev"."main"."stg_orders__dbt_tmp" rename to "stg_orders"
+[0m22:52:28.104588 [debug] [Thread-1 (]: SQL status: OK in 0.000 seconds
+[0m22:52:28.105191 [debug] [Thread-1 (]: On model.stored_proc_duckdb.stg_orders: COMMIT
+[0m22:52:28.105352 [debug] [Thread-1 (]: Using duckdb connection "model.stored_proc_duckdb.stg_orders"
+[0m22:52:28.105498 [debug] [Thread-1 (]: On model.stored_proc_duckdb.stg_orders: COMMIT
+[0m22:52:28.105978 [debug] [Thread-1 (]: SQL status: OK in 0.000 seconds
+[0m22:52:28.107111 [debug] [Thread-1 (]: Using duckdb connection "model.stored_proc_duckdb.stg_orders"
+[0m22:52:28.107273 [debug] [Thread-1 (]: On model.stored_proc_duckdb.stg_orders: /* {"app": "dbt", "dbt_version": "1.11.12", "profile_name": "stored_proc_duckdb", "target_name": "dev", "node_id": "model.stored_proc_duckdb.stg_orders"} */
+
+      drop view if exists "dev"."main"."stg_orders__dbt_backup" cascade
+    
+[0m22:52:28.107500 [debug] [Thread-1 (]: SQL status: OK in 0.000 seconds
+[0m22:52:28.108052 [debug] [Thread-1 (]: On model.stored_proc_duckdb.stg_orders: Close
+[0m22:52:28.108293 [debug] [Thread-1 (]: Sending event: {'category': 'dbt', 'action': 'run_model', 'label': 'b4f8775c-c65c-4384-9aab-248113956484', 'context': [<snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x10d13d280>]}
+[0m22:52:28.108587 [info ] [Thread-1 (]: 5 of 11 OK created sql view model main.stg_orders .............................. [[32mOK[0m in 0.01s]
+[0m22:52:28.108845 [debug] [Thread-1 (]: Finished running node model.stored_proc_duckdb.stg_orders
+[0m22:52:28.109236 [debug] [Thread-1 (]: Began running node model.stored_proc_duckdb.mart_customer_ltv
+[0m22:52:28.109536 [info ] [Thread-1 (]: 6 of 11 START sql table model main.mart_customer_ltv ........................... [RUN]
+[0m22:52:28.109764 [debug] [Thread-1 (]: Re-using an available connection from the pool (formerly model.stored_proc_duckdb.stg_orders, now model.stored_proc_duckdb.mart_customer_ltv)
+[0m22:52:28.109938 [debug] [Thread-1 (]: Began compiling node model.stored_proc_duckdb.mart_customer_ltv
+[0m22:52:28.111572 [debug] [Thread-1 (]: Writing injected SQL for node "model.stored_proc_duckdb.mart_customer_ltv"
+[0m22:52:28.112178 [debug] [Thread-1 (]: Began executing node model.stored_proc_duckdb.mart_customer_ltv
+[0m22:52:28.122536 [debug] [Thread-1 (]: Writing runtime sql for node "model.stored_proc_duckdb.mart_customer_ltv"
+[0m22:52:28.123177 [debug] [Thread-1 (]: Using duckdb connection "model.stored_proc_duckdb.mart_customer_ltv"
+[0m22:52:28.123351 [debug] [Thread-1 (]: On model.stored_proc_duckdb.mart_customer_ltv: BEGIN
+[0m22:52:28.123503 [debug] [Thread-1 (]: Opening a new connection, currently in state closed
+[0m22:52:28.123811 [debug] [Thread-1 (]: SQL status: OK in 0.000 seconds
+[0m22:52:28.123964 [debug] [Thread-1 (]: Using duckdb connection "model.stored_proc_duckdb.mart_customer_ltv"
+[0m22:52:28.124134 [debug] [Thread-1 (]: On model.stored_proc_duckdb.mart_customer_ltv: /* {"app": "dbt", "dbt_version": "1.11.12", "profile_name": "stored_proc_duckdb", "target_name": "dev", "node_id": "model.stored_proc_duckdb.mart_customer_ltv"} */
+
+  
+    
+    
+
+    create  table
+      "dev"."main"."mart_customer_ltv__dbt_tmp"
+  
+    as (
+      -- Migrated from legacy/sp_customer_ltv.sql: the procedural temp-table rebuild becomes a
+-- declarative model on ref() staging models. Same output, same grain (one row per customer).
+with completed as (
+    select customer_id, amount
+    from "dev"."main"."stg_orders"
+    where status = 'completed'
+),
+
+final as (
+    select
+        customer_id,
+        cast(sum(amount) as decimal(18, 2)) as lifetime_value,
+        count(*)                            as order_count,
+        case when sum(amount) >= 150 then 'high' else 'low' end as ltv_segment
+    from completed
+    group by customer_id
+)
+
+select * from final
+    );
+  
+  
+[0m22:52:28.127854 [debug] [Thread-1 (]: SQL status: OK in 0.004 seconds
+[0m22:52:28.129561 [debug] [Thread-1 (]: Using duckdb connection "model.stored_proc_duckdb.mart_customer_ltv"
+[0m22:52:28.129750 [debug] [Thread-1 (]: On model.stored_proc_duckdb.mart_customer_ltv: /* {"app": "dbt", "dbt_version": "1.11.12", "profile_name": "stored_proc_duckdb", "target_name": "dev", "node_id": "model.stored_proc_duckdb.mart_customer_ltv"} */
+alter table "dev"."main"."mart_customer_ltv__dbt_tmp" rename to "mart_customer_ltv"
+[0m22:52:28.130266 [debug] [Thread-1 (]: SQL status: OK in 0.000 seconds
+[0m22:52:28.131080 [debug] [Thread-1 (]: On model.stored_proc_duckdb.mart_customer_ltv: COMMIT
+[0m22:52:28.131274 [debug] [Thread-1 (]: Using duckdb connection "model.stored_proc_duckdb.mart_customer_ltv"
+[0m22:52:28.131443 [debug] [Thread-1 (]: On model.stored_proc_duckdb.mart_customer_ltv: COMMIT
+[0m22:52:28.131805 [debug] [Thread-1 (]: SQL status: OK in 0.000 seconds
+[0m22:52:28.133047 [debug] [Thread-1 (]: Using duckdb connection "model.stored_proc_duckdb.mart_customer_ltv"
+[0m22:52:28.133217 [debug] [Thread-1 (]: On model.stored_proc_duckdb.mart_customer_ltv: /* {"app": "dbt", "dbt_version": "1.11.12", "profile_name": "stored_proc_duckdb", "target_name": "dev", "node_id": "model.stored_proc_duckdb.mart_customer_ltv"} */
+
+      drop table if exists "dev"."main"."mart_customer_ltv__dbt_backup" cascade
+    
+[0m22:52:28.133464 [debug] [Thread-1 (]: SQL status: OK in 0.000 seconds
+[0m22:52:28.134076 [debug] [Thread-1 (]: On model.stored_proc_duckdb.mart_customer_ltv: Close
+[0m22:52:28.134341 [debug] [Thread-1 (]: Sending event: {'category': 'dbt', 'action': 'run_model', 'label': 'b4f8775c-c65c-4384-9aab-248113956484', 'context': [<snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x10c63d580>]}
+[0m22:52:28.134656 [info ] [Thread-1 (]: 6 of 11 OK created sql table model main.mart_customer_ltv ...................... [[32mOK[0m in 0.02s]
+[0m22:52:28.134919 [debug] [Thread-1 (]: Finished running node model.stored_proc_duckdb.mart_customer_ltv
+[0m22:52:28.135345 [debug] [Thread-1 (]: Began running node test.stored_proc_duckdb.accepted_values_mart_customer_ltv_ltv_segment__high__low.9244e2122f
+[0m22:52:28.135562 [info ] [Thread-1 (]: 7 of 11 START test accepted_values_mart_customer_ltv_ltv_segment__high__low .... [RUN]
+[0m22:52:28.135774 [debug] [Thread-1 (]: Re-using an available connection from the pool (formerly model.stored_proc_duckdb.mart_customer_ltv, now test.stored_proc_duckdb.accepted_values_mart_customer_ltv_ltv_segment__high__low.9244e2122f)
+[0m22:52:28.135948 [debug] [Thread-1 (]: Began compiling node test.stored_proc_duckdb.accepted_values_mart_customer_ltv_ltv_segment__high__low.9244e2122f
+[0m22:52:28.139557 [debug] [Thread-1 (]: Writing injected SQL for node "test.stored_proc_duckdb.accepted_values_mart_customer_ltv_ltv_segment__high__low.9244e2122f"
+[0m22:52:28.140143 [debug] [Thread-1 (]: Began executing node test.stored_proc_duckdb.accepted_values_mart_customer_ltv_ltv_segment__high__low.9244e2122f
+[0m22:52:28.150484 [debug] [Thread-1 (]: Writing runtime sql for node "test.stored_proc_duckdb.accepted_values_mart_customer_ltv_ltv_segment__high__low.9244e2122f"
+[0m22:52:28.151096 [debug] [Thread-1 (]: Using duckdb connection "test.stored_proc_duckdb.accepted_values_mart_customer_ltv_ltv_segment__high__low.9244e2122f"
+[0m22:52:28.151281 [debug] [Thread-1 (]: On test.stored_proc_duckdb.accepted_values_mart_customer_ltv_ltv_segment__high__low.9244e2122f: BEGIN
+[0m22:52:28.151436 [debug] [Thread-1 (]: Opening a new connection, currently in state closed
+[0m22:52:28.151767 [debug] [Thread-1 (]: SQL status: OK in 0.000 seconds
+[0m22:52:28.151927 [debug] [Thread-1 (]: Using duckdb connection "test.stored_proc_duckdb.accepted_values_mart_customer_ltv_ltv_segment__high__low.9244e2122f"
+[0m22:52:28.152097 [debug] [Thread-1 (]: On test.stored_proc_duckdb.accepted_values_mart_customer_ltv_ltv_segment__high__low.9244e2122f: /* {"app": "dbt", "dbt_version": "1.11.12", "profile_name": "stored_proc_duckdb", "target_name": "dev", "node_id": "test.stored_proc_duckdb.accepted_values_mart_customer_ltv_ltv_segment__high__low.9244e2122f"} */
+
+    
+    select
+      count(*) as failures,
+      count(*) != 0 as should_warn,
+      count(*) != 0 as should_error
+    from (
+      
+    
+  
+    
+    
+
+with all_values as (
+
+    select
+        ltv_segment as value_field,
+        count(*) as n_records
+
+    from "dev"."main"."mart_customer_ltv"
+    group by ltv_segment
+
+)
+
+select *
+from all_values
+where value_field not in (
+    'high','low'
+)
+
+
+
+  
+  
+      
+    ) dbt_internal_test
+[0m22:52:28.153452 [debug] [Thread-1 (]: SQL status: OK in 0.001 seconds
+[0m22:52:28.155546 [debug] [Thread-1 (]: On test.stored_proc_duckdb.accepted_values_mart_customer_ltv_ltv_segment__high__low.9244e2122f: ROLLBACK
+[0m22:52:28.156065 [debug] [Thread-1 (]: Failed to rollback 'test.stored_proc_duckdb.accepted_values_mart_customer_ltv_ltv_segment__high__low.9244e2122f'
+[0m22:52:28.156235 [debug] [Thread-1 (]: On test.stored_proc_duckdb.accepted_values_mart_customer_ltv_ltv_segment__high__low.9244e2122f: Close
+[0m22:52:28.156530 [info ] [Thread-1 (]: 7 of 11 PASS accepted_values_mart_customer_ltv_ltv_segment__high__low .......... [[32mPASS[0m in 0.02s]
+[0m22:52:28.156796 [debug] [Thread-1 (]: Finished running node test.stored_proc_duckdb.accepted_values_mart_customer_ltv_ltv_segment__high__low.9244e2122f
+[0m22:52:28.156992 [debug] [Thread-1 (]: Began running node test.stored_proc_duckdb.assert_customer_ltv_parity
+[0m22:52:28.157188 [info ] [Thread-1 (]: 8 of 11 START test assert_customer_ltv_parity .................................. [RUN]
+[0m22:52:28.157385 [debug] [Thread-1 (]: Re-using an available connection from the pool (formerly test.stored_proc_duckdb.accepted_values_mart_customer_ltv_ltv_segment__high__low.9244e2122f, now test.stored_proc_duckdb.assert_customer_ltv_parity)
+[0m22:52:28.157551 [debug] [Thread-1 (]: Began compiling node test.stored_proc_duckdb.assert_customer_ltv_parity
+[0m22:52:28.159270 [debug] [Thread-1 (]: Writing injected SQL for node "test.stored_proc_duckdb.assert_customer_ltv_parity"
+[0m22:52:28.159838 [debug] [Thread-1 (]: Began executing node test.stored_proc_duckdb.assert_customer_ltv_parity
+[0m22:52:28.161114 [debug] [Thread-1 (]: Writing runtime sql for node "test.stored_proc_duckdb.assert_customer_ltv_parity"
+[0m22:52:28.161589 [debug] [Thread-1 (]: Using duckdb connection "test.stored_proc_duckdb.assert_customer_ltv_parity"
+[0m22:52:28.161751 [debug] [Thread-1 (]: On test.stored_proc_duckdb.assert_customer_ltv_parity: BEGIN
+[0m22:52:28.161900 [debug] [Thread-1 (]: Opening a new connection, currently in state closed
+[0m22:52:28.162168 [debug] [Thread-1 (]: SQL status: OK in 0.000 seconds
+[0m22:52:28.162321 [debug] [Thread-1 (]: Using duckdb connection "test.stored_proc_duckdb.assert_customer_ltv_parity"
+[0m22:52:28.162508 [debug] [Thread-1 (]: On test.stored_proc_duckdb.assert_customer_ltv_parity: /* {"app": "dbt", "dbt_version": "1.11.12", "profile_name": "stored_proc_duckdb", "target_name": "dev", "node_id": "test.stored_proc_duckdb.assert_customer_ltv_parity"} */
+
+    
+    select
+      count(*) as failures,
+      count(*) != 0 as should_warn,
+      count(*) != 0 as should_error
+    from (
+      
+    
+  -- PARITY GATE (singular test): the migrated mart must match the legacy proc output row-for-row.
+-- dbt fails the build if this returns any rows. This is the "prove it's correct" step, running
+-- for real on DuckDB — the legacy output is captured as the seed legacy_customer_ltv.
+with dbt_model as (
+    select * from "dev"."main"."mart_customer_ltv"
+),
+
+legacy as (
+    select * from "dev"."main"."legacy_customer_ltv"
+),
+
+compared as (
+    select
+        coalesce(d.customer_id, l.customer_id) as customer_id,
+        case
+            when d.customer_id is null then 'missing_in_dbt'
+            when l.customer_id is null then 'missing_in_legacy'
+            when round(cast(d.lifetime_value as double), 2)
+               <> round(cast(l.lifetime_value as double), 2) then 'lifetime_value_mismatch'
+            when cast(d.order_count as integer) <> cast(l.order_count as integer) then 'order_count_mismatch'
+            when d.ltv_segment <> l.ltv_segment then 'segment_mismatch'
+        end as diff
+    from dbt_model d
+    full outer join legacy l on d.customer_id = l.customer_id
+)
+
+select * from compared
+where diff is not null
+  
+  
+      
+    ) dbt_internal_test
+[0m22:52:28.166156 [debug] [Thread-1 (]: SQL status: OK in 0.003 seconds
+[0m22:52:28.166982 [debug] [Thread-1 (]: On test.stored_proc_duckdb.assert_customer_ltv_parity: ROLLBACK
+[0m22:52:28.167455 [debug] [Thread-1 (]: Failed to rollback 'test.stored_proc_duckdb.assert_customer_ltv_parity'
+[0m22:52:28.167622 [debug] [Thread-1 (]: On test.stored_proc_duckdb.assert_customer_ltv_parity: Close
+[0m22:52:28.167895 [info ] [Thread-1 (]: 8 of 11 PASS assert_customer_ltv_parity ........................................ [[32mPASS[0m in 0.01s]
+[0m22:52:28.168147 [debug] [Thread-1 (]: Finished running node test.stored_proc_duckdb.assert_customer_ltv_parity
+[0m22:52:28.168333 [debug] [Thread-1 (]: Began running node test.stored_proc_duckdb.not_null_mart_customer_ltv_customer_id.8a829db09b
+[0m22:52:28.168523 [info ] [Thread-1 (]: 9 of 11 START test not_null_mart_customer_ltv_customer_id ...................... [RUN]
+[0m22:52:28.168719 [debug] [Thread-1 (]: Re-using an available connection from the pool (formerly test.stored_proc_duckdb.assert_customer_ltv_parity, now test.stored_proc_duckdb.not_null_mart_customer_ltv_customer_id.8a829db09b)
+[0m22:52:28.168882 [debug] [Thread-1 (]: Began compiling node test.stored_proc_duckdb.not_null_mart_customer_ltv_customer_id.8a829db09b
+[0m22:52:28.172477 [debug] [Thread-1 (]: Writing injected SQL for node "test.stored_proc_duckdb.not_null_mart_customer_ltv_customer_id.8a829db09b"
+[0m22:52:28.172893 [debug] [Thread-1 (]: Began executing node test.stored_proc_duckdb.not_null_mart_customer_ltv_customer_id.8a829db09b
+[0m22:52:28.174126 [debug] [Thread-1 (]: Writing runtime sql for node "test.stored_proc_duckdb.not_null_mart_customer_ltv_customer_id.8a829db09b"
+[0m22:52:28.174535 [debug] [Thread-1 (]: Using duckdb connection "test.stored_proc_duckdb.not_null_mart_customer_ltv_customer_id.8a829db09b"
+[0m22:52:28.174693 [debug] [Thread-1 (]: On test.stored_proc_duckdb.not_null_mart_customer_ltv_customer_id.8a829db09b: BEGIN
+[0m22:52:28.174837 [debug] [Thread-1 (]: Opening a new connection, currently in state closed
+[0m22:52:28.175087 [debug] [Thread-1 (]: SQL status: OK in 0.000 seconds
+[0m22:52:28.175241 [debug] [Thread-1 (]: Using duckdb connection "test.stored_proc_duckdb.not_null_mart_customer_ltv_customer_id.8a829db09b"
+[0m22:52:28.175400 [debug] [Thread-1 (]: On test.stored_proc_duckdb.not_null_mart_customer_ltv_customer_id.8a829db09b: /* {"app": "dbt", "dbt_version": "1.11.12", "profile_name": "stored_proc_duckdb", "target_name": "dev", "node_id": "test.stored_proc_duckdb.not_null_mart_customer_ltv_customer_id.8a829db09b"} */
+
+    
+    select
+      count(*) as failures,
+      count(*) != 0 as should_warn,
+      count(*) != 0 as should_error
+    from (
+      
+    
+  
+    
+    
+
+
+
+select customer_id
+from "dev"."main"."mart_customer_ltv"
+where customer_id is null
+
+
+
+  
+  
+      
+    ) dbt_internal_test
+[0m22:52:28.175809 [debug] [Thread-1 (]: SQL status: OK in 0.000 seconds
+[0m22:52:28.176506 [debug] [Thread-1 (]: On test.stored_proc_duckdb.not_null_mart_customer_ltv_customer_id.8a829db09b: ROLLBACK
+[0m22:52:28.176962 [debug] [Thread-1 (]: Failed to rollback 'test.stored_proc_duckdb.not_null_mart_customer_ltv_customer_id.8a829db09b'
+[0m22:52:28.177127 [debug] [Thread-1 (]: On test.stored_proc_duckdb.not_null_mart_customer_ltv_customer_id.8a829db09b: Close
+[0m22:52:28.177388 [info ] [Thread-1 (]: 9 of 11 PASS not_null_mart_customer_ltv_customer_id ............................ [[32mPASS[0m in 0.01s]
+[0m22:52:28.177639 [debug] [Thread-1 (]: Finished running node test.stored_proc_duckdb.not_null_mart_customer_ltv_customer_id.8a829db09b
+[0m22:52:28.177827 [debug] [Thread-1 (]: Began running node test.stored_proc_duckdb.not_null_mart_customer_ltv_lifetime_value.ad6e0de923
+[0m22:52:28.178006 [info ] [Thread-1 (]: 10 of 11 START test not_null_mart_customer_ltv_lifetime_value .................. [RUN]
+[0m22:52:28.178199 [debug] [Thread-1 (]: Re-using an available connection from the pool (formerly test.stored_proc_duckdb.not_null_mart_customer_ltv_customer_id.8a829db09b, now test.stored_proc_duckdb.not_null_mart_customer_ltv_lifetime_value.ad6e0de923)
+[0m22:52:28.178359 [debug] [Thread-1 (]: Began compiling node test.stored_proc_duckdb.not_null_mart_customer_ltv_lifetime_value.ad6e0de923
+[0m22:52:28.180502 [debug] [Thread-1 (]: Writing injected SQL for node "test.stored_proc_duckdb.not_null_mart_customer_ltv_lifetime_value.ad6e0de923"
+[0m22:52:28.180909 [debug] [Thread-1 (]: Began executing node test.stored_proc_duckdb.not_null_mart_customer_ltv_lifetime_value.ad6e0de923
+[0m22:52:28.182124 [debug] [Thread-1 (]: Writing runtime sql for node "test.stored_proc_duckdb.not_null_mart_customer_ltv_lifetime_value.ad6e0de923"
+[0m22:52:28.182505 [debug] [Thread-1 (]: Using duckdb connection "test.stored_proc_duckdb.not_null_mart_customer_ltv_lifetime_value.ad6e0de923"
+[0m22:52:28.182666 [debug] [Thread-1 (]: On test.stored_proc_duckdb.not_null_mart_customer_ltv_lifetime_value.ad6e0de923: BEGIN
+[0m22:52:28.182810 [debug] [Thread-1 (]: Opening a new connection, currently in state closed
+[0m22:52:28.183070 [debug] [Thread-1 (]: SQL status: OK in 0.000 seconds
+[0m22:52:28.183222 [debug] [Thread-1 (]: Using duckdb connection "test.stored_proc_duckdb.not_null_mart_customer_ltv_lifetime_value.ad6e0de923"
+[0m22:52:28.183382 [debug] [Thread-1 (]: On test.stored_proc_duckdb.not_null_mart_customer_ltv_lifetime_value.ad6e0de923: /* {"app": "dbt", "dbt_version": "1.11.12", "profile_name": "stored_proc_duckdb", "target_name": "dev", "node_id": "test.stored_proc_duckdb.not_null_mart_customer_ltv_lifetime_value.ad6e0de923"} */
+
+    
+    select
+      count(*) as failures,
+      count(*) != 0 as should_warn,
+      count(*) != 0 as should_error
+    from (
+      
+    
+  
+    
+    
+
+
+
+select lifetime_value
+from "dev"."main"."mart_customer_ltv"
+where lifetime_value is null
+
+
+
+  
+  
+      
+    ) dbt_internal_test
+[0m22:52:28.183782 [debug] [Thread-1 (]: SQL status: OK in 0.000 seconds
+[0m22:52:28.184468 [debug] [Thread-1 (]: On test.stored_proc_duckdb.not_null_mart_customer_ltv_lifetime_value.ad6e0de923: ROLLBACK
+[0m22:52:28.184918 [debug] [Thread-1 (]: Failed to rollback 'test.stored_proc_duckdb.not_null_mart_customer_ltv_lifetime_value.ad6e0de923'
+[0m22:52:28.185081 [debug] [Thread-1 (]: On test.stored_proc_duckdb.not_null_mart_customer_ltv_lifetime_value.ad6e0de923: Close
+[0m22:52:28.185333 [info ] [Thread-1 (]: 10 of 11 PASS not_null_mart_customer_ltv_lifetime_value ........................ [[32mPASS[0m in 0.01s]
+[0m22:52:28.185583 [debug] [Thread-1 (]: Finished running node test.stored_proc_duckdb.not_null_mart_customer_ltv_lifetime_value.ad6e0de923
+[0m22:52:28.185767 [debug] [Thread-1 (]: Began running node test.stored_proc_duckdb.unique_mart_customer_ltv_customer_id.f8ccb94859
+[0m22:52:28.185950 [info ] [Thread-1 (]: 11 of 11 START test unique_mart_customer_ltv_customer_id ....................... [RUN]
+[0m22:52:28.186142 [debug] [Thread-1 (]: Re-using an available connection from the pool (formerly test.stored_proc_duckdb.not_null_mart_customer_ltv_lifetime_value.ad6e0de923, now test.stored_proc_duckdb.unique_mart_customer_ltv_customer_id.f8ccb94859)
+[0m22:52:28.186302 [debug] [Thread-1 (]: Began compiling node test.stored_proc_duckdb.unique_mart_customer_ltv_customer_id.f8ccb94859
+[0m22:52:28.189430 [debug] [Thread-1 (]: Writing injected SQL for node "test.stored_proc_duckdb.unique_mart_customer_ltv_customer_id.f8ccb94859"
+[0m22:52:28.189799 [debug] [Thread-1 (]: Began executing node test.stored_proc_duckdb.unique_mart_customer_ltv_customer_id.f8ccb94859
+[0m22:52:28.192342 [debug] [Thread-1 (]: Writing runtime sql for node "test.stored_proc_duckdb.unique_mart_customer_ltv_customer_id.f8ccb94859"
+[0m22:52:28.192697 [debug] [Thread-1 (]: Using duckdb connection "test.stored_proc_duckdb.unique_mart_customer_ltv_customer_id.f8ccb94859"
+[0m22:52:28.192853 [debug] [Thread-1 (]: On test.stored_proc_duckdb.unique_mart_customer_ltv_customer_id.f8ccb94859: BEGIN
+[0m22:52:28.192998 [debug] [Thread-1 (]: Opening a new connection, currently in state closed
+[0m22:52:28.193235 [debug] [Thread-1 (]: SQL status: OK in 0.000 seconds
+[0m22:52:28.193383 [debug] [Thread-1 (]: Using duckdb connection "test.stored_proc_duckdb.unique_mart_customer_ltv_customer_id.f8ccb94859"
+[0m22:52:28.193542 [debug] [Thread-1 (]: On test.stored_proc_duckdb.unique_mart_customer_ltv_customer_id.f8ccb94859: /* {"app": "dbt", "dbt_version": "1.11.12", "profile_name": "stored_proc_duckdb", "target_name": "dev", "node_id": "test.stored_proc_duckdb.unique_mart_customer_ltv_customer_id.f8ccb94859"} */
+
+    
+    select
+      count(*) as failures,
+      count(*) != 0 as should_warn,
+      count(*) != 0 as should_error
+    from (
+      
+    
+  
+    
+    
+
+select
+    customer_id as unique_field,
+    count(*) as n_records
+
+from "dev"."main"."mart_customer_ltv"
+where customer_id is not null
+group by customer_id
+having count(*) > 1
+
+
+
+  
+  
+      
+    ) dbt_internal_test
+[0m22:52:28.194488 [debug] [Thread-1 (]: SQL status: OK in 0.001 seconds
+[0m22:52:28.195177 [debug] [Thread-1 (]: On test.stored_proc_duckdb.unique_mart_customer_ltv_customer_id.f8ccb94859: ROLLBACK
+[0m22:52:28.195630 [debug] [Thread-1 (]: Failed to rollback 'test.stored_proc_duckdb.unique_mart_customer_ltv_customer_id.f8ccb94859'
+[0m22:52:28.195792 [debug] [Thread-1 (]: On test.stored_proc_duckdb.unique_mart_customer_ltv_customer_id.f8ccb94859: Close
+[0m22:52:28.196050 [info ] [Thread-1 (]: 11 of 11 PASS unique_mart_customer_ltv_customer_id ............................. [[32mPASS[0m in 0.01s]
+[0m22:52:28.196294 [debug] [Thread-1 (]: Finished running node test.stored_proc_duckdb.unique_mart_customer_ltv_customer_id.f8ccb94859
+[0m22:52:28.196918 [debug] [MainThread]: Using duckdb connection "master"
+[0m22:52:28.197107 [debug] [MainThread]: On master: BEGIN
+[0m22:52:28.197250 [debug] [MainThread]: Opening a new connection, currently in state closed
+[0m22:52:28.197506 [debug] [MainThread]: SQL status: OK in 0.000 seconds
+[0m22:52:28.197648 [debug] [MainThread]: On master: COMMIT
+[0m22:52:28.197785 [debug] [MainThread]: Using duckdb connection "master"
+[0m22:52:28.197912 [debug] [MainThread]: On master: COMMIT
+[0m22:52:28.198096 [debug] [MainThread]: SQL status: OK in 0.000 seconds
+[0m22:52:28.198232 [debug] [MainThread]: On master: Close
+[0m22:52:28.198404 [debug] [MainThread]: Connection 'master' was properly closed.
+[0m22:52:28.198535 [debug] [MainThread]: Connection 'test.stored_proc_duckdb.unique_mart_customer_ltv_customer_id.f8ccb94859' was properly closed.
+[0m22:52:28.198704 [info ] [MainThread]: 
+[0m22:52:28.198859 [info ] [MainThread]: Finished running 3 seeds, 1 table model, 5 data tests, 2 view models in 0 hours 0 minutes and 0.32 seconds (0.32s).
+[0m22:52:28.199715 [debug] [MainThread]: Command end result
+[0m22:52:28.219486 [debug] [MainThread]: Wrote artifact WritableManifest to /Users/hichambabahmed/dbt-legacy-migration-skills/examples/stored-proc-to-dbt-duckdb/target/manifest.json
+[0m22:52:28.220961 [debug] [MainThread]: Wrote artifact SemanticManifest to /Users/hichambabahmed/dbt-legacy-migration-skills/examples/stored-proc-to-dbt-duckdb/target/semantic_manifest.json
+[0m22:52:28.224382 [debug] [MainThread]: Wrote artifact RunExecutionResult to /Users/hichambabahmed/dbt-legacy-migration-skills/examples/stored-proc-to-dbt-duckdb/target/run_results.json
+[0m22:52:28.224547 [info ] [MainThread]: 
+[0m22:52:28.224723 [info ] [MainThread]: [32mCompleted successfully[0m
+[0m22:52:28.224868 [info ] [MainThread]: 
+[0m22:52:28.225024 [info ] [MainThread]: Done. PASS=11 WARN=0 ERROR=0 SKIP=0 NO-OP=0 TOTAL=11
+[0m22:52:28.225351 [debug] [MainThread]: Resource report: {"command_name": "build", "command_success": true, "command_wall_clock_time": 1.9994601, "process_in_blocks": "0", "process_kernel_time": 0.345837, "process_mem_max_rss": "206733312", "process_out_blocks": "0", "process_user_time": 2.381595}
+[0m22:52:28.225575 [debug] [MainThread]: Command `dbt build` succeeded at 22:52:28.225531 after 2.00 seconds
+[0m22:52:28.225753 [debug] [MainThread]: Sending event: {'category': 'dbt', 'action': 'invocation', 'label': 'end', 'context': [<snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x10bcf3ce0>, <snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x10bcf3f50>, <snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x10bcf3e60>]}
+[0m22:52:28.225931 [debug] [MainThread]: Flushing usage events
+[0m22:52:28.715579 [debug] [MainThread]: An error was encountered while trying to flush usage events
+[0m22:52:54.109661 [debug] [MainThread]: Sending event: {'category': 'dbt', 'action': 'invocation', 'label': 'start', 'context': [<snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x10946d820>, <snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x109b6fb60>, <snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x109b98080>]}
+
+
+============================== 22:52:54.113073 | 2e3a0d44-8491-4b56-a308-7db09febd524 ==============================
+[0m22:52:54.113073 [info ] [MainThread]: Running with dbt=1.11.12
+[0m22:52:54.113449 [debug] [MainThread]: running dbt with arguments {'version_check': 'True', 'indirect_selection': 'eager', 'debug': 'False', 'cache_selected_only': 'False', 'send_anonymous_usage_stats': 'True', 'static_parser': 'True', 'log_path': '/Users/hichambabahmed/dbt-legacy-migration-skills/examples/stored-proc-to-dbt-duckdb/logs', 'empty': 'False', 'printer_width': '80', 'fail_fast': 'False', 'introspect': 'True', 'write_json': 'True', 'no_print': 'None', 'invocation_command': 'dbt compile -s validate_customer_ltv', 'use_experimental_parser': 'False', 'log_cache_events': 'False', 'quiet': 'False', 'warn_error_options': 'WarnErrorOptionsV2(error=[], warn=[], silence=[])', 'use_colors': 'True', 'log_format': 'default', 'profiles_dir': '/Users/hichambabahmed/dbt-legacy-migration-skills/examples/stored-proc-to-dbt-duckdb', 'partial_parse': 'True', 'warn_error': 'None', 'target_path': 'None'}
+[0m22:52:54.301425 [debug] [MainThread]: Sending event: {'category': 'dbt', 'action': 'project_id', 'label': '2e3a0d44-8491-4b56-a308-7db09febd524', 'context': [<snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x109d214c0>]}
+[0m22:52:54.334116 [debug] [MainThread]: Sending event: {'category': 'dbt', 'action': 'adapter_info', 'label': '2e3a0d44-8491-4b56-a308-7db09febd524', 'context': [<snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x109b10e90>]}
+[0m22:52:54.335900 [info ] [MainThread]: Registered adapter: duckdb=1.10.1
+[0m22:52:54.411105 [debug] [MainThread]: checksum: f368f5348cf42803b94ef7fb8257ecf3bf9a9a16dd9c8c51fe5172f2dbeb457f, vars: {}, profile: , target: , version: 1.11.12
+[0m22:52:54.551521 [debug] [MainThread]: Partial parsing enabled: 0 files deleted, 0 files added, 0 files changed.
+[0m22:52:54.551905 [debug] [MainThread]: Nothing changed, skipping partial parsing.
+[0m22:52:54.552073 [debug] [MainThread]: Partial parsing enabled, no changes found, skipping parsing
+[0m22:52:54.587244 [debug] [MainThread]: Sending event: {'category': 'dbt', 'action': 'load_project', 'label': '2e3a0d44-8491-4b56-a308-7db09febd524', 'context': [<snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x109e07500>]}
+[0m22:52:54.651378 [debug] [MainThread]: Wrote artifact WritableManifest to /Users/hichambabahmed/dbt-legacy-migration-skills/examples/stored-proc-to-dbt-duckdb/target/manifest.json
+[0m22:52:54.653181 [debug] [MainThread]: Wrote artifact SemanticManifest to /Users/hichambabahmed/dbt-legacy-migration-skills/examples/stored-proc-to-dbt-duckdb/target/semantic_manifest.json
+[0m22:52:54.659830 [debug] [MainThread]: Sending event: {'category': 'dbt', 'action': 'resource_counts', 'label': '2e3a0d44-8491-4b56-a308-7db09febd524', 'context': [<snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x10a0b8fe0>]}
+[0m22:52:54.660125 [info ] [MainThread]: Found 3 models, 1 analysis, 5 data tests, 3 seeds, 651 macros
+[0m22:52:54.660308 [debug] [MainThread]: Sending event: {'category': 'dbt', 'action': 'runnable_timing', 'label': '2e3a0d44-8491-4b56-a308-7db09febd524', 'context': [<snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x109b9b110>]}
+[0m22:52:54.661186 [info ] [MainThread]: 
+[0m22:52:54.661375 [info ] [MainThread]: Concurrency: 1 threads (target='dev')
+[0m22:52:54.661507 [info ] [MainThread]: 
+[0m22:52:54.661758 [debug] [MainThread]: Acquiring new duckdb connection 'master'
+[0m22:52:54.664369 [debug] [ThreadPool]: Acquiring new duckdb connection 'list_dev_main'
+[0m22:52:54.723932 [debug] [ThreadPool]: Using duckdb connection "list_dev_main"
+[0m22:52:54.724217 [debug] [ThreadPool]: On list_dev_main: BEGIN
+[0m22:52:54.724382 [debug] [ThreadPool]: Opening a new connection, currently in state init
+[0m22:52:54.735021 [debug] [ThreadPool]: SQL status: OK in 0.011 seconds
+[0m22:52:54.735231 [debug] [ThreadPool]: Using duckdb connection "list_dev_main"
+[0m22:52:54.735391 [debug] [ThreadPool]: On list_dev_main: /* {"app": "dbt", "dbt_version": "1.11.12", "profile_name": "stored_proc_duckdb", "target_name": "dev", "connection_name": "list_dev_main"} */
+select
+      'dev' as database,
+      table_name as name,
+      table_schema as schema,
+      CASE table_type
+        WHEN 'BASE TABLE' THEN 'table'
+        WHEN 'VIEW' THEN 'view'
+        WHEN 'LOCAL TEMPORARY' THEN 'table'
+        END as type
+    from system.information_schema.tables
+    where lower(table_schema) = 'main'
+    and lower(table_catalog) = 'dev'
+  
+[0m22:52:54.741427 [debug] [ThreadPool]: SQL status: OK in 0.006 seconds
+[0m22:52:54.742736 [debug] [ThreadPool]: On list_dev_main: ROLLBACK
+[0m22:52:54.743922 [debug] [ThreadPool]: Failed to rollback 'list_dev_main'
+[0m22:52:54.744103 [debug] [ThreadPool]: On list_dev_main: Close
+[0m22:52:54.744917 [debug] [MainThread]: Sending event: {'category': 'dbt', 'action': 'runnable_timing', 'label': '2e3a0d44-8491-4b56-a308-7db09febd524', 'context': [<snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x107c71460>]}
+[0m22:52:54.746605 [debug] [Thread-1 (]: Began running node analysis.stored_proc_duckdb.validate_customer_ltv
+[0m22:52:54.746826 [debug] [Thread-1 (]: Re-using an available connection from the pool (formerly list_dev_main, now analysis.stored_proc_duckdb.validate_customer_ltv)
+[0m22:52:54.747000 [debug] [Thread-1 (]: Began compiling node analysis.stored_proc_duckdb.validate_customer_ltv
+[0m22:52:54.763476 [debug] [Thread-1 (]: Using duckdb connection "analysis.stored_proc_duckdb.validate_customer_ltv"
+[0m22:52:54.763708 [debug] [Thread-1 (]: On analysis.stored_proc_duckdb.validate_customer_ltv: BEGIN
+[0m22:52:54.763883 [debug] [Thread-1 (]: Opening a new connection, currently in state closed
+[0m22:52:54.764261 [debug] [Thread-1 (]: SQL status: OK in 0.000 seconds
+[0m22:52:54.764421 [debug] [Thread-1 (]: Using duckdb connection "analysis.stored_proc_duckdb.validate_customer_ltv"
+[0m22:52:54.764587 [debug] [Thread-1 (]: On analysis.stored_proc_duckdb.validate_customer_ltv: /* {"app": "dbt", "dbt_version": "1.11.12", "profile_name": "stored_proc_duckdb", "target_name": "dev", "node_id": "analysis.stored_proc_duckdb.validate_customer_ltv"} */
+
+      select
+          column_name,
+          data_type,
+          character_maximum_length,
+          numeric_precision,
+          numeric_scale
+
+      from system.information_schema.columns
+      where table_name = 'mart_customer_ltv'
+      
+      and lower(table_schema) = 'main'
+      
+      
+      and lower(table_catalog) = 'dev'
+      
+      order by ordinal_position
+
+  
+[0m22:52:54.772633 [debug] [Thread-1 (]: SQL status: OK in 0.008 seconds
+[0m22:52:54.775759 [debug] [Thread-1 (]: Using duckdb connection "analysis.stored_proc_duckdb.validate_customer_ltv"
+[0m22:52:54.775980 [debug] [Thread-1 (]: On analysis.stored_proc_duckdb.validate_customer_ltv: /* {"app": "dbt", "dbt_version": "1.11.12", "profile_name": "stored_proc_duckdb", "target_name": "dev", "node_id": "analysis.stored_proc_duckdb.validate_customer_ltv"} */
+
+      select
+          column_name,
+          data_type,
+          character_maximum_length,
+          numeric_precision,
+          numeric_scale
+
+      from system.information_schema.columns
+      where table_name = 'legacy_customer_ltv'
+      
+      and lower(table_schema) = 'main'
+      
+      
+      and lower(table_catalog) = 'dev'
+      
+      order by ordinal_position
+
+  
+[0m22:52:54.777299 [debug] [Thread-1 (]: SQL status: OK in 0.001 seconds
+[0m22:52:54.796393 [debug] [Thread-1 (]: Writing injected SQL for node "analysis.stored_proc_duckdb.validate_customer_ltv"
+[0m22:52:54.797093 [debug] [Thread-1 (]: Began executing node analysis.stored_proc_duckdb.validate_customer_ltv
+[0m22:52:54.797305 [debug] [Thread-1 (]: On analysis.stored_proc_duckdb.validate_customer_ltv: ROLLBACK
+[0m22:52:54.797792 [debug] [Thread-1 (]: Failed to rollback 'analysis.stored_proc_duckdb.validate_customer_ltv'
+[0m22:52:54.797961 [debug] [Thread-1 (]: On analysis.stored_proc_duckdb.validate_customer_ltv: Close
+[0m22:52:54.798308 [debug] [Thread-1 (]: Finished running node analysis.stored_proc_duckdb.validate_customer_ltv
+[0m22:52:54.798826 [debug] [MainThread]: Connection 'master' was properly closed.
+[0m22:52:54.798970 [debug] [MainThread]: Connection 'analysis.stored_proc_duckdb.validate_customer_ltv' was properly closed.
+[0m22:52:54.799280 [debug] [MainThread]: Command end result
+[0m22:52:54.847727 [debug] [MainThread]: Wrote artifact WritableManifest to /Users/hichambabahmed/dbt-legacy-migration-skills/examples/stored-proc-to-dbt-duckdb/target/manifest.json
+[0m22:52:54.849209 [debug] [MainThread]: Wrote artifact SemanticManifest to /Users/hichambabahmed/dbt-legacy-migration-skills/examples/stored-proc-to-dbt-duckdb/target/semantic_manifest.json
+[0m22:52:54.852892 [debug] [MainThread]: Wrote artifact RunExecutionResult to /Users/hichambabahmed/dbt-legacy-migration-skills/examples/stored-proc-to-dbt-duckdb/target/run_results.json
+[0m22:52:54.853169 [info ] [MainThread]: Compiled node 'validate_customer_ltv' is:
+-- Step 5 the recommended way: audit_helper classifies the migrated mart vs the legacy output
+-- (identical / added / removed / modified). Compile it and run the compiled SQL to see the summary.
+-- (The hard pass/fail gate is the singular test tests/assert_customer_ltv_parity.sql.)
+
+
+    
+    
+
+    
+
+    with 
+
+    
+    
+
+    a_base as (
+        select 
+            customer_id, lifetime_value, order_count, ltv_segment, 
+            md5(cast(coalesce(cast(customer_id as TEXT), '_dbt_audit_helper_surrogate_key_null_') as TEXT)) as dbt_audit_surrogate_key
+        from (select * from "dev"."main"."mart_customer_ltv") a_base_subq
+        
+    
+
+    ),
+
+    b_base as (
+        select 
+            customer_id, lifetime_value, order_count, ltv_segment, 
+            md5(cast(coalesce(cast(customer_id as TEXT), '_dbt_audit_helper_surrogate_key_null_') as TEXT)) as dbt_audit_surrogate_key
+        from (select * from "dev"."main"."legacy_customer_ltv") b_base_subq
+        
+    
+
+    ),
+
+    a as (
+        select 
+            *, 
+            row_number() over (partition by dbt_audit_surrogate_key order by dbt_audit_surrogate_key) as dbt_audit_pk_row_num
+        from a_base
+    ),
+
+    b as (
+        select 
+            *, 
+            row_number() over (partition by dbt_audit_surrogate_key order by dbt_audit_surrogate_key) as dbt_audit_pk_row_num
+        from b_base
+    ),
+
+    a_intersect_b as (
+
+        select * from a
+        
+
+    intersect
+
+
+        select * from b
+
+    ),
+
+    a_except_b as (
+
+        select * from a
+        
+
+    except
+
+
+        select * from b
+
+    ),
+
+    b_except_a as (
+
+        select * from b
+        
+
+    except
+
+
+        select * from a
+
+    )
+
+    
+    ,
+
+    all_records as (
+
+        select
+            *,
+            true as dbt_audit_in_a,
+            true as dbt_audit_in_b
+        from a_intersect_b
+
+        union all
+
+        select
+            *,
+            true as dbt_audit_in_a,
+            false as dbt_audit_in_b
+        from a_except_b
+
+        union all
+
+        select
+            *,
+            false as dbt_audit_in_a,
+            true as dbt_audit_in_b
+        from b_except_a
+
+    ),
+
+    classified as (
+        select 
+            *,
+            case 
+        when max(dbt_audit_pk_row_num) over (partition by dbt_audit_surrogate_key) > 1 then 'nonunique_pk'
+        when dbt_audit_in_a and dbt_audit_in_b then 'identical'
+        when bool_or(dbt_audit_in_a) over (partition by dbt_audit_surrogate_key, dbt_audit_pk_row_num) 
+            and bool_or(dbt_audit_in_b) over (partition by dbt_audit_surrogate_key, dbt_audit_pk_row_num)
+            then 'modified'
+        when dbt_audit_in_a then 'removed'
+        when dbt_audit_in_b then 'added'
+    end
+ as dbt_audit_row_status
+        from all_records
+    ),
+
+    final as (
+        select 
+            *,
+            count(distinct dbt_audit_surrogate_key, dbt_audit_pk_row_num) over (partition by dbt_audit_row_status)
+ as dbt_audit_num_rows_in_status,
+            -- using dense_rank so that modified rows (which have a full row for both the left and right side) both get picked up in the sample. 
+            -- For every other type this is equivalent to a row_number()
+            dense_rank() over (partition by dbt_audit_row_status order by dbt_audit_surrogate_key, dbt_audit_pk_row_num) as dbt_audit_sample_number
+        from classified
+    )
+
+    select * from final
+    
+        where dbt_audit_sample_number <= 20
+    
+    order by dbt_audit_row_status, dbt_audit_sample_number
+
+
+
+[0m22:52:54.853616 [debug] [MainThread]: Resource report: {"command_name": "compile", "command_success": true, "command_wall_clock_time": 0.8035788, "process_in_blocks": "0", "process_kernel_time": 0.351048, "process_mem_max_rss": "152059904", "process_out_blocks": "0", "process_user_time": 1.295046}
+[0m22:52:54.853832 [debug] [MainThread]: Command `dbt compile` succeeded at 22:52:54.853785 after 0.80 seconds
+[0m22:52:54.854019 [debug] [MainThread]: Sending event: {'category': 'dbt', 'action': 'invocation', 'label': 'end', 'context': [<snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x10956aa80>, <snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x10927f920>, <snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x109518da0>]}
+[0m22:52:54.854195 [debug] [MainThread]: Flushing usage events
+[0m22:52:55.340179 [debug] [MainThread]: An error was encountered while trying to flush usage events
+[0m22:52:56.572892 [debug] [MainThread]: Sending event: {'category': 'dbt', 'action': 'invocation', 'label': 'start', 'context': [<snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x10d442e70>, <snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x10db3ffe0>, <snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x10db3fe90>]}
+
+
+============================== 22:52:56.575694 | aa428b26-1399-4278-be0a-fb21df12021e ==============================
+[0m22:52:56.575694 [info ] [MainThread]: Running with dbt=1.11.12
+[0m22:52:56.576041 [debug] [MainThread]: running dbt with arguments {'send_anonymous_usage_stats': 'True', 'write_json': 'True', 'version_check': 'True', 'use_colors': 'True', 'fail_fast': 'False', 'cache_selected_only': 'False', 'indirect_selection': 'eager', 'quiet': 'False', 'profiles_dir': '/Users/hichambabahmed/dbt-legacy-migration-skills/examples/stored-proc-to-dbt-duckdb', 'log_format': 'default', 'warn_error_options': 'WarnErrorOptionsV2(error=[], warn=[], silence=[])', 'introspect': 'True', 'log_cache_events': 'False', 'invocation_command': 'dbt build -s mart_customer_ltv assert_customer_ltv_parity', 'printer_width': '80', 'partial_parse': 'True', 'empty': 'False', 'no_print': 'None', 'target_path': 'None', 'static_parser': 'True', 'log_path': '/Users/hichambabahmed/dbt-legacy-migration-skills/examples/stored-proc-to-dbt-duckdb/logs', 'warn_error': 'None', 'debug': 'False', 'use_experimental_parser': 'False'}
+[0m22:52:56.709908 [debug] [MainThread]: Sending event: {'category': 'dbt', 'action': 'project_id', 'label': 'aa428b26-1399-4278-be0a-fb21df12021e', 'context': [<snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x10da96a80>]}
+[0m22:52:56.744138 [debug] [MainThread]: Sending event: {'category': 'dbt', 'action': 'adapter_info', 'label': 'aa428b26-1399-4278-be0a-fb21df12021e', 'context': [<snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x10d443f50>]}
+[0m22:52:56.745710 [info ] [MainThread]: Registered adapter: duckdb=1.10.1
+[0m22:52:56.817984 [debug] [MainThread]: checksum: f368f5348cf42803b94ef7fb8257ecf3bf9a9a16dd9c8c51fe5172f2dbeb457f, vars: {}, profile: , target: , version: 1.11.12
+[0m22:52:56.921013 [debug] [MainThread]: Partial parsing enabled: 0 files deleted, 0 files added, 1 files changed.
+[0m22:52:56.921566 [debug] [MainThread]: Partial parsing: updated file: stored_proc_duckdb://models/marts/mart_customer_ltv.sql
+[0m22:52:57.192413 [debug] [MainThread]: Sending event: {'category': 'dbt', 'action': 'load_project', 'label': 'aa428b26-1399-4278-be0a-fb21df12021e', 'context': [<snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x10d468800>]}
+[0m22:52:57.256823 [debug] [MainThread]: Wrote artifact WritableManifest to /Users/hichambabahmed/dbt-legacy-migration-skills/examples/stored-proc-to-dbt-duckdb/target/manifest.json
+[0m22:52:57.258539 [debug] [MainThread]: Wrote artifact SemanticManifest to /Users/hichambabahmed/dbt-legacy-migration-skills/examples/stored-proc-to-dbt-duckdb/target/semantic_manifest.json
+[0m22:52:57.274207 [debug] [MainThread]: Sending event: {'category': 'dbt', 'action': 'resource_counts', 'label': 'aa428b26-1399-4278-be0a-fb21df12021e', 'context': [<snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x10e35f4d0>]}
+[0m22:52:57.274516 [info ] [MainThread]: Found 3 models, 1 analysis, 5 data tests, 3 seeds, 651 macros
+[0m22:52:57.275652 [info ] [MainThread]: 
+[0m22:52:57.275841 [info ] [MainThread]: Concurrency: 1 threads (target='dev')
+[0m22:52:57.275986 [info ] [MainThread]: 
+[0m22:52:57.276233 [debug] [MainThread]: Acquiring new duckdb connection 'master'
+[0m22:52:57.276736 [debug] [ThreadPool]: Acquiring new duckdb connection 'list_dev'
+[0m22:52:57.334892 [debug] [ThreadPool]: Using duckdb connection "list_dev"
+[0m22:52:57.335165 [debug] [ThreadPool]: On list_dev: /* {"app": "dbt", "dbt_version": "1.11.12", "profile_name": "stored_proc_duckdb", "target_name": "dev", "connection_name": "list_dev"} */
+
+    
+    select schema_name
+    from system.information_schema.schemata
+    
+    where lower(catalog_name) = '"dev"'
+    
+  
+  
+[0m22:52:57.335337 [debug] [ThreadPool]: Opening a new connection, currently in state init
+[0m22:52:57.343498 [debug] [ThreadPool]: SQL status: OK in 0.008 seconds
+[0m22:52:57.344274 [debug] [ThreadPool]: On list_dev: Close
+[0m22:52:57.344699 [debug] [ThreadPool]: Re-using an available connection from the pool (formerly list_dev, now create_dev_main)
+[0m22:52:57.344990 [debug] [ThreadPool]: Creating schema "database: "dev"
+schema: "main"
+"
+[0m22:52:57.349816 [debug] [ThreadPool]: Using duckdb connection "create_dev_main"
+[0m22:52:57.350012 [debug] [ThreadPool]: On create_dev_main: /* {"app": "dbt", "dbt_version": "1.11.12", "profile_name": "stored_proc_duckdb", "target_name": "dev", "connection_name": "create_dev_main"} */
+
+    
+        select type from duckdb_databases()
+        where lower(database_name)='dev'
+        and type='sqlite'
+    
+  
+[0m22:52:57.350155 [debug] [ThreadPool]: Opening a new connection, currently in state closed
+[0m22:52:57.350620 [debug] [ThreadPool]: SQL status: OK in 0.000 seconds
+[0m22:52:57.351384 [debug] [ThreadPool]: Using duckdb connection "create_dev_main"
+[0m22:52:57.351530 [debug] [ThreadPool]: On create_dev_main: BEGIN
+[0m22:52:57.351734 [debug] [ThreadPool]: SQL status: OK in 0.000 seconds
+[0m22:52:57.351855 [debug] [ThreadPool]: Using duckdb connection "create_dev_main"
+[0m22:52:57.351977 [debug] [ThreadPool]: On create_dev_main: /* {"app": "dbt", "dbt_version": "1.11.12", "profile_name": "stored_proc_duckdb", "target_name": "dev", "connection_name": "create_dev_main"} */
+
+    
+    
+        create schema if not exists "dev"."main"
+    
+[0m22:52:57.352208 [debug] [ThreadPool]: SQL status: OK in 0.000 seconds
+[0m22:52:57.352600 [debug] [ThreadPool]: On create_dev_main: COMMIT
+[0m22:52:57.352751 [debug] [ThreadPool]: Using duckdb connection "create_dev_main"
+[0m22:52:57.352875 [debug] [ThreadPool]: On create_dev_main: COMMIT
+[0m22:52:57.353051 [debug] [ThreadPool]: SQL status: OK in 0.000 seconds
+[0m22:52:57.353184 [debug] [ThreadPool]: On create_dev_main: Close
+[0m22:52:57.355959 [debug] [ThreadPool]: Re-using an available connection from the pool (formerly create_dev_main, now list_dev_main)
+[0m22:52:57.358933 [debug] [ThreadPool]: Using duckdb connection "list_dev_main"
+[0m22:52:57.359113 [debug] [ThreadPool]: On list_dev_main: BEGIN
+[0m22:52:57.359243 [debug] [ThreadPool]: Opening a new connection, currently in state closed
+[0m22:52:57.359462 [debug] [ThreadPool]: SQL status: OK in 0.000 seconds
+[0m22:52:57.359587 [debug] [ThreadPool]: Using duckdb connection "list_dev_main"
+[0m22:52:57.359729 [debug] [ThreadPool]: On list_dev_main: /* {"app": "dbt", "dbt_version": "1.11.12", "profile_name": "stored_proc_duckdb", "target_name": "dev", "connection_name": "list_dev_main"} */
+select
+      'dev' as database,
+      table_name as name,
+      table_schema as schema,
+      CASE table_type
+        WHEN 'BASE TABLE' THEN 'table'
+        WHEN 'VIEW' THEN 'view'
+        WHEN 'LOCAL TEMPORARY' THEN 'table'
+        END as type
+    from system.information_schema.tables
+    where lower(table_schema) = 'main'
+    and lower(table_catalog) = 'dev'
+  
+[0m22:52:57.361525 [debug] [ThreadPool]: SQL status: OK in 0.002 seconds
+[0m22:52:57.362209 [debug] [ThreadPool]: On list_dev_main: ROLLBACK
+[0m22:52:57.362952 [debug] [ThreadPool]: Failed to rollback 'list_dev_main'
+[0m22:52:57.363115 [debug] [ThreadPool]: On list_dev_main: Close
+[0m22:52:57.363770 [debug] [MainThread]: Sending event: {'category': 'dbt', 'action': 'runnable_timing', 'label': 'aa428b26-1399-4278-be0a-fb21df12021e', 'context': [<snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x10e63e000>]}
+[0m22:52:57.363994 [debug] [MainThread]: Using duckdb connection "master"
+[0m22:52:57.364134 [debug] [MainThread]: On master: BEGIN
+[0m22:52:57.364263 [debug] [MainThread]: Opening a new connection, currently in state init
+[0m22:52:57.364492 [debug] [MainThread]: SQL status: OK in 0.000 seconds
+[0m22:52:57.364618 [debug] [MainThread]: On master: COMMIT
+[0m22:52:57.364748 [debug] [MainThread]: Using duckdb connection "master"
+[0m22:52:57.364867 [debug] [MainThread]: On master: COMMIT
+[0m22:52:57.365043 [debug] [MainThread]: SQL status: OK in 0.000 seconds
+[0m22:52:57.365173 [debug] [MainThread]: On master: Close
+[0m22:52:57.366561 [debug] [Thread-1 (]: Began running node model.stored_proc_duckdb.mart_customer_ltv
+[0m22:52:57.366817 [info ] [Thread-1 (]: 1 of 6 START sql table model main.mart_customer_ltv ............................ [RUN]
+[0m22:52:57.367040 [debug] [Thread-1 (]: Re-using an available connection from the pool (formerly list_dev_main, now model.stored_proc_duckdb.mart_customer_ltv)
+[0m22:52:57.367205 [debug] [Thread-1 (]: Began compiling node model.stored_proc_duckdb.mart_customer_ltv
+[0m22:52:57.371165 [debug] [Thread-1 (]: Writing injected SQL for node "model.stored_proc_duckdb.mart_customer_ltv"
+[0m22:52:57.371649 [debug] [Thread-1 (]: Began executing node model.stored_proc_duckdb.mart_customer_ltv
+[0m22:52:57.388444 [debug] [Thread-1 (]: Writing runtime sql for node "model.stored_proc_duckdb.mart_customer_ltv"
+[0m22:52:57.388983 [debug] [Thread-1 (]: Using duckdb connection "model.stored_proc_duckdb.mart_customer_ltv"
+[0m22:52:57.389167 [debug] [Thread-1 (]: On model.stored_proc_duckdb.mart_customer_ltv: BEGIN
+[0m22:52:57.389326 [debug] [Thread-1 (]: Opening a new connection, currently in state closed
+[0m22:52:57.389640 [debug] [Thread-1 (]: SQL status: OK in 0.000 seconds
+[0m22:52:57.389791 [debug] [Thread-1 (]: Using duckdb connection "model.stored_proc_duckdb.mart_customer_ltv"
+[0m22:52:57.389962 [debug] [Thread-1 (]: On model.stored_proc_duckdb.mart_customer_ltv: /* {"app": "dbt", "dbt_version": "1.11.12", "profile_name": "stored_proc_duckdb", "target_name": "dev", "node_id": "model.stored_proc_duckdb.mart_customer_ltv"} */
+
+  
+    
+    
+
+    create  table
+      "dev"."main"."mart_customer_ltv__dbt_tmp"
+  
+    as (
+      -- Migrated from legacy/sp_customer_ltv.sql: the procedural temp-table rebuild becomes a
+-- declarative model on ref() staging models. Same output, same grain (one row per customer).
+with completed as (
+    select customer_id, amount
+    from "dev"."main"."stg_orders"
+    where status = 'completed'
+),
+
+final as (
+    select
+        customer_id,
+        cast(sum(amount) as decimal(18, 2)) as lifetime_value,
+        count(*)                            as order_count,
+        case when sum(amount) >= 250 then 'high' else 'low' end as ltv_segment
+    from completed
+    group by customer_id
+)
+
+select * from final
+    );
+  
+  
+[0m22:52:57.394674 [debug] [Thread-1 (]: SQL status: OK in 0.005 seconds
+[0m22:52:57.397613 [debug] [Thread-1 (]: Using duckdb connection "model.stored_proc_duckdb.mart_customer_ltv"
+[0m22:52:57.397823 [debug] [Thread-1 (]: On model.stored_proc_duckdb.mart_customer_ltv: /* {"app": "dbt", "dbt_version": "1.11.12", "profile_name": "stored_proc_duckdb", "target_name": "dev", "node_id": "model.stored_proc_duckdb.mart_customer_ltv"} */
+
+    SELECT index_name
+    FROM duckdb_indexes()
+    WHERE schema_name = 'main'
+      AND table_name = 'mart_customer_ltv'
+  
+[0m22:52:57.398226 [debug] [Thread-1 (]: SQL status: OK in 0.000 seconds
+[0m22:52:57.398847 [debug] [Thread-1 (]: Using duckdb connection "model.stored_proc_duckdb.mart_customer_ltv"
+[0m22:52:57.399023 [debug] [Thread-1 (]: On model.stored_proc_duckdb.mart_customer_ltv: /* {"app": "dbt", "dbt_version": "1.11.12", "profile_name": "stored_proc_duckdb", "target_name": "dev", "node_id": "model.stored_proc_duckdb.mart_customer_ltv"} */
+
+    SELECT COUNT(*) as remaining_indexes
+    FROM duckdb_indexes()
+    WHERE schema_name = 'main'
+      AND table_name = 'mart_customer_ltv'
+  
+[0m22:52:57.399448 [debug] [Thread-1 (]: SQL status: OK in 0.000 seconds
+[0m22:52:57.403064 [debug] [Thread-1 (]: Using duckdb connection "model.stored_proc_duckdb.mart_customer_ltv"
+[0m22:52:57.403271 [debug] [Thread-1 (]: On model.stored_proc_duckdb.mart_customer_ltv: /* {"app": "dbt", "dbt_version": "1.11.12", "profile_name": "stored_proc_duckdb", "target_name": "dev", "node_id": "model.stored_proc_duckdb.mart_customer_ltv"} */
+alter table "dev"."main"."mart_customer_ltv" rename to "mart_customer_ltv__dbt_backup"
+[0m22:52:57.403770 [debug] [Thread-1 (]: SQL status: OK in 0.000 seconds
+[0m22:52:57.405232 [debug] [Thread-1 (]: Using duckdb connection "model.stored_proc_duckdb.mart_customer_ltv"
+[0m22:52:57.405400 [debug] [Thread-1 (]: On model.stored_proc_duckdb.mart_customer_ltv: /* {"app": "dbt", "dbt_version": "1.11.12", "profile_name": "stored_proc_duckdb", "target_name": "dev", "node_id": "model.stored_proc_duckdb.mart_customer_ltv"} */
+alter table "dev"."main"."mart_customer_ltv__dbt_tmp" rename to "mart_customer_ltv"
+[0m22:52:57.405656 [debug] [Thread-1 (]: SQL status: OK in 0.000 seconds
+[0m22:52:57.414254 [debug] [Thread-1 (]: On model.stored_proc_duckdb.mart_customer_ltv: COMMIT
+[0m22:52:57.414463 [debug] [Thread-1 (]: Using duckdb connection "model.stored_proc_duckdb.mart_customer_ltv"
+[0m22:52:57.414622 [debug] [Thread-1 (]: On model.stored_proc_duckdb.mart_customer_ltv: COMMIT
+[0m22:52:57.415331 [debug] [Thread-1 (]: SQL status: OK in 0.001 seconds
+[0m22:52:57.419038 [debug] [Thread-1 (]: Using duckdb connection "model.stored_proc_duckdb.mart_customer_ltv"
+[0m22:52:57.419224 [debug] [Thread-1 (]: On model.stored_proc_duckdb.mart_customer_ltv: /* {"app": "dbt", "dbt_version": "1.11.12", "profile_name": "stored_proc_duckdb", "target_name": "dev", "node_id": "model.stored_proc_duckdb.mart_customer_ltv"} */
+
+      drop table if exists "dev"."main"."mart_customer_ltv__dbt_backup" cascade
+    
+[0m22:52:57.419625 [debug] [Thread-1 (]: SQL status: OK in 0.000 seconds
+[0m22:52:57.420863 [debug] [Thread-1 (]: On model.stored_proc_duckdb.mart_customer_ltv: Close
+[0m22:52:57.421973 [debug] [Thread-1 (]: Sending event: {'category': 'dbt', 'action': 'run_model', 'label': 'aa428b26-1399-4278-be0a-fb21df12021e', 'context': [<snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x10b547410>]}
+[0m22:52:57.422317 [info ] [Thread-1 (]: 1 of 6 OK created sql table model main.mart_customer_ltv ....................... [[32mOK[0m in 0.05s]
+[0m22:52:57.422609 [debug] [Thread-1 (]: Finished running node model.stored_proc_duckdb.mart_customer_ltv
+[0m22:52:57.423035 [debug] [Thread-1 (]: Began running node test.stored_proc_duckdb.accepted_values_mart_customer_ltv_ltv_segment__high__low.9244e2122f
+[0m22:52:57.423279 [info ] [Thread-1 (]: 2 of 6 START test accepted_values_mart_customer_ltv_ltv_segment__high__low ..... [RUN]
+[0m22:52:57.423518 [debug] [Thread-1 (]: Re-using an available connection from the pool (formerly model.stored_proc_duckdb.mart_customer_ltv, now test.stored_proc_duckdb.accepted_values_mart_customer_ltv_ltv_segment__high__low.9244e2122f)
+[0m22:52:57.423692 [debug] [Thread-1 (]: Began compiling node test.stored_proc_duckdb.accepted_values_mart_customer_ltv_ltv_segment__high__low.9244e2122f
+[0m22:52:57.425957 [debug] [Thread-1 (]: Writing injected SQL for node "test.stored_proc_duckdb.accepted_values_mart_customer_ltv_ltv_segment__high__low.9244e2122f"
+[0m22:52:57.426393 [debug] [Thread-1 (]: Began executing node test.stored_proc_duckdb.accepted_values_mart_customer_ltv_ltv_segment__high__low.9244e2122f
+[0m22:52:57.436592 [debug] [Thread-1 (]: Writing runtime sql for node "test.stored_proc_duckdb.accepted_values_mart_customer_ltv_ltv_segment__high__low.9244e2122f"
+[0m22:52:57.437061 [debug] [Thread-1 (]: Using duckdb connection "test.stored_proc_duckdb.accepted_values_mart_customer_ltv_ltv_segment__high__low.9244e2122f"
+[0m22:52:57.437235 [debug] [Thread-1 (]: On test.stored_proc_duckdb.accepted_values_mart_customer_ltv_ltv_segment__high__low.9244e2122f: BEGIN
+[0m22:52:57.437396 [debug] [Thread-1 (]: Opening a new connection, currently in state closed
+[0m22:52:57.437688 [debug] [Thread-1 (]: SQL status: OK in 0.000 seconds
+[0m22:52:57.437845 [debug] [Thread-1 (]: Using duckdb connection "test.stored_proc_duckdb.accepted_values_mart_customer_ltv_ltv_segment__high__low.9244e2122f"
+[0m22:52:57.438015 [debug] [Thread-1 (]: On test.stored_proc_duckdb.accepted_values_mart_customer_ltv_ltv_segment__high__low.9244e2122f: /* {"app": "dbt", "dbt_version": "1.11.12", "profile_name": "stored_proc_duckdb", "target_name": "dev", "node_id": "test.stored_proc_duckdb.accepted_values_mart_customer_ltv_ltv_segment__high__low.9244e2122f"} */
+
+    
+    select
+      count(*) as failures,
+      count(*) != 0 as should_warn,
+      count(*) != 0 as should_error
+    from (
+      
+    
+  
+    
+    
+
+with all_values as (
+
+    select
+        ltv_segment as value_field,
+        count(*) as n_records
+
+    from "dev"."main"."mart_customer_ltv"
+    group by ltv_segment
+
+)
+
+select *
+from all_values
+where value_field not in (
+    'high','low'
+)
+
+
+
+  
+  
+      
+    ) dbt_internal_test
+[0m22:52:57.439090 [debug] [Thread-1 (]: SQL status: OK in 0.001 seconds
+[0m22:52:57.440828 [debug] [Thread-1 (]: On test.stored_proc_duckdb.accepted_values_mart_customer_ltv_ltv_segment__high__low.9244e2122f: ROLLBACK
+[0m22:52:57.441332 [debug] [Thread-1 (]: Failed to rollback 'test.stored_proc_duckdb.accepted_values_mart_customer_ltv_ltv_segment__high__low.9244e2122f'
+[0m22:52:57.441502 [debug] [Thread-1 (]: On test.stored_proc_duckdb.accepted_values_mart_customer_ltv_ltv_segment__high__low.9244e2122f: Close
+[0m22:52:57.441785 [info ] [Thread-1 (]: 2 of 6 PASS accepted_values_mart_customer_ltv_ltv_segment__high__low ........... [[32mPASS[0m in 0.02s]
+[0m22:52:57.442045 [debug] [Thread-1 (]: Finished running node test.stored_proc_duckdb.accepted_values_mart_customer_ltv_ltv_segment__high__low.9244e2122f
+[0m22:52:57.442236 [debug] [Thread-1 (]: Began running node test.stored_proc_duckdb.assert_customer_ltv_parity
+[0m22:52:57.442430 [info ] [Thread-1 (]: 3 of 6 START test assert_customer_ltv_parity ................................... [RUN]
+[0m22:52:57.442630 [debug] [Thread-1 (]: Re-using an available connection from the pool (formerly test.stored_proc_duckdb.accepted_values_mart_customer_ltv_ltv_segment__high__low.9244e2122f, now test.stored_proc_duckdb.assert_customer_ltv_parity)
+[0m22:52:57.442798 [debug] [Thread-1 (]: Began compiling node test.stored_proc_duckdb.assert_customer_ltv_parity
+[0m22:52:57.444467 [debug] [Thread-1 (]: Writing injected SQL for node "test.stored_proc_duckdb.assert_customer_ltv_parity"
+[0m22:52:57.444885 [debug] [Thread-1 (]: Began executing node test.stored_proc_duckdb.assert_customer_ltv_parity
+[0m22:52:57.446142 [debug] [Thread-1 (]: Writing runtime sql for node "test.stored_proc_duckdb.assert_customer_ltv_parity"
+[0m22:52:57.446524 [debug] [Thread-1 (]: Using duckdb connection "test.stored_proc_duckdb.assert_customer_ltv_parity"
+[0m22:52:57.446689 [debug] [Thread-1 (]: On test.stored_proc_duckdb.assert_customer_ltv_parity: BEGIN
+[0m22:52:57.446840 [debug] [Thread-1 (]: Opening a new connection, currently in state closed
+[0m22:52:57.447086 [debug] [Thread-1 (]: SQL status: OK in 0.000 seconds
+[0m22:52:57.447236 [debug] [Thread-1 (]: Using duckdb connection "test.stored_proc_duckdb.assert_customer_ltv_parity"
+[0m22:52:57.447422 [debug] [Thread-1 (]: On test.stored_proc_duckdb.assert_customer_ltv_parity: /* {"app": "dbt", "dbt_version": "1.11.12", "profile_name": "stored_proc_duckdb", "target_name": "dev", "node_id": "test.stored_proc_duckdb.assert_customer_ltv_parity"} */
+
+    
+    select
+      count(*) as failures,
+      count(*) != 0 as should_warn,
+      count(*) != 0 as should_error
+    from (
+      
+    
+  -- PARITY GATE (singular test): the migrated mart must match the legacy proc output row-for-row.
+-- dbt fails the build if this returns any rows. This is the "prove it's correct" step, running
+-- for real on DuckDB — the legacy output is captured as the seed legacy_customer_ltv.
+with dbt_model as (
+    select * from "dev"."main"."mart_customer_ltv"
+),
+
+legacy as (
+    select * from "dev"."main"."legacy_customer_ltv"
+),
+
+compared as (
+    select
+        coalesce(d.customer_id, l.customer_id) as customer_id,
+        case
+            when d.customer_id is null then 'missing_in_dbt'
+            when l.customer_id is null then 'missing_in_legacy'
+            when round(cast(d.lifetime_value as double), 2)
+               <> round(cast(l.lifetime_value as double), 2) then 'lifetime_value_mismatch'
+            when cast(d.order_count as integer) <> cast(l.order_count as integer) then 'order_count_mismatch'
+            when d.ltv_segment <> l.ltv_segment then 'segment_mismatch'
+        end as diff
+    from dbt_model d
+    full outer join legacy l on d.customer_id = l.customer_id
+)
+
+select * from compared
+where diff is not null
+  
+  
+      
+    ) dbt_internal_test
+[0m22:52:57.450062 [debug] [Thread-1 (]: SQL status: OK in 0.002 seconds
+[0m22:52:57.450956 [debug] [Thread-1 (]: On test.stored_proc_duckdb.assert_customer_ltv_parity: ROLLBACK
+[0m22:52:57.451453 [debug] [Thread-1 (]: Failed to rollback 'test.stored_proc_duckdb.assert_customer_ltv_parity'
+[0m22:52:57.451629 [debug] [Thread-1 (]: On test.stored_proc_duckdb.assert_customer_ltv_parity: Close
+[0m22:52:57.451921 [error] [Thread-1 (]: 3 of 6 FAIL 2 assert_customer_ltv_parity ....................................... [[31mFAIL 2[0m in 0.01s]
+[0m22:52:57.452203 [debug] [Thread-1 (]: Finished running node test.stored_proc_duckdb.assert_customer_ltv_parity
+[0m22:52:57.452391 [debug] [Thread-1 (]: Began running node test.stored_proc_duckdb.not_null_mart_customer_ltv_customer_id.8a829db09b
+[0m22:52:57.452662 [debug] [Thread-4 (]: Marking all children of 'test.stored_proc_duckdb.assert_customer_ltv_parity' to be skipped because of status 'fail'.  Reason: Got 2 results, configured to fail if != 0.
+[0m22:52:57.452888 [info ] [Thread-1 (]: 4 of 6 START test not_null_mart_customer_ltv_customer_id ....................... [RUN]
+[0m22:52:57.453318 [debug] [Thread-1 (]: Re-using an available connection from the pool (formerly test.stored_proc_duckdb.assert_customer_ltv_parity, now test.stored_proc_duckdb.not_null_mart_customer_ltv_customer_id.8a829db09b)
+[0m22:52:57.453500 [debug] [Thread-1 (]: Began compiling node test.stored_proc_duckdb.not_null_mart_customer_ltv_customer_id.8a829db09b
+[0m22:52:57.456955 [debug] [Thread-1 (]: Writing injected SQL for node "test.stored_proc_duckdb.not_null_mart_customer_ltv_customer_id.8a829db09b"
+[0m22:52:57.457363 [debug] [Thread-1 (]: Began executing node test.stored_proc_duckdb.not_null_mart_customer_ltv_customer_id.8a829db09b
+[0m22:52:57.458583 [debug] [Thread-1 (]: Writing runtime sql for node "test.stored_proc_duckdb.not_null_mart_customer_ltv_customer_id.8a829db09b"
+[0m22:52:57.458970 [debug] [Thread-1 (]: Using duckdb connection "test.stored_proc_duckdb.not_null_mart_customer_ltv_customer_id.8a829db09b"
+[0m22:52:57.459137 [debug] [Thread-1 (]: On test.stored_proc_duckdb.not_null_mart_customer_ltv_customer_id.8a829db09b: BEGIN
+[0m22:52:57.459287 [debug] [Thread-1 (]: Opening a new connection, currently in state closed
+[0m22:52:57.459543 [debug] [Thread-1 (]: SQL status: OK in 0.000 seconds
+[0m22:52:57.459693 [debug] [Thread-1 (]: Using duckdb connection "test.stored_proc_duckdb.not_null_mart_customer_ltv_customer_id.8a829db09b"
+[0m22:52:57.459852 [debug] [Thread-1 (]: On test.stored_proc_duckdb.not_null_mart_customer_ltv_customer_id.8a829db09b: /* {"app": "dbt", "dbt_version": "1.11.12", "profile_name": "stored_proc_duckdb", "target_name": "dev", "node_id": "test.stored_proc_duckdb.not_null_mart_customer_ltv_customer_id.8a829db09b"} */
+
+    
+    select
+      count(*) as failures,
+      count(*) != 0 as should_warn,
+      count(*) != 0 as should_error
+    from (
+      
+    
+  
+    
+    
+
+
+
+select customer_id
+from "dev"."main"."mart_customer_ltv"
+where customer_id is null
+
+
+
+  
+  
+      
+    ) dbt_internal_test
+[0m22:52:57.460256 [debug] [Thread-1 (]: SQL status: OK in 0.000 seconds
+[0m22:52:57.461028 [debug] [Thread-1 (]: On test.stored_proc_duckdb.not_null_mart_customer_ltv_customer_id.8a829db09b: ROLLBACK
+[0m22:52:57.461510 [debug] [Thread-1 (]: Failed to rollback 'test.stored_proc_duckdb.not_null_mart_customer_ltv_customer_id.8a829db09b'
+[0m22:52:57.461683 [debug] [Thread-1 (]: On test.stored_proc_duckdb.not_null_mart_customer_ltv_customer_id.8a829db09b: Close
+[0m22:52:57.461964 [info ] [Thread-1 (]: 4 of 6 PASS not_null_mart_customer_ltv_customer_id ............................. [[32mPASS[0m in 0.01s]
+[0m22:52:57.462229 [debug] [Thread-1 (]: Finished running node test.stored_proc_duckdb.not_null_mart_customer_ltv_customer_id.8a829db09b
+[0m22:52:57.462412 [debug] [Thread-1 (]: Began running node test.stored_proc_duckdb.not_null_mart_customer_ltv_lifetime_value.ad6e0de923
+[0m22:52:57.462593 [info ] [Thread-1 (]: 5 of 6 START test not_null_mart_customer_ltv_lifetime_value .................... [RUN]
+[0m22:52:57.462789 [debug] [Thread-1 (]: Re-using an available connection from the pool (formerly test.stored_proc_duckdb.not_null_mart_customer_ltv_customer_id.8a829db09b, now test.stored_proc_duckdb.not_null_mart_customer_ltv_lifetime_value.ad6e0de923)
+[0m22:52:57.462950 [debug] [Thread-1 (]: Began compiling node test.stored_proc_duckdb.not_null_mart_customer_ltv_lifetime_value.ad6e0de923
+[0m22:52:57.465220 [debug] [Thread-1 (]: Writing injected SQL for node "test.stored_proc_duckdb.not_null_mart_customer_ltv_lifetime_value.ad6e0de923"
+[0m22:52:57.465626 [debug] [Thread-1 (]: Began executing node test.stored_proc_duckdb.not_null_mart_customer_ltv_lifetime_value.ad6e0de923
+[0m22:52:57.467922 [debug] [Thread-1 (]: Writing runtime sql for node "test.stored_proc_duckdb.not_null_mart_customer_ltv_lifetime_value.ad6e0de923"
+[0m22:52:57.468316 [debug] [Thread-1 (]: Using duckdb connection "test.stored_proc_duckdb.not_null_mart_customer_ltv_lifetime_value.ad6e0de923"
+[0m22:52:57.468483 [debug] [Thread-1 (]: On test.stored_proc_duckdb.not_null_mart_customer_ltv_lifetime_value.ad6e0de923: BEGIN
+[0m22:52:57.468636 [debug] [Thread-1 (]: Opening a new connection, currently in state closed
+[0m22:52:57.468899 [debug] [Thread-1 (]: SQL status: OK in 0.000 seconds
+[0m22:52:57.469051 [debug] [Thread-1 (]: Using duckdb connection "test.stored_proc_duckdb.not_null_mart_customer_ltv_lifetime_value.ad6e0de923"
+[0m22:52:57.469211 [debug] [Thread-1 (]: On test.stored_proc_duckdb.not_null_mart_customer_ltv_lifetime_value.ad6e0de923: /* {"app": "dbt", "dbt_version": "1.11.12", "profile_name": "stored_proc_duckdb", "target_name": "dev", "node_id": "test.stored_proc_duckdb.not_null_mart_customer_ltv_lifetime_value.ad6e0de923"} */
+
+    
+    select
+      count(*) as failures,
+      count(*) != 0 as should_warn,
+      count(*) != 0 as should_error
+    from (
+      
+    
+  
+    
+    
+
+
+
+select lifetime_value
+from "dev"."main"."mart_customer_ltv"
+where lifetime_value is null
+
+
+
+  
+  
+      
+    ) dbt_internal_test
+[0m22:52:57.469632 [debug] [Thread-1 (]: SQL status: OK in 0.000 seconds
+[0m22:52:57.470327 [debug] [Thread-1 (]: On test.stored_proc_duckdb.not_null_mart_customer_ltv_lifetime_value.ad6e0de923: ROLLBACK
+[0m22:52:57.470774 [debug] [Thread-1 (]: Failed to rollback 'test.stored_proc_duckdb.not_null_mart_customer_ltv_lifetime_value.ad6e0de923'
+[0m22:52:57.470943 [debug] [Thread-1 (]: On test.stored_proc_duckdb.not_null_mart_customer_ltv_lifetime_value.ad6e0de923: Close
+[0m22:52:57.471200 [info ] [Thread-1 (]: 5 of 6 PASS not_null_mart_customer_ltv_lifetime_value .......................... [[32mPASS[0m in 0.01s]
+[0m22:52:57.471456 [debug] [Thread-1 (]: Finished running node test.stored_proc_duckdb.not_null_mart_customer_ltv_lifetime_value.ad6e0de923
+[0m22:52:57.471632 [debug] [Thread-1 (]: Began running node test.stored_proc_duckdb.unique_mart_customer_ltv_customer_id.f8ccb94859
+[0m22:52:57.471812 [info ] [Thread-1 (]: 6 of 6 START test unique_mart_customer_ltv_customer_id ......................... [RUN]
+[0m22:52:57.471993 [debug] [Thread-1 (]: Re-using an available connection from the pool (formerly test.stored_proc_duckdb.not_null_mart_customer_ltv_lifetime_value.ad6e0de923, now test.stored_proc_duckdb.unique_mart_customer_ltv_customer_id.f8ccb94859)
+[0m22:52:57.472150 [debug] [Thread-1 (]: Began compiling node test.stored_proc_duckdb.unique_mart_customer_ltv_customer_id.f8ccb94859
+[0m22:52:57.475451 [debug] [Thread-1 (]: Writing injected SQL for node "test.stored_proc_duckdb.unique_mart_customer_ltv_customer_id.f8ccb94859"
+[0m22:52:57.475858 [debug] [Thread-1 (]: Began executing node test.stored_proc_duckdb.unique_mart_customer_ltv_customer_id.f8ccb94859
+[0m22:52:57.477133 [debug] [Thread-1 (]: Writing runtime sql for node "test.stored_proc_duckdb.unique_mart_customer_ltv_customer_id.f8ccb94859"
+[0m22:52:57.477522 [debug] [Thread-1 (]: Using duckdb connection "test.stored_proc_duckdb.unique_mart_customer_ltv_customer_id.f8ccb94859"
+[0m22:52:57.477684 [debug] [Thread-1 (]: On test.stored_proc_duckdb.unique_mart_customer_ltv_customer_id.f8ccb94859: BEGIN
+[0m22:52:57.477831 [debug] [Thread-1 (]: Opening a new connection, currently in state closed
+[0m22:52:57.478132 [debug] [Thread-1 (]: SQL status: OK in 0.000 seconds
+[0m22:52:57.478283 [debug] [Thread-1 (]: Using duckdb connection "test.stored_proc_duckdb.unique_mart_customer_ltv_customer_id.f8ccb94859"
+[0m22:52:57.478440 [debug] [Thread-1 (]: On test.stored_proc_duckdb.unique_mart_customer_ltv_customer_id.f8ccb94859: /* {"app": "dbt", "dbt_version": "1.11.12", "profile_name": "stored_proc_duckdb", "target_name": "dev", "node_id": "test.stored_proc_duckdb.unique_mart_customer_ltv_customer_id.f8ccb94859"} */
+
+    
+    select
+      count(*) as failures,
+      count(*) != 0 as should_warn,
+      count(*) != 0 as should_error
+    from (
+      
+    
+  
+    
+    
+
+select
+    customer_id as unique_field,
+    count(*) as n_records
+
+from "dev"."main"."mart_customer_ltv"
+where customer_id is not null
+group by customer_id
+having count(*) > 1
+
+
+
+  
+  
+      
+    ) dbt_internal_test
+[0m22:52:57.479461 [debug] [Thread-1 (]: SQL status: OK in 0.001 seconds
+[0m22:52:57.480257 [debug] [Thread-1 (]: On test.stored_proc_duckdb.unique_mart_customer_ltv_customer_id.f8ccb94859: ROLLBACK
+[0m22:52:57.480731 [debug] [Thread-1 (]: Failed to rollback 'test.stored_proc_duckdb.unique_mart_customer_ltv_customer_id.f8ccb94859'
+[0m22:52:57.480893 [debug] [Thread-1 (]: On test.stored_proc_duckdb.unique_mart_customer_ltv_customer_id.f8ccb94859: Close
+[0m22:52:57.481170 [info ] [Thread-1 (]: 6 of 6 PASS unique_mart_customer_ltv_customer_id ............................... [[32mPASS[0m in 0.01s]
+[0m22:52:57.481434 [debug] [Thread-1 (]: Finished running node test.stored_proc_duckdb.unique_mart_customer_ltv_customer_id.f8ccb94859
+[0m22:52:57.481994 [debug] [MainThread]: Using duckdb connection "master"
+[0m22:52:57.482144 [debug] [MainThread]: On master: BEGIN
+[0m22:52:57.482271 [debug] [MainThread]: Opening a new connection, currently in state closed
+[0m22:52:57.482503 [debug] [MainThread]: SQL status: OK in 0.000 seconds
+[0m22:52:57.482669 [debug] [MainThread]: On master: COMMIT
+[0m22:52:57.482809 [debug] [MainThread]: Using duckdb connection "master"
+[0m22:52:57.482944 [debug] [MainThread]: On master: COMMIT
+[0m22:52:57.483140 [debug] [MainThread]: SQL status: OK in 0.000 seconds
+[0m22:52:57.483269 [debug] [MainThread]: On master: Close
+[0m22:52:57.483444 [debug] [MainThread]: Connection 'master' was properly closed.
+[0m22:52:57.483573 [debug] [MainThread]: Connection 'test.stored_proc_duckdb.unique_mart_customer_ltv_customer_id.f8ccb94859' was properly closed.
+[0m22:52:57.483726 [info ] [MainThread]: 
+[0m22:52:57.483874 [info ] [MainThread]: Finished running 1 table model, 5 data tests in 0 hours 0 minutes and 0.21 seconds (0.21s).
+[0m22:52:57.484465 [debug] [MainThread]: Command end result
+[0m22:52:57.504440 [debug] [MainThread]: Wrote artifact WritableManifest to /Users/hichambabahmed/dbt-legacy-migration-skills/examples/stored-proc-to-dbt-duckdb/target/manifest.json
+[0m22:52:57.505753 [debug] [MainThread]: Wrote artifact SemanticManifest to /Users/hichambabahmed/dbt-legacy-migration-skills/examples/stored-proc-to-dbt-duckdb/target/semantic_manifest.json
+[0m22:52:57.508950 [debug] [MainThread]: Wrote artifact RunExecutionResult to /Users/hichambabahmed/dbt-legacy-migration-skills/examples/stored-proc-to-dbt-duckdb/target/run_results.json
+[0m22:52:57.509111 [info ] [MainThread]: 
+[0m22:52:57.509282 [info ] [MainThread]: [31mCompleted with 1 error, 0 partial successes, and 0 warnings:[0m
+[0m22:52:57.509427 [info ] [MainThread]: 
+[0m22:52:57.509609 [error] [MainThread]: [31mFailure in test assert_customer_ltv_parity (tests/assert_customer_ltv_parity.sql)[0m
+[0m22:52:57.509780 [error] [MainThread]:   Got 2 results, configured to fail if != 0
+[0m22:52:57.509906 [info ] [MainThread]: 
+[0m22:52:57.510059 [info ] [MainThread]:   compiled code at target/compiled/stored_proc_duckdb/tests/assert_customer_ltv_parity.sql
+[0m22:52:57.510192 [info ] [MainThread]: 
+[0m22:52:57.510351 [info ] [MainThread]: Done. PASS=5 WARN=0 ERROR=1 SKIP=0 NO-OP=0 TOTAL=6
+[0m22:52:57.510678 [debug] [MainThread]: Resource report: {"command_name": "build", "command_success": false, "command_wall_clock_time": 0.99462694, "process_in_blocks": "0", "process_kernel_time": 0.280363, "process_mem_max_rss": "162004992", "process_out_blocks": "0", "process_user_time": 1.545019}
+[0m22:52:57.510891 [debug] [MainThread]: Command `dbt build` failed at 22:52:57.510847 after 0.99 seconds
+[0m22:52:57.511075 [debug] [MainThread]: Sending event: {'category': 'dbt', 'action': 'invocation', 'label': 'end', 'context': [<snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x10d79faa0>, <snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x10d50fc20>, <snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x10e2e80e0>]}
+[0m22:52:57.511248 [debug] [MainThread]: Flushing usage events
+[0m22:52:57.974627 [debug] [MainThread]: An error was encountered while trying to flush usage events
+[0m22:52:59.321251 [debug] [MainThread]: Sending event: {'category': 'dbt', 'action': 'invocation', 'label': 'start', 'context': [<snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x10bb5c470>, <snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x10dc1fad0>, <snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x10dc1ffe0>]}
+
+
+============================== 22:52:59.324260 | b75da5e2-16e3-40b9-ae3a-792c11ae7199 ==============================
+[0m22:52:59.324260 [info ] [MainThread]: Running with dbt=1.11.12
+[0m22:52:59.324619 [debug] [MainThread]: running dbt with arguments {'profiles_dir': '/Users/hichambabahmed/dbt-legacy-migration-skills/examples/stored-proc-to-dbt-duckdb', 'invocation_command': 'dbt build -s mart_customer_ltv assert_customer_ltv_parity', 'static_parser': 'True', 'no_print': 'None', 'fail_fast': 'False', 'cache_selected_only': 'False', 'printer_width': '80', 'indirect_selection': 'eager', 'send_anonymous_usage_stats': 'True', 'partial_parse': 'True', 'quiet': 'False', 'introspect': 'True', 'log_cache_events': 'False', 'warn_error': 'None', 'write_json': 'True', 'warn_error_options': 'WarnErrorOptionsV2(error=[], warn=[], silence=[])', 'use_experimental_parser': 'False', 'use_colors': 'True', 'log_path': '/Users/hichambabahmed/dbt-legacy-migration-skills/examples/stored-proc-to-dbt-duckdb/logs', 'version_check': 'True', 'debug': 'False', 'empty': 'False', 'target_path': 'None', 'log_format': 'default'}
+[0m22:52:59.456739 [debug] [MainThread]: Sending event: {'category': 'dbt', 'action': 'project_id', 'label': 'b75da5e2-16e3-40b9-ae3a-792c11ae7199', 'context': [<snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x10d43b170>]}
+[0m22:52:59.489976 [debug] [MainThread]: Sending event: {'category': 'dbt', 'action': 'adapter_info', 'label': 'b75da5e2-16e3-40b9-ae3a-792c11ae7199', 'context': [<snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x10d0eac60>]}
+[0m22:52:59.491462 [info ] [MainThread]: Registered adapter: duckdb=1.10.1
+[0m22:52:59.564975 [debug] [MainThread]: checksum: f368f5348cf42803b94ef7fb8257ecf3bf9a9a16dd9c8c51fe5172f2dbeb457f, vars: {}, profile: , target: , version: 1.11.12
+[0m22:52:59.702668 [debug] [MainThread]: Partial parsing enabled: 0 files deleted, 0 files added, 1 files changed.
+[0m22:52:59.703197 [debug] [MainThread]: Partial parsing: updated file: stored_proc_duckdb://models/marts/mart_customer_ltv.sql
+[0m22:52:59.981644 [debug] [MainThread]: Sending event: {'category': 'dbt', 'action': 'load_project', 'label': 'b75da5e2-16e3-40b9-ae3a-792c11ae7199', 'context': [<snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x10d5b2de0>]}
+[0m22:53:00.049314 [debug] [MainThread]: Wrote artifact WritableManifest to /Users/hichambabahmed/dbt-legacy-migration-skills/examples/stored-proc-to-dbt-duckdb/target/manifest.json
+[0m22:53:00.051143 [debug] [MainThread]: Wrote artifact SemanticManifest to /Users/hichambabahmed/dbt-legacy-migration-skills/examples/stored-proc-to-dbt-duckdb/target/semantic_manifest.json
+[0m22:53:00.065799 [debug] [MainThread]: Sending event: {'category': 'dbt', 'action': 'resource_counts', 'label': 'b75da5e2-16e3-40b9-ae3a-792c11ae7199', 'context': [<snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x10e45c170>]}
+[0m22:53:00.066104 [info ] [MainThread]: Found 3 models, 1 analysis, 5 data tests, 3 seeds, 651 macros
+[0m22:53:00.067316 [info ] [MainThread]: 
+[0m22:53:00.067514 [info ] [MainThread]: Concurrency: 1 threads (target='dev')
+[0m22:53:00.067656 [info ] [MainThread]: 
+[0m22:53:00.067913 [debug] [MainThread]: Acquiring new duckdb connection 'master'
+[0m22:53:00.068373 [debug] [ThreadPool]: Acquiring new duckdb connection 'list_dev'
+[0m22:53:00.130793 [debug] [ThreadPool]: Using duckdb connection "list_dev"
+[0m22:53:00.131085 [debug] [ThreadPool]: On list_dev: /* {"app": "dbt", "dbt_version": "1.11.12", "profile_name": "stored_proc_duckdb", "target_name": "dev", "connection_name": "list_dev"} */
+
+    
+    select schema_name
+    from system.information_schema.schemata
+    
+    where lower(catalog_name) = '"dev"'
+    
+  
+  
+[0m22:53:00.131263 [debug] [ThreadPool]: Opening a new connection, currently in state init
+[0m22:53:00.139853 [debug] [ThreadPool]: SQL status: OK in 0.009 seconds
+[0m22:53:00.140667 [debug] [ThreadPool]: On list_dev: Close
+[0m22:53:00.141189 [debug] [ThreadPool]: Re-using an available connection from the pool (formerly list_dev, now create_dev_main)
+[0m22:53:00.141567 [debug] [ThreadPool]: Creating schema "database: "dev"
+schema: "main"
+"
+[0m22:53:00.146756 [debug] [ThreadPool]: Using duckdb connection "create_dev_main"
+[0m22:53:00.147123 [debug] [ThreadPool]: On create_dev_main: /* {"app": "dbt", "dbt_version": "1.11.12", "profile_name": "stored_proc_duckdb", "target_name": "dev", "connection_name": "create_dev_main"} */
+
+    
+        select type from duckdb_databases()
+        where lower(database_name)='dev'
+        and type='sqlite'
+    
+  
+[0m22:53:00.147307 [debug] [ThreadPool]: Opening a new connection, currently in state closed
+[0m22:53:00.147808 [debug] [ThreadPool]: SQL status: OK in 0.000 seconds
+[0m22:53:00.148653 [debug] [ThreadPool]: Using duckdb connection "create_dev_main"
+[0m22:53:00.148808 [debug] [ThreadPool]: On create_dev_main: BEGIN
+[0m22:53:00.149026 [debug] [ThreadPool]: SQL status: OK in 0.000 seconds
+[0m22:53:00.149152 [debug] [ThreadPool]: Using duckdb connection "create_dev_main"
+[0m22:53:00.149279 [debug] [ThreadPool]: On create_dev_main: /* {"app": "dbt", "dbt_version": "1.11.12", "profile_name": "stored_proc_duckdb", "target_name": "dev", "connection_name": "create_dev_main"} */
+
+    
+    
+        create schema if not exists "dev"."main"
+    
+[0m22:53:00.149523 [debug] [ThreadPool]: SQL status: OK in 0.000 seconds
+[0m22:53:00.149923 [debug] [ThreadPool]: On create_dev_main: COMMIT
+[0m22:53:00.150067 [debug] [ThreadPool]: Using duckdb connection "create_dev_main"
+[0m22:53:00.150197 [debug] [ThreadPool]: On create_dev_main: COMMIT
+[0m22:53:00.150460 [debug] [ThreadPool]: SQL status: OK in 0.000 seconds
+[0m22:53:00.150697 [debug] [ThreadPool]: On create_dev_main: Close
+[0m22:53:00.153867 [debug] [ThreadPool]: Re-using an available connection from the pool (formerly create_dev_main, now list_dev_main)
+[0m22:53:00.157267 [debug] [ThreadPool]: Using duckdb connection "list_dev_main"
+[0m22:53:00.157533 [debug] [ThreadPool]: On list_dev_main: BEGIN
+[0m22:53:00.157687 [debug] [ThreadPool]: Opening a new connection, currently in state closed
+[0m22:53:00.157985 [debug] [ThreadPool]: SQL status: OK in 0.000 seconds
+[0m22:53:00.158121 [debug] [ThreadPool]: Using duckdb connection "list_dev_main"
+[0m22:53:00.158257 [debug] [ThreadPool]: On list_dev_main: /* {"app": "dbt", "dbt_version": "1.11.12", "profile_name": "stored_proc_duckdb", "target_name": "dev", "connection_name": "list_dev_main"} */
+select
+      'dev' as database,
+      table_name as name,
+      table_schema as schema,
+      CASE table_type
+        WHEN 'BASE TABLE' THEN 'table'
+        WHEN 'VIEW' THEN 'view'
+        WHEN 'LOCAL TEMPORARY' THEN 'table'
+        END as type
+    from system.information_schema.tables
+    where lower(table_schema) = 'main'
+    and lower(table_catalog) = 'dev'
+  
+[0m22:53:00.160250 [debug] [ThreadPool]: SQL status: OK in 0.002 seconds
+[0m22:53:00.161329 [debug] [ThreadPool]: On list_dev_main: ROLLBACK
+[0m22:53:00.162145 [debug] [ThreadPool]: Failed to rollback 'list_dev_main'
+[0m22:53:00.162315 [debug] [ThreadPool]: On list_dev_main: Close
+[0m22:53:00.163068 [debug] [MainThread]: Sending event: {'category': 'dbt', 'action': 'runnable_timing', 'label': 'b75da5e2-16e3-40b9-ae3a-792c11ae7199', 'context': [<snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x10e4cdc70>]}
+[0m22:53:00.163334 [debug] [MainThread]: Using duckdb connection "master"
+[0m22:53:00.163598 [debug] [MainThread]: On master: BEGIN
+[0m22:53:00.163826 [debug] [MainThread]: Opening a new connection, currently in state init
+[0m22:53:00.164186 [debug] [MainThread]: SQL status: OK in 0.000 seconds
+[0m22:53:00.164355 [debug] [MainThread]: On master: COMMIT
+[0m22:53:00.164509 [debug] [MainThread]: Using duckdb connection "master"
+[0m22:53:00.164649 [debug] [MainThread]: On master: COMMIT
+[0m22:53:00.164861 [debug] [MainThread]: SQL status: OK in 0.000 seconds
+[0m22:53:00.165000 [debug] [MainThread]: On master: Close
+[0m22:53:00.166745 [debug] [Thread-1 (]: Began running node model.stored_proc_duckdb.mart_customer_ltv
+[0m22:53:00.167039 [info ] [Thread-1 (]: 1 of 6 START sql table model main.mart_customer_ltv ............................ [RUN]
+[0m22:53:00.167268 [debug] [Thread-1 (]: Re-using an available connection from the pool (formerly list_dev_main, now model.stored_proc_duckdb.mart_customer_ltv)
+[0m22:53:00.167443 [debug] [Thread-1 (]: Began compiling node model.stored_proc_duckdb.mart_customer_ltv
+[0m22:53:00.171871 [debug] [Thread-1 (]: Writing injected SQL for node "model.stored_proc_duckdb.mart_customer_ltv"
+[0m22:53:00.172648 [debug] [Thread-1 (]: Began executing node model.stored_proc_duckdb.mart_customer_ltv
+[0m22:53:00.191669 [debug] [Thread-1 (]: Writing runtime sql for node "model.stored_proc_duckdb.mart_customer_ltv"
+[0m22:53:00.192451 [debug] [Thread-1 (]: Using duckdb connection "model.stored_proc_duckdb.mart_customer_ltv"
+[0m22:53:00.192695 [debug] [Thread-1 (]: On model.stored_proc_duckdb.mart_customer_ltv: BEGIN
+[0m22:53:00.192859 [debug] [Thread-1 (]: Opening a new connection, currently in state closed
+[0m22:53:00.193366 [debug] [Thread-1 (]: SQL status: OK in 0.000 seconds
+[0m22:53:00.193593 [debug] [Thread-1 (]: Using duckdb connection "model.stored_proc_duckdb.mart_customer_ltv"
+[0m22:53:00.193791 [debug] [Thread-1 (]: On model.stored_proc_duckdb.mart_customer_ltv: /* {"app": "dbt", "dbt_version": "1.11.12", "profile_name": "stored_proc_duckdb", "target_name": "dev", "node_id": "model.stored_proc_duckdb.mart_customer_ltv"} */
+
+  
+    
+    
+
+    create  table
+      "dev"."main"."mart_customer_ltv__dbt_tmp"
+  
+    as (
+      -- Migrated from legacy/sp_customer_ltv.sql: the procedural temp-table rebuild becomes a
+-- declarative model on ref() staging models. Same output, same grain (one row per customer).
+with completed as (
+    select customer_id, amount
+    from "dev"."main"."stg_orders"
+    where status = 'completed'
+),
+
+final as (
+    select
+        customer_id,
+        cast(sum(amount) as decimal(18, 2)) as lifetime_value,
+        count(*)                            as order_count,
+        case when sum(amount) >= 150 then 'high' else 'low' end as ltv_segment
+    from completed
+    group by customer_id
+)
+
+select * from final
+    );
+  
+  
+[0m22:53:00.195175 [debug] [Thread-1 (]: SQL status: OK in 0.001 seconds
+[0m22:53:00.198334 [debug] [Thread-1 (]: Using duckdb connection "model.stored_proc_duckdb.mart_customer_ltv"
+[0m22:53:00.198549 [debug] [Thread-1 (]: On model.stored_proc_duckdb.mart_customer_ltv: /* {"app": "dbt", "dbt_version": "1.11.12", "profile_name": "stored_proc_duckdb", "target_name": "dev", "node_id": "model.stored_proc_duckdb.mart_customer_ltv"} */
+
+    SELECT index_name
+    FROM duckdb_indexes()
+    WHERE schema_name = 'main'
+      AND table_name = 'mart_customer_ltv'
+  
+[0m22:53:00.199020 [debug] [Thread-1 (]: SQL status: OK in 0.000 seconds
+[0m22:53:00.199737 [debug] [Thread-1 (]: Using duckdb connection "model.stored_proc_duckdb.mart_customer_ltv"
+[0m22:53:00.199939 [debug] [Thread-1 (]: On model.stored_proc_duckdb.mart_customer_ltv: /* {"app": "dbt", "dbt_version": "1.11.12", "profile_name": "stored_proc_duckdb", "target_name": "dev", "node_id": "model.stored_proc_duckdb.mart_customer_ltv"} */
+
+    SELECT COUNT(*) as remaining_indexes
+    FROM duckdb_indexes()
+    WHERE schema_name = 'main'
+      AND table_name = 'mart_customer_ltv'
+  
+[0m22:53:00.200372 [debug] [Thread-1 (]: SQL status: OK in 0.000 seconds
+[0m22:53:00.204243 [debug] [Thread-1 (]: Using duckdb connection "model.stored_proc_duckdb.mart_customer_ltv"
+[0m22:53:00.204487 [debug] [Thread-1 (]: On model.stored_proc_duckdb.mart_customer_ltv: /* {"app": "dbt", "dbt_version": "1.11.12", "profile_name": "stored_proc_duckdb", "target_name": "dev", "node_id": "model.stored_proc_duckdb.mart_customer_ltv"} */
+alter table "dev"."main"."mart_customer_ltv" rename to "mart_customer_ltv__dbt_backup"
+[0m22:53:00.204836 [debug] [Thread-1 (]: SQL status: OK in 0.000 seconds
+[0m22:53:00.206605 [debug] [Thread-1 (]: Using duckdb connection "model.stored_proc_duckdb.mart_customer_ltv"
+[0m22:53:00.206801 [debug] [Thread-1 (]: On model.stored_proc_duckdb.mart_customer_ltv: /* {"app": "dbt", "dbt_version": "1.11.12", "profile_name": "stored_proc_duckdb", "target_name": "dev", "node_id": "model.stored_proc_duckdb.mart_customer_ltv"} */
+alter table "dev"."main"."mart_customer_ltv__dbt_tmp" rename to "mart_customer_ltv"
+[0m22:53:00.207116 [debug] [Thread-1 (]: SQL status: OK in 0.000 seconds
+[0m22:53:00.217892 [debug] [Thread-1 (]: On model.stored_proc_duckdb.mart_customer_ltv: COMMIT
+[0m22:53:00.218179 [debug] [Thread-1 (]: Using duckdb connection "model.stored_proc_duckdb.mart_customer_ltv"
+[0m22:53:00.218354 [debug] [Thread-1 (]: On model.stored_proc_duckdb.mart_customer_ltv: COMMIT
+[0m22:53:00.219176 [debug] [Thread-1 (]: SQL status: OK in 0.001 seconds
+[0m22:53:00.223409 [debug] [Thread-1 (]: Using duckdb connection "model.stored_proc_duckdb.mart_customer_ltv"
+[0m22:53:00.223602 [debug] [Thread-1 (]: On model.stored_proc_duckdb.mart_customer_ltv: /* {"app": "dbt", "dbt_version": "1.11.12", "profile_name": "stored_proc_duckdb", "target_name": "dev", "node_id": "model.stored_proc_duckdb.mart_customer_ltv"} */
+
+      drop table if exists "dev"."main"."mart_customer_ltv__dbt_backup" cascade
+    
+[0m22:53:00.224028 [debug] [Thread-1 (]: SQL status: OK in 0.000 seconds
+[0m22:53:00.225360 [debug] [Thread-1 (]: On model.stored_proc_duckdb.mart_customer_ltv: Close
+[0m22:53:00.226523 [debug] [Thread-1 (]: Sending event: {'category': 'dbt', 'action': 'run_model', 'label': 'b75da5e2-16e3-40b9-ae3a-792c11ae7199', 'context': [<snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x10ce2d400>]}
+[0m22:53:00.226940 [info ] [Thread-1 (]: 1 of 6 OK created sql table model main.mart_customer_ltv ....................... [[32mOK[0m in 0.06s]
+[0m22:53:00.227257 [debug] [Thread-1 (]: Finished running node model.stored_proc_duckdb.mart_customer_ltv
+[0m22:53:00.227740 [debug] [Thread-1 (]: Began running node test.stored_proc_duckdb.accepted_values_mart_customer_ltv_ltv_segment__high__low.9244e2122f
+[0m22:53:00.227959 [info ] [Thread-1 (]: 2 of 6 START test accepted_values_mart_customer_ltv_ltv_segment__high__low ..... [RUN]
+[0m22:53:00.228188 [debug] [Thread-1 (]: Re-using an available connection from the pool (formerly model.stored_proc_duckdb.mart_customer_ltv, now test.stored_proc_duckdb.accepted_values_mart_customer_ltv_ltv_segment__high__low.9244e2122f)
+[0m22:53:00.228368 [debug] [Thread-1 (]: Began compiling node test.stored_proc_duckdb.accepted_values_mart_customer_ltv_ltv_segment__high__low.9244e2122f
+[0m22:53:00.231046 [debug] [Thread-1 (]: Writing injected SQL for node "test.stored_proc_duckdb.accepted_values_mart_customer_ltv_ltv_segment__high__low.9244e2122f"
+[0m22:53:00.231772 [debug] [Thread-1 (]: Began executing node test.stored_proc_duckdb.accepted_values_mart_customer_ltv_ltv_segment__high__low.9244e2122f
+[0m22:53:00.242793 [debug] [Thread-1 (]: Writing runtime sql for node "test.stored_proc_duckdb.accepted_values_mart_customer_ltv_ltv_segment__high__low.9244e2122f"
+[0m22:53:00.243447 [debug] [Thread-1 (]: Using duckdb connection "test.stored_proc_duckdb.accepted_values_mart_customer_ltv_ltv_segment__high__low.9244e2122f"
+[0m22:53:00.243669 [debug] [Thread-1 (]: On test.stored_proc_duckdb.accepted_values_mart_customer_ltv_ltv_segment__high__low.9244e2122f: BEGIN
+[0m22:53:00.243845 [debug] [Thread-1 (]: Opening a new connection, currently in state closed
+[0m22:53:00.244154 [debug] [Thread-1 (]: SQL status: OK in 0.000 seconds
+[0m22:53:00.244314 [debug] [Thread-1 (]: Using duckdb connection "test.stored_proc_duckdb.accepted_values_mart_customer_ltv_ltv_segment__high__low.9244e2122f"
+[0m22:53:00.244490 [debug] [Thread-1 (]: On test.stored_proc_duckdb.accepted_values_mart_customer_ltv_ltv_segment__high__low.9244e2122f: /* {"app": "dbt", "dbt_version": "1.11.12", "profile_name": "stored_proc_duckdb", "target_name": "dev", "node_id": "test.stored_proc_duckdb.accepted_values_mart_customer_ltv_ltv_segment__high__low.9244e2122f"} */
+
+    
+    select
+      count(*) as failures,
+      count(*) != 0 as should_warn,
+      count(*) != 0 as should_error
+    from (
+      
+    
+  
+    
+    
+
+with all_values as (
+
+    select
+        ltv_segment as value_field,
+        count(*) as n_records
+
+    from "dev"."main"."mart_customer_ltv"
+    group by ltv_segment
+
+)
+
+select *
+from all_values
+where value_field not in (
+    'high','low'
+)
+
+
+
+  
+  
+      
+    ) dbt_internal_test
+[0m22:53:00.245195 [debug] [Thread-1 (]: SQL status: OK in 0.001 seconds
+[0m22:53:00.247063 [debug] [Thread-1 (]: On test.stored_proc_duckdb.accepted_values_mart_customer_ltv_ltv_segment__high__low.9244e2122f: ROLLBACK
+[0m22:53:00.247575 [debug] [Thread-1 (]: Failed to rollback 'test.stored_proc_duckdb.accepted_values_mart_customer_ltv_ltv_segment__high__low.9244e2122f'
+[0m22:53:00.247746 [debug] [Thread-1 (]: On test.stored_proc_duckdb.accepted_values_mart_customer_ltv_ltv_segment__high__low.9244e2122f: Close
+[0m22:53:00.248057 [info ] [Thread-1 (]: 2 of 6 PASS accepted_values_mart_customer_ltv_ltv_segment__high__low ........... [[32mPASS[0m in 0.02s]
+[0m22:53:00.248324 [debug] [Thread-1 (]: Finished running node test.stored_proc_duckdb.accepted_values_mart_customer_ltv_ltv_segment__high__low.9244e2122f
+[0m22:53:00.248522 [debug] [Thread-1 (]: Began running node test.stored_proc_duckdb.assert_customer_ltv_parity
+[0m22:53:00.248720 [info ] [Thread-1 (]: 3 of 6 START test assert_customer_ltv_parity ................................... [RUN]
+[0m22:53:00.248922 [debug] [Thread-1 (]: Re-using an available connection from the pool (formerly test.stored_proc_duckdb.accepted_values_mart_customer_ltv_ltv_segment__high__low.9244e2122f, now test.stored_proc_duckdb.assert_customer_ltv_parity)
+[0m22:53:00.249083 [debug] [Thread-1 (]: Began compiling node test.stored_proc_duckdb.assert_customer_ltv_parity
+[0m22:53:00.251089 [debug] [Thread-1 (]: Writing injected SQL for node "test.stored_proc_duckdb.assert_customer_ltv_parity"
+[0m22:53:00.251665 [debug] [Thread-1 (]: Began executing node test.stored_proc_duckdb.assert_customer_ltv_parity
+[0m22:53:00.253142 [debug] [Thread-1 (]: Writing runtime sql for node "test.stored_proc_duckdb.assert_customer_ltv_parity"
+[0m22:53:00.253564 [debug] [Thread-1 (]: Using duckdb connection "test.stored_proc_duckdb.assert_customer_ltv_parity"
+[0m22:53:00.253728 [debug] [Thread-1 (]: On test.stored_proc_duckdb.assert_customer_ltv_parity: BEGIN
+[0m22:53:00.253875 [debug] [Thread-1 (]: Opening a new connection, currently in state closed
+[0m22:53:00.254132 [debug] [Thread-1 (]: SQL status: OK in 0.000 seconds
+[0m22:53:00.254279 [debug] [Thread-1 (]: Using duckdb connection "test.stored_proc_duckdb.assert_customer_ltv_parity"
+[0m22:53:00.254462 [debug] [Thread-1 (]: On test.stored_proc_duckdb.assert_customer_ltv_parity: /* {"app": "dbt", "dbt_version": "1.11.12", "profile_name": "stored_proc_duckdb", "target_name": "dev", "node_id": "test.stored_proc_duckdb.assert_customer_ltv_parity"} */
+
+    
+    select
+      count(*) as failures,
+      count(*) != 0 as should_warn,
+      count(*) != 0 as should_error
+    from (
+      
+    
+  -- PARITY GATE (singular test): the migrated mart must match the legacy proc output row-for-row.
+-- dbt fails the build if this returns any rows. This is the "prove it's correct" step, running
+-- for real on DuckDB — the legacy output is captured as the seed legacy_customer_ltv.
+with dbt_model as (
+    select * from "dev"."main"."mart_customer_ltv"
+),
+
+legacy as (
+    select * from "dev"."main"."legacy_customer_ltv"
+),
+
+compared as (
+    select
+        coalesce(d.customer_id, l.customer_id) as customer_id,
+        case
+            when d.customer_id is null then 'missing_in_dbt'
+            when l.customer_id is null then 'missing_in_legacy'
+            when round(cast(d.lifetime_value as double), 2)
+               <> round(cast(l.lifetime_value as double), 2) then 'lifetime_value_mismatch'
+            when cast(d.order_count as integer) <> cast(l.order_count as integer) then 'order_count_mismatch'
+            when d.ltv_segment <> l.ltv_segment then 'segment_mismatch'
+        end as diff
+    from dbt_model d
+    full outer join legacy l on d.customer_id = l.customer_id
+)
+
+select * from compared
+where diff is not null
+  
+  
+      
+    ) dbt_internal_test
+[0m22:53:00.255934 [debug] [Thread-1 (]: SQL status: OK in 0.001 seconds
+[0m22:53:00.256728 [debug] [Thread-1 (]: On test.stored_proc_duckdb.assert_customer_ltv_parity: ROLLBACK
+[0m22:53:00.257193 [debug] [Thread-1 (]: Failed to rollback 'test.stored_proc_duckdb.assert_customer_ltv_parity'
+[0m22:53:00.257349 [debug] [Thread-1 (]: On test.stored_proc_duckdb.assert_customer_ltv_parity: Close
+[0m22:53:00.257627 [info ] [Thread-1 (]: 3 of 6 PASS assert_customer_ltv_parity ......................................... [[32mPASS[0m in 0.01s]
+[0m22:53:00.257881 [debug] [Thread-1 (]: Finished running node test.stored_proc_duckdb.assert_customer_ltv_parity
+[0m22:53:00.258093 [debug] [Thread-1 (]: Began running node test.stored_proc_duckdb.not_null_mart_customer_ltv_customer_id.8a829db09b
+[0m22:53:00.258351 [info ] [Thread-1 (]: 4 of 6 START test not_null_mart_customer_ltv_customer_id ....................... [RUN]
+[0m22:53:00.258545 [debug] [Thread-1 (]: Re-using an available connection from the pool (formerly test.stored_proc_duckdb.assert_customer_ltv_parity, now test.stored_proc_duckdb.not_null_mart_customer_ltv_customer_id.8a829db09b)
+[0m22:53:00.258709 [debug] [Thread-1 (]: Began compiling node test.stored_proc_duckdb.not_null_mart_customer_ltv_customer_id.8a829db09b
+[0m22:53:00.262324 [debug] [Thread-1 (]: Writing injected SQL for node "test.stored_proc_duckdb.not_null_mart_customer_ltv_customer_id.8a829db09b"
+[0m22:53:00.262723 [debug] [Thread-1 (]: Began executing node test.stored_proc_duckdb.not_null_mart_customer_ltv_customer_id.8a829db09b
+[0m22:53:00.264016 [debug] [Thread-1 (]: Writing runtime sql for node "test.stored_proc_duckdb.not_null_mart_customer_ltv_customer_id.8a829db09b"
+[0m22:53:00.264372 [debug] [Thread-1 (]: Using duckdb connection "test.stored_proc_duckdb.not_null_mart_customer_ltv_customer_id.8a829db09b"
+[0m22:53:00.264535 [debug] [Thread-1 (]: On test.stored_proc_duckdb.not_null_mart_customer_ltv_customer_id.8a829db09b: BEGIN
+[0m22:53:00.264679 [debug] [Thread-1 (]: Opening a new connection, currently in state closed
+[0m22:53:00.264941 [debug] [Thread-1 (]: SQL status: OK in 0.000 seconds
+[0m22:53:00.265096 [debug] [Thread-1 (]: Using duckdb connection "test.stored_proc_duckdb.not_null_mart_customer_ltv_customer_id.8a829db09b"
+[0m22:53:00.265255 [debug] [Thread-1 (]: On test.stored_proc_duckdb.not_null_mart_customer_ltv_customer_id.8a829db09b: /* {"app": "dbt", "dbt_version": "1.11.12", "profile_name": "stored_proc_duckdb", "target_name": "dev", "node_id": "test.stored_proc_duckdb.not_null_mart_customer_ltv_customer_id.8a829db09b"} */
+
+    
+    select
+      count(*) as failures,
+      count(*) != 0 as should_warn,
+      count(*) != 0 as should_error
+    from (
+      
+    
+  
+    
+    
+
+
+
+select customer_id
+from "dev"."main"."mart_customer_ltv"
+where customer_id is null
+
+
+
+  
+  
+      
+    ) dbt_internal_test
+[0m22:53:00.265686 [debug] [Thread-1 (]: SQL status: OK in 0.000 seconds
+[0m22:53:00.266602 [debug] [Thread-1 (]: On test.stored_proc_duckdb.not_null_mart_customer_ltv_customer_id.8a829db09b: ROLLBACK
+[0m22:53:00.267108 [debug] [Thread-1 (]: Failed to rollback 'test.stored_proc_duckdb.not_null_mart_customer_ltv_customer_id.8a829db09b'
+[0m22:53:00.267290 [debug] [Thread-1 (]: On test.stored_proc_duckdb.not_null_mart_customer_ltv_customer_id.8a829db09b: Close
+[0m22:53:00.267571 [info ] [Thread-1 (]: 4 of 6 PASS not_null_mart_customer_ltv_customer_id ............................. [[32mPASS[0m in 0.01s]
+[0m22:53:00.267841 [debug] [Thread-1 (]: Finished running node test.stored_proc_duckdb.not_null_mart_customer_ltv_customer_id.8a829db09b
+[0m22:53:00.268031 [debug] [Thread-1 (]: Began running node test.stored_proc_duckdb.not_null_mart_customer_ltv_lifetime_value.ad6e0de923
+[0m22:53:00.268220 [info ] [Thread-1 (]: 5 of 6 START test not_null_mart_customer_ltv_lifetime_value .................... [RUN]
+[0m22:53:00.268419 [debug] [Thread-1 (]: Re-using an available connection from the pool (formerly test.stored_proc_duckdb.not_null_mart_customer_ltv_customer_id.8a829db09b, now test.stored_proc_duckdb.not_null_mart_customer_ltv_lifetime_value.ad6e0de923)
+[0m22:53:00.268589 [debug] [Thread-1 (]: Began compiling node test.stored_proc_duckdb.not_null_mart_customer_ltv_lifetime_value.ad6e0de923
+[0m22:53:00.270808 [debug] [Thread-1 (]: Writing injected SQL for node "test.stored_proc_duckdb.not_null_mart_customer_ltv_lifetime_value.ad6e0de923"
+[0m22:53:00.271231 [debug] [Thread-1 (]: Began executing node test.stored_proc_duckdb.not_null_mart_customer_ltv_lifetime_value.ad6e0de923
+[0m22:53:00.273801 [debug] [Thread-1 (]: Writing runtime sql for node "test.stored_proc_duckdb.not_null_mart_customer_ltv_lifetime_value.ad6e0de923"
+[0m22:53:00.274300 [debug] [Thread-1 (]: Using duckdb connection "test.stored_proc_duckdb.not_null_mart_customer_ltv_lifetime_value.ad6e0de923"
+[0m22:53:00.274522 [debug] [Thread-1 (]: On test.stored_proc_duckdb.not_null_mart_customer_ltv_lifetime_value.ad6e0de923: BEGIN
+[0m22:53:00.274691 [debug] [Thread-1 (]: Opening a new connection, currently in state closed
+[0m22:53:00.274988 [debug] [Thread-1 (]: SQL status: OK in 0.000 seconds
+[0m22:53:00.275145 [debug] [Thread-1 (]: Using duckdb connection "test.stored_proc_duckdb.not_null_mart_customer_ltv_lifetime_value.ad6e0de923"
+[0m22:53:00.275312 [debug] [Thread-1 (]: On test.stored_proc_duckdb.not_null_mart_customer_ltv_lifetime_value.ad6e0de923: /* {"app": "dbt", "dbt_version": "1.11.12", "profile_name": "stored_proc_duckdb", "target_name": "dev", "node_id": "test.stored_proc_duckdb.not_null_mart_customer_ltv_lifetime_value.ad6e0de923"} */
+
+    
+    select
+      count(*) as failures,
+      count(*) != 0 as should_warn,
+      count(*) != 0 as should_error
+    from (
+      
+    
+  
+    
+    
+
+
+
+select lifetime_value
+from "dev"."main"."mart_customer_ltv"
+where lifetime_value is null
+
+
+
+  
+  
+      
+    ) dbt_internal_test
+[0m22:53:00.275778 [debug] [Thread-1 (]: SQL status: OK in 0.000 seconds
+[0m22:53:00.276511 [debug] [Thread-1 (]: On test.stored_proc_duckdb.not_null_mart_customer_ltv_lifetime_value.ad6e0de923: ROLLBACK
+[0m22:53:00.276977 [debug] [Thread-1 (]: Failed to rollback 'test.stored_proc_duckdb.not_null_mart_customer_ltv_lifetime_value.ad6e0de923'
+[0m22:53:00.277149 [debug] [Thread-1 (]: On test.stored_proc_duckdb.not_null_mart_customer_ltv_lifetime_value.ad6e0de923: Close
+[0m22:53:00.277409 [info ] [Thread-1 (]: 5 of 6 PASS not_null_mart_customer_ltv_lifetime_value .......................... [[32mPASS[0m in 0.01s]
+[0m22:53:00.277660 [debug] [Thread-1 (]: Finished running node test.stored_proc_duckdb.not_null_mart_customer_ltv_lifetime_value.ad6e0de923
+[0m22:53:00.277838 [debug] [Thread-1 (]: Began running node test.stored_proc_duckdb.unique_mart_customer_ltv_customer_id.f8ccb94859
+[0m22:53:00.278020 [info ] [Thread-1 (]: 6 of 6 START test unique_mart_customer_ltv_customer_id ......................... [RUN]
+[0m22:53:00.278202 [debug] [Thread-1 (]: Re-using an available connection from the pool (formerly test.stored_proc_duckdb.not_null_mart_customer_ltv_lifetime_value.ad6e0de923, now test.stored_proc_duckdb.unique_mart_customer_ltv_customer_id.f8ccb94859)
+[0m22:53:00.278362 [debug] [Thread-1 (]: Began compiling node test.stored_proc_duckdb.unique_mart_customer_ltv_customer_id.f8ccb94859
+[0m22:53:00.281743 [debug] [Thread-1 (]: Writing injected SQL for node "test.stored_proc_duckdb.unique_mart_customer_ltv_customer_id.f8ccb94859"
+[0m22:53:00.282199 [debug] [Thread-1 (]: Began executing node test.stored_proc_duckdb.unique_mart_customer_ltv_customer_id.f8ccb94859
+[0m22:53:00.283983 [debug] [Thread-1 (]: Writing runtime sql for node "test.stored_proc_duckdb.unique_mart_customer_ltv_customer_id.f8ccb94859"
+[0m22:53:00.284547 [debug] [Thread-1 (]: Using duckdb connection "test.stored_proc_duckdb.unique_mart_customer_ltv_customer_id.f8ccb94859"
+[0m22:53:00.284740 [debug] [Thread-1 (]: On test.stored_proc_duckdb.unique_mart_customer_ltv_customer_id.f8ccb94859: BEGIN
+[0m22:53:00.284897 [debug] [Thread-1 (]: Opening a new connection, currently in state closed
+[0m22:53:00.285213 [debug] [Thread-1 (]: SQL status: OK in 0.000 seconds
+[0m22:53:00.285411 [debug] [Thread-1 (]: Using duckdb connection "test.stored_proc_duckdb.unique_mart_customer_ltv_customer_id.f8ccb94859"
+[0m22:53:00.285597 [debug] [Thread-1 (]: On test.stored_proc_duckdb.unique_mart_customer_ltv_customer_id.f8ccb94859: /* {"app": "dbt", "dbt_version": "1.11.12", "profile_name": "stored_proc_duckdb", "target_name": "dev", "node_id": "test.stored_proc_duckdb.unique_mart_customer_ltv_customer_id.f8ccb94859"} */
+
+    
+    select
+      count(*) as failures,
+      count(*) != 0 as should_warn,
+      count(*) != 0 as should_error
+    from (
+      
+    
+  
+    
+    
+
+select
+    customer_id as unique_field,
+    count(*) as n_records
+
+from "dev"."main"."mart_customer_ltv"
+where customer_id is not null
+group by customer_id
+having count(*) > 1
+
+
+
+  
+  
+      
+    ) dbt_internal_test
+[0m22:53:00.286213 [debug] [Thread-1 (]: SQL status: OK in 0.000 seconds
+[0m22:53:00.286995 [debug] [Thread-1 (]: On test.stored_proc_duckdb.unique_mart_customer_ltv_customer_id.f8ccb94859: ROLLBACK
+[0m22:53:00.287466 [debug] [Thread-1 (]: Failed to rollback 'test.stored_proc_duckdb.unique_mart_customer_ltv_customer_id.f8ccb94859'
+[0m22:53:00.287638 [debug] [Thread-1 (]: On test.stored_proc_duckdb.unique_mart_customer_ltv_customer_id.f8ccb94859: Close
+[0m22:53:00.287914 [info ] [Thread-1 (]: 6 of 6 PASS unique_mart_customer_ltv_customer_id ............................... [[32mPASS[0m in 0.01s]
+[0m22:53:00.288175 [debug] [Thread-1 (]: Finished running node test.stored_proc_duckdb.unique_mart_customer_ltv_customer_id.f8ccb94859
+[0m22:53:00.288857 [debug] [MainThread]: Using duckdb connection "master"
+[0m22:53:00.289035 [debug] [MainThread]: On master: BEGIN
+[0m22:53:00.289176 [debug] [MainThread]: Opening a new connection, currently in state closed
+[0m22:53:00.289419 [debug] [MainThread]: SQL status: OK in 0.000 seconds
+[0m22:53:00.289556 [debug] [MainThread]: On master: COMMIT
+[0m22:53:00.289690 [debug] [MainThread]: Using duckdb connection "master"
+[0m22:53:00.289815 [debug] [MainThread]: On master: COMMIT
+[0m22:53:00.290013 [debug] [MainThread]: SQL status: OK in 0.000 seconds
+[0m22:53:00.290142 [debug] [MainThread]: On master: Close
+[0m22:53:00.290313 [debug] [MainThread]: Connection 'master' was properly closed.
+[0m22:53:00.290515 [debug] [MainThread]: Connection 'test.stored_proc_duckdb.unique_mart_customer_ltv_customer_id.f8ccb94859' was properly closed.
+[0m22:53:00.290674 [info ] [MainThread]: 
+[0m22:53:00.290826 [info ] [MainThread]: Finished running 1 table model, 5 data tests in 0 hours 0 minutes and 0.22 seconds (0.22s).
+[0m22:53:00.291425 [debug] [MainThread]: Command end result
+[0m22:53:00.312256 [debug] [MainThread]: Wrote artifact WritableManifest to /Users/hichambabahmed/dbt-legacy-migration-skills/examples/stored-proc-to-dbt-duckdb/target/manifest.json
+[0m22:53:00.313716 [debug] [MainThread]: Wrote artifact SemanticManifest to /Users/hichambabahmed/dbt-legacy-migration-skills/examples/stored-proc-to-dbt-duckdb/target/semantic_manifest.json
+[0m22:53:00.317327 [debug] [MainThread]: Wrote artifact RunExecutionResult to /Users/hichambabahmed/dbt-legacy-migration-skills/examples/stored-proc-to-dbt-duckdb/target/run_results.json
+[0m22:53:00.317507 [info ] [MainThread]: 
+[0m22:53:00.317691 [info ] [MainThread]: [32mCompleted successfully[0m
+[0m22:53:00.317839 [info ] [MainThread]: 
+[0m22:53:00.317996 [info ] [MainThread]: Done. PASS=6 WARN=0 ERROR=0 SKIP=0 NO-OP=0 TOTAL=6
+[0m22:53:00.318343 [debug] [MainThread]: Resource report: {"command_name": "build", "command_success": true, "command_wall_clock_time": 1.0562803, "process_in_blocks": "0", "process_kernel_time": 0.316845, "process_mem_max_rss": "159760384", "process_out_blocks": "0", "process_user_time": 1.585853}
+[0m22:53:00.318570 [debug] [MainThread]: Command `dbt build` succeeded at 22:53:00.318525 after 1.06 seconds
+[0m22:53:00.318761 [debug] [MainThread]: Sending event: {'category': 'dbt', 'action': 'invocation', 'label': 'end', 'context': [<snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x10d4f1610>, <snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x10dc1fd70>, <snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x10dc1ffb0>]}
+[0m22:53:00.318939 [debug] [MainThread]: Flushing usage events
+[0m22:53:00.821472 [debug] [MainThread]: An error was encountered while trying to flush usage events
