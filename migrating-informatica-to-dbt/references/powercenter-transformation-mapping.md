@@ -21,8 +21,8 @@ replicated in SQL (tagged with its `[m_...]` name) — treat that file as the wo
 | **Filter** (FIL_) | a `where` clause |
 | **Router** (RTR_) | either `case` output columns, or split into multiple models (one per output group) — split when groups feed different targets |
 | **Joiner** (JNR_) | a `join` (map join type: Normal→`inner`, Master/Detail Outer→`left`/`right`, Full→`full outer`) |
-| **Lookup — connected** (LKP_) | a `left join` to the looked-up model/source on the lookup condition |
-| **Lookup — unconnected** (`:LKP` call) | a scalar subquery, or a join if called row-wise; inspect the call site |
+| **Lookup — connected** (LKP_) | a `left join` to the looked-up model/source on the lookup condition. **If the lookup target is a Type-2 (SCD2) dimension**, add the current-version predicate (`and dim.current_flag = 'Y'`, or a point-in-time `and event_date between dim.effective_date and dim.end_date`) or the join fans out across versions. Wrap the returned key in `coalesce(dim.<key>, 0)` so an unmatched lookup points at the **unknown member** (0), never null. |
+| **Lookup — unconnected** (`:LKP` call) | a scalar subquery, or a join if called row-wise; inspect the call site. Same SCD2-current-version and `coalesce(..., <default>)` rules apply |
 | **Aggregator** (AGG_) | `group by` + aggregate functions; the group-by ports are the grain |
 | **Sorter** (SRT_) | usually drop (ordering is not meaningful in a set); keep only if feeding a dedup |
 | **Update Strategy** (UPD_) — insert/update by key | `incremental` model with `unique_key` + `merge`; **if it preserves history → snapshot** |
@@ -35,6 +35,17 @@ replicated in SQL (tagged with its `[m_...]` name) — treat that file as the wo
 
 Materialization choice per target follows the target cloud — see foundations →
 cloud-detection-and-materializations.md.
+
+### Fact-load mapping (the common heavy pattern)
+
+A fact mapping is usually: **Joiner** (header ⋈ lines) → several **connected Lookups** to the
+conformed dimensions (for their surrogate keys) → **Expression** (measures/margins) → **Filter**
+(e.g. status = 'completed') → **Update Strategy** DD_INSERT → target. That becomes one
+`incremental` `fct_` model: join the source tables, `left join` each dimension **with its
+current-version predicate** and `coalesce(dim.<key>, 0)`, compute the measures in the `select`,
+`where` on the filter. Guard any ratio measure against divide-by-zero:
+`case when denom = 0 then 0 else num / denom end` (or `num / nullif(denom, 0)`). Round money with
+`round(x, 2)` and keep it Fusion-conformant.
 
 ## SCD2 → dbt snapshots
 
