@@ -43,6 +43,7 @@ Type-2 pattern:
 snapshots:
   - name: customer_snapshot
     relation: ref('stg_customers')
+    # dbt recommends strategy: timestamp when a reliable updated_at exists; use check otherwise
     config: {unique_key: customer_id, strategy: check, check_cols: [customer_name, segment, region]}
 ```
 ```sql

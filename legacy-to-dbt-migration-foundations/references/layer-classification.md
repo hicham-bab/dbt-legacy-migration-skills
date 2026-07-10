@@ -13,12 +13,25 @@ generated project follows the standard source → staging → intermediate → m
 
 ## The four layers
 
-| Layer | Purpose | Materialization default | dbt object |
+Per dbt's [How we structure our dbt projects](https://docs.getdbt.com/best-practices/how-we-structure/1-guide-overview)
+guide, a project moves data from *source-conformed* to *business-conformed* across these layers:
+
+| Layer | Purpose | Materialization | Naming (dbt docs) |
 |---|---|---|---|
 | **source** | Raw tables the legacy job reads from | (declared, not materialized) | `sources:` in a `_sources.yml` |
-| **staging** (`stg_`) | 1:1 with a source: rename, cast, light clean, no joins | `view` | model |
-| **intermediate** (`int_`) | Joins, lookups, reusable business logic, fan-in | `view` or `ephemeral` | model |
-| **mart** (`fct_`/`dim_`) | Final business entities, aggregations, the tables consumers query | `table`/`incremental`/snapshot | model |
+| **staging** (`stg_`) | **1:1 with a source table**: rename, cast, light compute — **no joins, no aggregations**; the only place using `source()` | **view** | `stg_[source]__[entity]s` (double underscore; plural entity) |
+| **intermediate** (`int_`) | Joins, lookups, reusable business logic, fan-in; not exposed in the main prod schema | **ephemeral** (simplest) or **view** in a custom schema | `int_[entity]s_[verb]s` |
+| **mart** | Final business entities the consumers query; wide/denormalized | **start as a `view`; promote to `table` when it's slow to *query*; to `incremental` only when the table is slow to *build*** | *layered default:* plain-English entity (`customers`, `orders`). *Dimensional architectures:* `fct_`/`dim_` (a deliberate departure — see [target-architecture.md](target-architecture.md)) |
+
+> **Naming note (grounded in the docs):** dbt's structure guide names marts by **plain-English
+> entity** (`customers.sql`, `orders.sql`), *not* `fct_`/`dim_`, and it explicitly contrasts with a
+> Kimball star schema. So for a **faithful layered port**, use plain-English mart names. The
+> `fct_`/`dim_` prefixes are correct only when the migrator picks a **dimensional** target
+> (Kimball/Star), where they're the intended convention.
+>
+> **Materialization (grounded):** the docs say *start every model as a view*, promote to `table`
+> when querying is slow, and to `incremental` only when the table build is slow — "don't start with
+> incremental models." Recommend on that basis rather than defaulting marts to `table`.
 
 ## Confidence-scored classification
 
