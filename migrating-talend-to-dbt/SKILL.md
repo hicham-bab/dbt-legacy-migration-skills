@@ -69,6 +69,18 @@ answer** before proceeding. Full rationale + options: foundations →
 [cloud-detection-and-materializations.md](../legacy-to-dbt-migration-foundations/references/cloud-detection-and-materializations.md).
 
 
+**As you build, explain your reasoning in plain language — the migrator may be new to dbt.** For
+each model, state in one line *why* that materialization (view / table / incremental) and, for the
+project, *why* this architecture and *why* a snapshot vs a plain model. See the "Teach as you
+migrate" principle and
+[dbt-concepts-explained.md](../legacy-to-dbt-migration-foundations/references/dbt-concepts-explained.md);
+capture the architecture overview + per-model materialization-and-why in `migration_changes.md`.
+
+**Build in the chosen landing spot — not a temp folder.** Create the dbt project directly in the
+location the migrator picked and build/iterate there. Do **not** build in a scratch/`/tmp` directory
+and copy it over at the end — that's opaque and error-prone. If that location isn't writable in your
+environment, **ask the migrator** (or request escalation) rather than silently using a temp dir.
+
 ### Progress Checklist
 
 ```
@@ -190,6 +202,18 @@ job or context files.
 - Target platform: [Snowflake | Databricks | BigQuery | Redshift]
 - dbt project: [name]
 - Total components inventoried: [N]
+
+## Architecture
+- Chosen: [layered / Data Vault / Kimball / Star] — recommended because […]; **confirmed by the migrator**.
+- Layer/DAG overview: source → staging → … → mart, and how the legacy units map onto it.
+
+## Model decisions (materialization + why)
+| Model | Materialization | Why (plain language, for a dbt newcomer) |
+|-------|-----------------|------------------------------------------|
+| stg_* | view | 1:1 with source, light rename/cast; cheap to recompute |
+| dim_* | table | small, queried often by BI |
+| fct_* | incremental | large / append-style; only process new rows since last run |
+| *_snapshot | snapshot | preserves history (SCD2) |
 
 ## Migration Status
 - Final compile: 0 errors, 0 warnings
