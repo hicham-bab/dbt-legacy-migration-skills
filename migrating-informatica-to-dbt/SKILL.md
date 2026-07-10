@@ -59,7 +59,7 @@ Informatica → dbt Migration Progress:
 - [ ] Step 3: Translate to dbt SQL with cost-aware materializations
 - [ ] Step 4: Apply tests, docs, contracts, snapshots (SCD2)
 - [ ] Step 5: Validate — compile gate, then data parity vs warehouse
-- [ ] Step 6: Cost comparison — TCO + measured dev run
+- [ ] Step 6: Cost comparison — measured warehouse consumption (legacy vs dbt), auditable
 - [ ] Step 7: Coverage report (confirm ≥95%, flag residual)
 - [ ] Step 8: Document changes in migration_changes.md
 ```
@@ -103,10 +103,14 @@ production** target table to the **dbt dev** output for each mart (align the inp
 bugs. See foundations →
 [data-validation.md](../legacy-to-dbt-migration-foundations/references/data-validation.md).
 
-### Step 6 — Cost comparison: TCO + measured dev run
+### Step 6 — Cost comparison: measured, apples-to-apples
 
-Compare Informatica TCO (PowerCenter license + integration-runtime infra + maintenance FTE) vs
-dbt-on-warehouse, plus the measured dev-run compute. See foundations →
+**Measure**, don't estimate the dbt run's real warehouse consumption. PowerCenter transforms ran on
+its own engine (off-warehouse), so there's no in-warehouse legacy number — either run the legacy's
+equivalent pushed-down SQL in the warehouse as a labeled **reconstructed baseline**, or compare
+dbt's measured warehouse cost against Informatica's own run cost and state plainly they are
+**different cost bases**. Isolate each run, cite the dollar rate, emit the measurement queries +
+raw numbers so it's auditable. TCO is optional labeled context only. See foundations →
 [cost-comparison.md](../legacy-to-dbt-migration-foundations/references/cost-comparison.md).
 
 ### Step 7 — Coverage report
