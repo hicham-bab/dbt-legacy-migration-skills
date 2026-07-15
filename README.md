@@ -18,6 +18,7 @@ skills are plain `SKILL.md` folders and work in any agent that supports the skil
 | [`migrating-talend-to-dbt`](migrating-talend-to-dbt) | Talend ETL jobs (`.item` XML exports) |
 | [`migrating-stored-procedures-to-dbt`](migrating-stored-procedures-to-dbt) | SQL stored procedures (Snowflake, BigQuery, Databricks, T-SQL, PL/SQL) |
 | [`migrating-matillion-to-dbt`](migrating-matillion-to-dbt) | Matillion pipelines/jobs — DPC YAML (`.tran.yaml`/`.orch.yaml`), Matillion ETL JSON (export + git per-job forms), CDC/streaming, shared jobs |
+| [`migrating-coalesce-to-dbt`](migrating-coalesce-to-dbt) | Coalesce.io projects (Git-committed YAML nodes) — Source/Stage/Dimension(SCD1/2)/Fact/View nodes → models, snapshots, sources |
 | [`legacy-to-dbt-migration-foundations`](legacy-to-dbt-migration-foundations) | *Shared reference library* — not invoked directly; the four migration skills link to it |
 
 ## How they fit together
@@ -102,6 +103,7 @@ Once installed, ask the agent to migrate a project and point it at the source ar
 - "Migrate these Talend jobs to dbt" (point at the `.item` folder)
 - "Migrate this stored procedure to a dbt model and prove parity"
 - "Migrate this Matillion pipeline to dbt" (point at the `.tran.yaml`/`.orch.yaml` or METL JSON)
+- "Migrate this Coalesce project to dbt" (point at the cloned Coalesce Git repo)
 
 The skill runs the 8-step workflow, asks which cloud you're targeting, and produces the dbt
 models, tests, docs, a parity check, a cost comparison, and a coverage report.
