@@ -28,7 +28,8 @@ from pathlib import Path
 
 REQUIRED = {
     "target_architecture": {"kimball", "datavault", "star", "layered"},
-    "data_warehouse": {"snowflake", "databricks", "bigquery", "redshift"},
+    # duckdb is included for local dev / eval runs (dbt-duckdb); the others are the cloud targets
+    "data_warehouse": {"snowflake", "databricks", "bigquery", "redshift", "duckdb"},
     "packages_mode": {"external_hub", "self_contained_macros"},
 }
 QUESTIONS = {
