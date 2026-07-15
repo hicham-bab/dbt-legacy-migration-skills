@@ -1,7 +1,7 @@
 ---
 name: migrating-talend-to-dbt
 description: Use when migrating Talend ETL jobs (.item XML exports) to a dbt project. Maps every Talend component to a dbt model, snapshot, or macro; applies best-practice tests, docs, and contracts; validates the result against warehouse data; asks which cloud is in use to pick cost-aware materializations; and produces a legacy-vs-dbt cost comparison. Targets ≥95% workload coverage.
-allowed-tools: "Bash(dbt:*), Bash(git:*), Read, Write, Edit, Glob, Grep, WebFetch(domain:docs.getdbt.com)"
+allowed-tools: "Bash(dbt:*), Bash(git:*), Bash(python3:*), Read, Write, Edit, Glob, Grep, WebFetch(domain:docs.getdbt.com)"
 metadata:
   author: hicham-babahmed
   compatibility: dbt Fusion
@@ -51,23 +51,25 @@ link into its references for the common work. **Assume the migrator may be new t
 
 ## Decision gate — ASK before you build (blocking)
 
-**Stop. Before Step 1, present these choices to the migrator and _wait_ for their answers. Do not
-start building on assumptions.** Recommend the best-fit option *with a one-line why*, but the
-migrator decides. **Even when the README, DDL, environment, or the source workload strongly implies
-an answer (e.g. "the README says Kimball"), you must still ASK and let them confirm** — surface each
-as a question, never as a decision you have already made. Getting these wrong means redoing dozens of
-files.
+**This gate is enforced by a script — run it, don't just read it.** Before Step 1, run:
 
-1. **Target architecture** — Data Vault / Kimball / Star / faithful layered port.
-2. **Packages vs self-contained macros** — external hub packages, or skill-written macros.
-3. **Target platform** (+ dev target), and **landing spot** — new standalone project or fold into an existing one.
+```bash
+# from your skills dir (~/.dbt/wizard/skills for Wizard, ~/.agents/skills for Claude Code):
+python3 <skills-dir>/legacy-to-dbt-migration-foundations/scripts/preflight_decisions.py
+```
 
-These are the migrator's calls, not yours. Present your recommendation, ask, and **wait for the
-answer** before proceeding. Full rationale + options: foundations →
-[target-architecture.md](../legacy-to-dbt-migration-foundations/references/target-architecture.md),
-[dbt-packages.md](../legacy-to-dbt-migration-foundations/references/dbt-packages.md),
-[cloud-detection-and-materializations.md](../legacy-to-dbt-migration-foundations/references/cloud-detection-and-materializations.md).
+If it **exits non-zero**, it prints the exact questions — **ASK the migrator those questions**
+(recommend the best fit with a one-line why, but they decide), write their answers to
+`migration_decisions.yml` in the project as `key: value` lines, and **re-run until it exits 0**.
+**Do not create any dbt models, project files, or macros until this exits 0.** The three decisions
+it requires:
+- **target_architecture** — kimball | datavault | star | layered
+- **data_warehouse** — snowflake | databricks | bigquery | redshift *(sets the SQL dialect generated)*
+- **packages_mode** — external_hub *(hub.getdbt.com packages)* | self_contained_macros *(hand-made macros)*
 
+Even when the README, DDL, environment, or the source workload strongly implies an answer, still
+**ASK and confirm** — surface each as a question, never as a decision you already made. Getting these
+wrong means redoing dozens of files.
 
 **As you build, explain your reasoning in plain language — the migrator may be new to dbt.** For
 each model, state in one line *why* that materialization (view / table / incremental) and, for the
@@ -103,9 +105,18 @@ Ask the up-front questions and pick the target platform before parsing anything.
 
 ### Step 1 — Inventory & map the Talend jobs
 
-Parse the `.item` exports and produce a complete inventory: every job, component, schema, FLOW/
-LOOKUP connection, context variable, and `tRunJob` cross-job edge. Record the **total component
-count** — the coverage denominator. See [parsing-talend-jobs.md](references/parsing-talend-jobs.md). Scaffold `_sources.yml` (and staging models) with **codegen** `generate_source` / `generate_base_model` (foundations → dbt-packages.md).
+**Use the deterministic inventory script** — don't re-parse the XML by hand:
+
+```bash
+python3 <skills-dir>/migrating-talend-to-dbt/scripts/inventory_talend.py <path-to-.item-files-or-dir> --json
+```
+
+It emits every job, component, schema, FLOW/LOOKUP connection (vs `ON_SUBJOB_OK` triggers),
+context variable, and `tRunJob` cross-job edge, plus a computed **coverage denominator**
+(`summary.sql_components_migratable`) and the out-of-scope (non-SQL) components. Reason over that
+structured output; use [parsing-talend-jobs.md](references/parsing-talend-jobs.md) to understand the
+fields. Then scaffold `_sources.yml` (and staging models) with **codegen** `generate_source` /
+`generate_base_model` (foundations → dbt-packages.md).
 
 ### Step 2 — Choose target architecture, then classify into it
 
