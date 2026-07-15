@@ -1,0 +1,21 @@
+type: "transformation"
+version: "1.0"
+pipeline:
+  components:
+    Read orders:
+      type: "table-input"
+      parameters: {targetTable: "raw_orders"}
+    Filter completed:
+      type: "filter"
+      sources: ["Read orders"]
+      parameters: {}
+    Aggregate:
+      type: "aggregate"
+      sources: ["Filter completed"]
+      parameters: {}
+    Write fct_orders:
+      type: "rewrite-table"
+      sources: ["Aggregate"]
+      parameters: {targetTable: "fct_orders"}
+design:
+  components: {}

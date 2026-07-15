@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<talendfile:ProcessType xmlns:talendfile="platform:/resource/org.talend.model/model/TalendFile.xsd" name="orders_job">
+  <context name="Default">
+    <contextParameter name="db_name" type="id_String" value="sales"/>
+  </context>
+  <node componentName="tPostgresqlInput" uniqueName="tPostgresqlInput_1">
+    <elementParameter name="SCHEMA_DB" value="public"/>
+    <elementParameter name="TABLENAME" value="raw_orders"/>
+    <metadata name="tPostgresqlInput_1" connector="FLOW">
+      <column name="order_id" type="id_Integer" key="true" nullable="false"/>
+      <column name="status" type="id_String" nullable="false"/>
+    </metadata>
+  </node>
+  <node componentName="tFilterRow" uniqueName="tFilterRow_1">
+    <elementParameter name="CONDITION" value="row1.status.equals(&quot;completed&quot;)"/>
+  </node>
+  <node componentName="tMap" uniqueName="tMap_1">
+    <elementParameter name="JOIN_MODEL" value="INNER"/>
+    <nodeData>
+      <inputTables name="row1"/>
+      <outputTables name="out">
+        <mapperTableEntries name="order_id" expression="row1.order_id" type="id_Integer"/>
+      </outputTables>
+    </nodeData>
+  </node>
+  <node componentName="tPostgresqlOutput" uniqueName="tPostgresqlOutput_1">
+    <elementParameter name="SCHEMA_DB" value="analytics"/>
+    <elementParameter name="TABLENAME" value="fct_orders"/>
+  </node>
+  <node componentName="tSendMail" uniqueName="tSendMail_1">
+    <elementParameter name="MESSAGE" value="done"/>
+  </node>
+  <connection connectorName="FLOW" label="row1" source="tPostgresqlInput_1" target="tFilterRow_1"/>
+  <connection connectorName="FLOW" label="filtered" source="tFilterRow_1" target="tMap_1"/>
+  <connection connectorName="FLOW" label="out" source="tMap_1" target="tPostgresqlOutput_1"/>
+  <connection connectorName="ON_SUBJOB_OK" label="notify" source="tPostgresqlOutput_1" target="tSendMail_1"/>
+</talendfile:ProcessType>
