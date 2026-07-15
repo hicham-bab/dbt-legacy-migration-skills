@@ -46,6 +46,12 @@ you compare — otherwise you'll misread an environment difference as a logic bu
    like for like.
 4. **Note the run timestamps.** Record when the legacy prod table was last built and when the dbt
    dev run happened — freshness gaps are the most common "difference" and must be ruled out first.
+   Declaring **source freshness** on the raw tables makes this explicit — see
+   [dbt-features-for-migration.md](dbt-features-for-migration.md#source-freshness--rule-out-stale-inputs).
+
+Beyond data parity, **unit tests** prove the migrated *logic* on fixed inputs (warehouse-light) —
+run them here too; see
+[dbt-features-for-migration.md](dbt-features-for-migration.md#unit-tests--pin-the-migrated-logic).
 
 Only after inputs are aligned does a remaining difference point to the *transformation logic*.
 

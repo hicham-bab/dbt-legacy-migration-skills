@@ -85,6 +85,7 @@ The migration skills implement these steps. Each links to the reference that car
 - [building-starschema.md](references/building-starschema.md) — generate a single lightweight star
 - [layer-classification.md](references/layer-classification.md) — source → staging → intermediate → mart mapping with confidence scoring and Mesh detection
 - [dbt-best-practices.md](references/dbt-best-practices.md) — Fusion-conformant SQL, tests, docs, contracts, snapshots
+- [dbt-features-for-migration.md](references/dbt-features-for-migration.md) — **unit tests** (pin the logic), **exposures** (preserve downstream lineage), **source freshness** (rule out stale inputs), docs-grounded
 - [data-validation.md](references/data-validation.md) — compile gate + two data-parity patterns against the warehouse
 - [cost-comparison.md](references/cost-comparison.md) — TCO model + measured dev-run compute capture
 - [coverage-report.md](references/coverage-report.md) — how to compute the ≥95% coverage number and flag the residual
