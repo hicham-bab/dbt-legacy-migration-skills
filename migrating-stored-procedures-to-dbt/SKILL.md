@@ -108,10 +108,19 @@ Databricks SQL, T-SQL, PL/SQL) before parsing. See `legacy-to-dbt-migration-foun
 
 ### Step 1 — Inventory & map the procedure
 
-Read the procedure and list every step: each temp/staging table build, each intermediate query,
-each branch, and the final target write. Identify the **output grain** and every source table and
-business rule (thresholds, filters, lifecycle logic). Record the **total step count** — the
-coverage denominator. See [stored-proc-decomposition.md](references/stored-proc-decomposition.md). Scaffold `_sources.yml` (and staging models) with **codegen** `generate_source` / `generate_base_model` (foundations → dbt-packages.md).
+**Run the construct scanner** to flag the risky constructs and get a step-count denominator — then
+read the SQL yourself (it's a heuristic regex scan, not a full SQL parser):
+
+```bash
+python3 <skills-dir>/migrating-stored-procedures-to-dbt/scripts/inventory_stored_proc.py <proc.sql> --json
+```
+
+It flags temp tables, MERGE, cursor/loops, dynamic SQL (classifying `ANALYZE`/`GRANT` as
+drop-maintenance vs transform-residual), IF branches, and scalar vars, with a step-count
+denominator. Then **read the procedure yourself** to confirm the **output grain**, source tables,
+and business rules (thresholds, filters, lifecycle) — the scanner can't infer those. See
+[stored-proc-decomposition.md](references/stored-proc-decomposition.md). Scaffold `_sources.yml`
+with **codegen** `generate_source` (foundations → dbt-packages.md).
 
 ### Step 2 — Choose target architecture, then classify into it
 

@@ -105,10 +105,17 @@ Ask the up-front questions and pick the target platform before parsing anything.
 
 ### Step 1 — Inventory & map the PowerCenter workload
 
-Parse the XML export and produce a complete inventory: every source, target, mapping, individual
-transformation, mapplet, worklet, and the workflow orchestration (task order, conditions,
-schedule). Record the **total transformation count** — this is the denominator for coverage.
-See [parsing-powercenter-xml.md](references/parsing-powercenter-xml.md). Scaffold `_sources.yml` (and staging models) with **codegen** `generate_source` / `generate_base_model` (foundations → dbt-packages.md).
+**Use the deterministic inventory script** — don't re-parse the XML by hand:
+
+```bash
+python3 <skills-dir>/migrating-informatica-to-dbt/scripts/inventory_informatica.py <export.XML> --json
+```
+
+It emits every folder's mappings, their transformations (with types) and targets, sources,
+mapplets, worklets, and sessions, a computed **coverage denominator** (`summary.mapping_count`),
+and the mappings using **Update Strategy** (SCD2 → snapshots). Reason over that output; use
+[parsing-powercenter-xml.md](references/parsing-powercenter-xml.md) for the field meanings. Then
+scaffold `_sources.yml` with **codegen** `generate_source` (foundations → dbt-packages.md).
 
 ### Step 2 — Choose target architecture, then classify into it
 

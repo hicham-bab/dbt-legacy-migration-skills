@@ -115,11 +115,18 @@ warehouse is usually the same one you'll point dbt at. See `legacy-to-dbt-migrat
 
 ### Step 1 — Inventory & map the pipelines
 
-Parse the exports and produce a complete inventory: every pipeline (transformation vs
-orchestration), every component, its `type` and `parameters`, and the links (`sources:` for
-transformation data flow, `transitions:` for orchestration control flow). Record the **total
-transformation-component count** as the coverage denominator; list orchestration/EL components
-separately as out-of-scope-for-dbt. See [parsing-matillion-pipelines.md](references/parsing-matillion-pipelines.md). Scaffold `_sources.yml` (and staging models) with **codegen** `generate_source` / `generate_base_model` (foundations → dbt-packages.md).
+**Use the deterministic inventory script** — handles DPC YAML (`.tran.yaml`/`.orch.yaml`) and METL
+JSON (all three forms):
+
+```bash
+python3 <skills-dir>/migrating-matillion-to-dbt/scripts/inventory_matillion.py <file-or-dir> --json
+```
+
+It splits **transformation** components (migratable → dbt models; the coverage denominator) from
+**EL ingestion / control / bridge** components (out of dbt scope). DPC YAML needs `pyyaml`
+(`pip install pyyaml`); METL JSON is stdlib. Reason over that output; use
+[parsing-matillion-pipelines.md](references/parsing-matillion-pipelines.md) for the field meanings.
+Then scaffold `_sources.yml` with **codegen** `generate_source` (foundations → dbt-packages.md).
 
 ### Step 2 — Choose target architecture, then classify into it
 
