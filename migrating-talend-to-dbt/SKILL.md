@@ -118,6 +118,12 @@ structured output; use [parsing-talend-jobs.md](references/parsing-talend-jobs.m
 fields. Then scaffold `_sources.yml` (and staging models) with **codegen** `generate_source` /
 `generate_base_model` (foundations → dbt-packages.md).
 
+> **CHECKPOINT (confirm scope).** Before classifying or building anything, show the migrator the
+> inventory summary: the **coverage denominator** (count of migratable units) and the list of units
+> **out of scope** (ingestion/EL, jobs, non-SQL/custom components). Ask them to confirm this is the
+> workload — this is the cheap moment to catch a missed job or an out-of-scope table, before dozens
+> of files exist. Wait for confirmation, then proceed.
+
 ### Step 2 — Choose target architecture, then classify into it
 
 **First ask the migrator which target architecture to build** — layered (default) / Data Vault 2.0 /
@@ -152,6 +158,12 @@ production** table each `tDBOutput` populated to the **dbt dev** output (align t
 **explain every difference** — accept legitimate environment/platform differences, fix real logic
 bugs. See foundations →
 [data-validation.md](../legacy-to-dbt-migration-foundations/references/data-validation.md). Prefer **audit_helper** classify macros over a hand-written diff (foundations → dbt-packages.md).
+
+> **CHECKPOINT (parity sign-off).** Do not declare the migration complete on your own judgment.
+> Present the parity result per mart and **every difference classified as accepted (legitimate
+> environment/platform difference, with the reason) vs to-fix (real bug)**, and get the migrator's
+> **explicit sign-off** — deciding "acceptable difference vs bug" is their call, not yours. Record
+> the sign-off (who accepted which differences and why) in `migration_changes.md`.
 
 ### Step 6 — Cost comparison: measured, apples-to-apples
 

@@ -16,6 +16,7 @@ SKILLS=(
   migrating-talend-to-dbt
   migrating-stored-procedures-to-dbt
   migrating-matillion-to-dbt
+  migrating-coalesce-to-dbt
 )
 
 # --- pick the destination ---------------------------------------------------

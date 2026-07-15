@@ -1,0 +1,32 @@
+fileVersion: 1
+id: "11111111-0000-0000-0000-000000000001"
+name: CUSTOMERS
+operation:
+  locationName: SOURCE_DATA
+  sqlType: Source
+  type: sourceInput
+  version: 1
+  metadata:
+    columns:
+      - name: CUSTOMER_ID
+        dataType: NUMBER(38,0)
+        nullable: false
+        transform: ""
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: ""
+      - name: CUSTOMER_NAME
+        dataType: VARCHAR
+        nullable: true
+        transform: ""
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: ""
+      - name: SEGMENT
+        dataType: VARCHAR
+        nullable: true
+        transform: ""
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: ""
+type: Node

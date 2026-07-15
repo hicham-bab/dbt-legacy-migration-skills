@@ -1,0 +1,33 @@
+fileVersion: 1
+id: "44444444-0000-0000-0000-000000000004"
+name: FCT_ORDERS
+operation:
+  locationName: TARGET_DB
+  materializationType: table
+  config:
+    type2Dimension: false
+  metadata:
+    columns:
+      - name: ORDER_ID
+        dataType: NUMBER(38,0)
+        isBusinessKey: true
+        transform: ""
+        sourceColumnReferences:
+          - columnReferences:
+              - {columnCounter: "55555555-0000-0000-0000-000000000005", stepCounter: "s5"}
+            transform: ""
+      - name: DIM_CUSTOMER_KEY
+        dataType: NUMBER
+        transform: ""
+        sourceColumnReferences:
+          - columnReferences:
+              - {columnCounter: "33333333-0000-0000-0000-000000000003", stepCounter: "s3"}
+            transform: ""
+      - name: NET_AMOUNT
+        dataType: NUMBER(18,2)
+        transform: "{{SRC}} * (1 - DISCOUNT)"
+        sourceColumnReferences:
+          - columnReferences:
+              - {columnCounter: "55555555-0000-0000-0000-000000000005", stepCounter: "s5"}
+            transform: ""
+type: Node
