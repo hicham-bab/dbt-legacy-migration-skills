@@ -75,8 +75,14 @@ models:
 ```
 
 For **golden-dataset / logic-preservation** tests, generate dbt **unit tests** on the leaf/mart
-models — capture 2-3 representative rows on the legacy output as expected values. Follow the
-`adding-dbt-unit-test` skill for authoring detail; do not duplicate its guidance here.
+models — capture 2-3 representative rows on the legacy output as expected values. See
+[dbt-features-for-migration.md](dbt-features-for-migration.md#unit-tests--pin-the-migrated-logic)
+for the docs-grounded syntax and the `adding-dbt-unit-test` skill for authoring detail; do not
+duplicate its guidance here.
+
+Also capture the legacy job's **downstream consumers** (dashboards, reports, ML pipelines) as
+**exposures** so lineage-to-consumers survives the migration and you know what not to break —
+see [dbt-features-for-migration.md](dbt-features-for-migration.md#exposures--preserve-downstream-lineage).
 
 ## Docs
 

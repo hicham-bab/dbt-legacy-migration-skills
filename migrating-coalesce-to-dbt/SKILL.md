@@ -131,6 +131,12 @@ dimensions** (→ snapshots). Needs `pyyaml` (`pip install pyyaml`). Reason over
 [parsing-coalesce-projects.md](references/parsing-coalesce-projects.md) for field meanings. Then
 scaffold `_sources.yml` with **codegen** `generate_source` (foundations → dbt-packages.md).
 
+> **CHECKPOINT (confirm scope).** Before classifying or building anything, show the migrator the
+> inventory summary: the **coverage denominator** (count of migratable units) and the list of units
+> **out of scope** (ingestion/EL, jobs, non-SQL/custom components). Ask them to confirm this is the
+> workload — this is the cheap moment to catch a missed job or an out-of-scope table, before dozens
+> of files exist. Wait for confirmation, then proceed.
+
 ### Step 2 — Choose target architecture, then classify into it
 
 **First ask the migrator which target architecture to build** (the gate above). Coalesce projects
@@ -161,6 +167,12 @@ enforced contracts on public marts, and a **snapshot** per SCD2 dimension. See f
 `dbt compile` to 0 errors/warnings, then `dbt build` into dev, then compare the **Coalesce-built**
 target table to the **dbt dev** output (align the inputs first) and **explain every difference**.
 See foundations → [data-validation.md](../legacy-to-dbt-migration-foundations/references/data-validation.md).
+
+> **CHECKPOINT (parity sign-off).** Do not declare the migration complete on your own judgment.
+> Present the parity result per mart and **every difference classified as accepted (legitimate
+> environment/platform difference, with the reason) vs to-fix (real bug)**, and get the migrator's
+> **explicit sign-off** — deciding "acceptable difference vs bug" is their call, not yours. Record
+> the sign-off (who accepted which differences and why) in `migration_changes.md`.
 
 ### Step 6 — Cost comparison: measured, apples-to-apples
 
