@@ -88,6 +88,24 @@ except ImportError:
 except Exception as e:
     check("matillion(DPC): parser ran", False, repr(e))
 
+# --- Coalesce (needs pyyaml; skip-with-note otherwise) -------------------
+try:
+    import yaml  # noqa: F401
+    inv = run_json("migrating-coalesce-to-dbt/scripts/inventory_coalesce.py", FIX / "coalesce")
+    s = inv["summary"]
+    check("coalesce: 4 nodes", s["node_count"] == 4, s["node_count"])
+    check("coalesce: coverage denom = 3 (non-source)", s["coverage_denominator"] == 3, s["coverage_denominator"])
+    check("coalesce: SCD2 dimension detected", "DIM_CUSTOMER_SCD2" in s["scd2_dimensions"], s["scd2_dimensions"])
+    check("coalesce: source classified", s["by_kind"].get("source") == 1, s["by_kind"])
+    dim = next((n for n in inv["nodes"] if n["name"] == "DIM_CUSTOMER_SCD2"), {})
+    check("coalesce: column lineage resolved (DIM <- STG_CUSTOMERS)",
+          "STG_CUSTOMERS" in dim.get("upstream_nodes", []), dim.get("upstream_nodes"))
+    check("coalesce: business key extracted", dim.get("business_keys") == ["CUSTOMER_ID"], dim.get("business_keys"))
+except ImportError:
+    results.append(("coalesce: SKIPPED (pyyaml not installed)", True, "install pyyaml to cover"))
+except Exception as e:
+    check("coalesce: parser ran", False, repr(e))
+
 # --- Stored proc (heuristic scan) ----------------------------------------
 try:
     inv = run_json("migrating-stored-procedures-to-dbt/scripts/inventory_stored_proc.py", FIX / "stored_proc" / "refresh_metrics.sql")

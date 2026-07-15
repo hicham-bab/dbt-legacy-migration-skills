@@ -1,0 +1,33 @@
+fileVersion: 1
+id: "22222222-0000-0000-0000-000000000002"
+name: STG_CUSTOMERS
+operation:
+  locationName: WORK
+  materializationType: view
+  config:
+    type2Dimension: false
+    truncateBefore: true
+  metadata:
+    columns:
+      - name: CUSTOMER_ID
+        dataType: NUMBER(38,0)
+        transform: ""
+        sourceColumnReferences:
+          - columnReferences:
+              - {columnCounter: "11111111-0000-0000-0000-000000000001", stepCounter: "s1"}
+            transform: ""
+      - name: CUSTOMER_NAME
+        dataType: VARCHAR
+        transform: "TRIM({{SRC}})"
+        sourceColumnReferences:
+          - columnReferences:
+              - {columnCounter: "11111111-0000-0000-0000-000000000001", stepCounter: "s1"}
+            transform: ""
+      - name: SEGMENT
+        dataType: VARCHAR
+        transform: "UPPER({{SRC}})"
+        sourceColumnReferences:
+          - columnReferences:
+              - {columnCounter: "11111111-0000-0000-0000-000000000001", stepCounter: "s1"}
+            transform: ""
+type: Node
