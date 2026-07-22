@@ -4,11 +4,13 @@ name: DIM_CUSTOMER_SCD2
 operation:
   locationName: TARGET_DB
   materializationType: table
+  sqlType: Dimension
+  type: sql
   config:
-    type2Dimension: true
-    lastModifiedComparison: true
+    preSQL: ""
+    postSQL: ""
     truncateBefore: false
-    insertStrategy: UNION ALL
+    testsEnabled: true
   metadata:
     columns:
       - name: DIM_CUSTOMER_KEY
@@ -24,20 +26,27 @@ operation:
         transform: ""
         sourceColumnReferences:
           - columnReferences:
-              - {columnCounter: "22222222-0000-0000-0000-000000000002", stepCounter: "s2"}
+              - {columnCounter: "col-22222222-0000-0000-0000-000000000002", stepCounter: "22222222-0000-0000-0000-000000000002"}
             transform: ""
       - name: CUSTOMER_NAME
         dataType: VARCHAR
         transform: ""
         sourceColumnReferences:
           - columnReferences:
-              - {columnCounter: "22222222-0000-0000-0000-000000000002", stepCounter: "s2"}
+              - {columnCounter: "col-22222222-0000-0000-0000-000000000002", stepCounter: "22222222-0000-0000-0000-000000000002"}
             transform: ""
       - name: SEGMENT
         dataType: VARCHAR
         transform: ""
         sourceColumnReferences:
           - columnReferences:
-              - {columnCounter: "22222222-0000-0000-0000-000000000002", stepCounter: "s2"}
+              - {columnCounter: "col-22222222-0000-0000-0000-000000000002", stepCounter: "22222222-0000-0000-0000-000000000002"}
+            transform: ""
+      - name: SEGMENT_EFFECTIVE_FROM
+        dataType: TIMESTAMP_NTZ
+        isChangeTracking: true      # Type 2 marker: change-tracking column selected
+        transform: ""
+        sourceColumnReferences:
+          - columnReferences: []
             transform: ""
 type: Node

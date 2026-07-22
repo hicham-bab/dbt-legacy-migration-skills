@@ -4,6 +4,8 @@ name: STG_CUSTOMERS
 operation:
   locationName: WORK
   materializationType: view
+  sqlType: Stage
+  type: sql
   config:
     type2Dimension: false
     truncateBefore: true
@@ -14,20 +16,20 @@ operation:
         transform: ""
         sourceColumnReferences:
           - columnReferences:
-              - {columnCounter: "11111111-0000-0000-0000-000000000001", stepCounter: "s1"}
+              - {columnCounter: "col-11111111-0000-0000-0000-000000000001", stepCounter: "11111111-0000-0000-0000-000000000001"}
             transform: ""
       - name: CUSTOMER_NAME
         dataType: VARCHAR
         transform: "TRIM({{SRC}})"
         sourceColumnReferences:
           - columnReferences:
-              - {columnCounter: "11111111-0000-0000-0000-000000000001", stepCounter: "s1"}
+              - {columnCounter: "col-11111111-0000-0000-0000-000000000001", stepCounter: "11111111-0000-0000-0000-000000000001"}
             transform: ""
       - name: SEGMENT
         dataType: VARCHAR
         transform: "UPPER({{SRC}})"
         sourceColumnReferences:
           - columnReferences:
-              - {columnCounter: "11111111-0000-0000-0000-000000000001", stepCounter: "s1"}
+              - {columnCounter: "col-11111111-0000-0000-0000-000000000001", stepCounter: "11111111-0000-0000-0000-000000000001"}
             transform: ""
 type: Node

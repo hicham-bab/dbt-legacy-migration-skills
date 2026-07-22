@@ -24,27 +24,55 @@ def _load(path: Path):
 
 
 def _upstream_ids(col: dict) -> list[str]:
+    """Return the upstream NODE ids this column draws from.
+
+    In a Coalesce column reference, `stepCounter` is the upstream *node* id and
+    `columnCounter` is the upstream *column* id — so resolve lineage via stepCounter.
+    """
     out = []
     for scr in col.get("sourceColumnReferences") or []:
         for cr in scr.get("columnReferences") or []:
-            cc = cr.get("columnCounter")
-            if cc:
-                out.append(cc)
+            node_id = cr.get("stepCounter")
+            if node_id and node_id != "0":   # "0" is Coalesce's constant/no-source marker
+                out.append(node_id)
     return out
 
 
 def classify(node: dict) -> str:
+    """Normalize a node to a kind, keyed on `operation.sqlType` — the node-type
+    discriminator Coalesce writes in the YAML (Source | Stage | Dimension | Fact |
+    View | Persistent Stage). See the Coalesce docs, "Nodes and Node Types". Fall back
+    to name/column heuristics only for user-defined (custom) node types with no standard
+    sqlType, and route the truly-ambiguous to "stage" (which Step 1 flags for review)."""
     op = node.get("operation", {}) or {}
-    if op.get("type") == "sourceInput" or op.get("sqlType") == "Source":
-        return "source"
+    sql_type = (op.get("sqlType") or "").strip().lower()
     cfg = op.get("config", {}) or {}
-    cols = op.get("metadata", {}).get("columns", []) or []
+    cols = (op.get("metadata") or {}).get("columns", []) or []
     has_bk = any(c.get("isBusinessKey") for c in cols)
+    # SCD2 marker (grounded in real exports + docs): a Dimension with a change-tracking
+    # column selected is Type 2. `config.type2Dimension` is kept as a legacy fallback.
+    has_change_tracking = any(c.get("isChangeTracking") for c in cols) or bool(cfg.get("type2Dimension"))
+
+    # Primary: the node's declared Coalesce type.
+    if sql_type == "source" or op.get("type") == "sourceInput":
+        return "source"
+    if sql_type == "dimension":
+        return "dimension_scd2" if has_change_tracking else "dimension"
+    if sql_type == "fact":
+        return "fact"
+    if sql_type == "view":
+        return "view"
+    if "persistent" in sql_type:            # "Persistent Stage"
+        return "persistent_stage"
+    if sql_type == "stage":
+        return "stage"
+
+    # Fallback for custom / user-defined node types (no standard sqlType).
     name = (node.get("name") or "").upper()
-    if cfg.get("type2Dimension"):
+    if has_change_tracking and has_bk:
         return "dimension_scd2"
-    if name.startswith("DIM") or (has_bk and "FCT" not in name and "FACT" not in name and op.get("materializationType") != "view"):
-        return "dimension" if has_bk else "stage"
+    if name.startswith("DIM") and has_bk:
+        return "dimension"
     if name.startswith(("FCT", "FACT")):
         return "fact"
     if op.get("materializationType") == "view":
@@ -65,10 +93,12 @@ def parse_node(path: Path) -> dict:
         "name": n.get("name"),
         "location": op.get("locationName"),
         "kind": kind,
+        "sql_type": op.get("sqlType"),
         "materialization": op.get("materializationType"),
-        "type2_scd": bool((op.get("config") or {}).get("type2Dimension")),
+        "type2_scd": kind == "dimension_scd2",
         "business_keys": [c["name"] for c in cols if c.get("isBusinessKey")],
         "surrogate_keys": [c["name"] for c in cols if c.get("isSurrogateKey")],
+        "change_tracking_keys": [c["name"] for c in cols if c.get("isChangeTracking")],
         "column_count": len(cols),
         "upstream_node_ids": sorted({u for c in cols for u in _upstream_ids(c)}),
         "transforms": [{"column": c["name"], "transform": c["transform"]}
