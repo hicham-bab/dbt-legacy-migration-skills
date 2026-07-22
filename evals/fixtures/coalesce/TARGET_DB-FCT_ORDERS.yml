@@ -14,20 +14,20 @@ operation:
         transform: ""
         sourceColumnReferences:
           - columnReferences:
-              - {columnCounter: "55555555-0000-0000-0000-000000000005", stepCounter: "s5"}
+              - {columnCounter: "col-55555555-0000-0000-0000-000000000005", stepCounter: "55555555-0000-0000-0000-000000000005"}
             transform: ""
       - name: DIM_CUSTOMER_KEY
         dataType: NUMBER
         transform: ""
         sourceColumnReferences:
           - columnReferences:
-              - {columnCounter: "33333333-0000-0000-0000-000000000003", stepCounter: "s3"}
+              - {columnCounter: "col-33333333-0000-0000-0000-000000000003", stepCounter: "33333333-0000-0000-0000-000000000003"}
             transform: ""
       - name: NET_AMOUNT
         dataType: NUMBER(18,2)
         transform: "{{SRC}} * (1 - DISCOUNT)"
         sourceColumnReferences:
           - columnReferences:
-              - {columnCounter: "55555555-0000-0000-0000-000000000005", stepCounter: "s5"}
+              - {columnCounter: "col-55555555-0000-0000-0000-000000000005", stepCounter: "55555555-0000-0000-0000-000000000005"}
             transform: ""
 type: Node

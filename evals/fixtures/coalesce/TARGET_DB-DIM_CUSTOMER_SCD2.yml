@@ -24,20 +24,20 @@ operation:
         transform: ""
         sourceColumnReferences:
           - columnReferences:
-              - {columnCounter: "22222222-0000-0000-0000-000000000002", stepCounter: "s2"}
+              - {columnCounter: "col-22222222-0000-0000-0000-000000000002", stepCounter: "22222222-0000-0000-0000-000000000002"}
             transform: ""
       - name: CUSTOMER_NAME
         dataType: VARCHAR
         transform: ""
         sourceColumnReferences:
           - columnReferences:
-              - {columnCounter: "22222222-0000-0000-0000-000000000002", stepCounter: "s2"}
+              - {columnCounter: "col-22222222-0000-0000-0000-000000000002", stepCounter: "22222222-0000-0000-0000-000000000002"}
             transform: ""
       - name: SEGMENT
         dataType: VARCHAR
         transform: ""
         sourceColumnReferences:
           - columnReferences:
-              - {columnCounter: "22222222-0000-0000-0000-000000000002", stepCounter: "s2"}
+              - {columnCounter: "col-22222222-0000-0000-0000-000000000002", stepCounter: "22222222-0000-0000-0000-000000000002"}
             transform: ""
 type: Node
