@@ -1,5 +1,8 @@
 # dbt legacy migration skills
 
+[![evals](https://github.com/hicham-bab/dbt-legacy-migration-skills/actions/workflows/evals.yml/badge.svg?branch=main)](https://github.com/hicham-bab/dbt-legacy-migration-skills/actions/workflows/evals.yml)
+[![eval checks](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/hicham-bab/dbt-legacy-migration-skills/main/evals/results.json)](evals/RESULTS.md)
+
 A set of agent skills that migrate legacy ETL/ELT workloads to dbt — mapping the original
 workload, translating it into dbt with best practices (tests, docs, contracts), validating the
 result against real warehouse data, choosing cost-aware materializations for the target cloud, and
@@ -118,6 +121,19 @@ models, tests, docs, a parity check, a cost comparison, and a coverage report.
   and **data parity against the warehouse** as the proof a migration preserved business logic.
 - Dynamic SQL, non-deterministic procedural logic, and proprietary runtime components are routed
   to the flagged residual, not guessed at.
+
+## Eval results
+
+Every push and PR runs a deterministic eval harness over the skills' inventory **parsers** (the step
+that reads a legacy export and produces the workload inventory). CI fails on any regression, so the
+badges above reflect the live state of `main`.
+
+- **Published breakdown:** [`evals/RESULTS.md`](evals/RESULTS.md) — per-check results by source,
+  refreshed by CI on every push to `main`.
+- **How it's checked:** [`evals/README.md`](evals/README.md) — fixtures, methodology, and the
+  "verified against real vendor exports" discipline behind the numbers.
+- **Reproduce locally:** `pip install pyyaml && python3 evals/run_evals.py` (add `--write` to
+  regenerate the report + `results.json`).
 
 ## License
 

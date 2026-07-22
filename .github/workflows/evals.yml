@@ -1,0 +1,63 @@
+name: evals
+
+# Publishes the deterministic parser-eval results on every push and PR:
+#  - runs the harness and fails the build on any regression (trust gate for PRs),
+#  - writes the full per-check breakdown to the run's job summary,
+#  - uploads results.json as an artifact,
+#  - on pushes to main, refreshes the committed evals/RESULTS.md + results.json
+#    (which back the README badges) so published results stay current.
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: write
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install optional deps
+        run: pip install pyyaml
+
+      - name: Run evals
+        id: evals
+        continue-on-error: true
+        run: python3 evals/run_evals.py --write
+
+      - name: Publish results to job summary
+        if: always()
+        run: cat evals/RESULTS.md >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Upload results.json
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: eval-results
+          path: evals/results.json
+
+      - name: Refresh committed results (main only)
+        if: always() && github.event_name == 'push' && github.ref == 'refs/heads/main'
+        run: |
+          if ! git diff --quiet -- evals/RESULTS.md evals/results.json; then
+            git config user.name  "github-actions[bot]"
+            git config user.email "github-actions[bot]@users.noreply.github.com"
+            git add evals/RESULTS.md evals/results.json
+            git commit -m "chore(evals): refresh published results [skip ci]"
+            git push
+          else
+            echo "Published results already current."
+          fi
+
+      - name: Fail the build if any check failed
+        if: steps.evals.outcome == 'failure'
+        run: |
+          echo "Eval regression — see the job summary above." >&2
+          exit 1
