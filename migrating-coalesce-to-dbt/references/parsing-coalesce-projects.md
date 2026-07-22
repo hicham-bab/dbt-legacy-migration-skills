@@ -44,7 +44,7 @@ Verified key paths in `./nodes/*.yml`:
 
 ```yaml
 fileVersion: 1
-id: <uuid>                          # node id (referenced by downstream columnCounter)
+id: <uuid>                          # node id (referenced by downstream stepCounter)
 name: DIM_CUSTOMER_SCD2
 operation:
   locationName: TARGET_DB           # the schema/location
@@ -68,7 +68,7 @@ operation:
         transform: "<sql expr>"     # the column's transform (-> SELECT expression)
         sourceColumnReferences:
           - columnReferences:
-              - {columnCounter: <upstream-node-id>, stepCounter: <id>}   # lineage
+              - {stepCounter: <upstream-node-id>, columnCounter: <upstream-col-id>}   # lineage (stepCounter = node)
             transform: ""
 type: Node
 ```
@@ -91,11 +91,17 @@ type: Node
 
 ## Column-level lineage
 
-Coalesce lineage is **column-level**: each target column's `sourceColumnReferences[].columnReferences[]`
-holds a `columnCounter` (the upstream **node id**) + `stepCounter`. Resolve `columnCounter` back to a
-node's `id` to get the upstream node (→ a dbt `ref()`), and combine each column's `transform` with
-its source column to produce the SELECT expression. A column with empty `sourceColumnReferences` on
-a Source node is a raw column; a surrogate-key column (`isSurrogateKey`) is generated, not sourced.
+Coalesce lineage is **column-level**: each target column's
+`sourceColumnReferences[].columnReferences[]` holds `{columnCounter, stepCounter}` where
+**`stepCounter` is the upstream _node_ id and `columnCounter` is the upstream _column_ id** (verified
+against real exports). Resolve **`stepCounter`** to a node's `id` to get the upstream node
+(→ a dbt `ref()`) — *not* `columnCounter` — and combine each column's `transform` with its source
+column to produce the SELECT expression. A `stepCounter` of `"0"` is Coalesce's constant/no-source
+marker (ignore it). A column with empty `sourceColumnReferences` on a Source node is a raw column; a
+surrogate-key column (`isSurrogateKey`) is generated, not sourced.
+
+> The `inventory_coalesce.py` script does this resolution for you (verified against real Coalesce Git
+> exports — a 21-node demo and a 482-node project).
 
 ## Building the inventory
 
@@ -108,7 +114,8 @@ a Source node is a raw column; a surrogate-key column (`isSurrogateKey`) is gene
 3. Hand the inventory to Step 2 (modeling approach) and the node bodies to Step 3
    ([coalesce-node-mapping.md](coalesce-node-mapping.md)).
 
-> **Reference fixture:** `evals/fixtures/coalesce/` in this repo holds example node files
-> (source + stage + SCD2 dimension + fact) the parser is tested against. It's authored to the
-> documented Coalesce Git format — **verify against the customer's real export early**, since a real
-> project may use custom node types or the Dynamic-Tables dimension variant.
+> **Verification:** the parser is checked in `evals/` against a committed fixture and was validated
+> against **real Coalesce Git exports** (a 21-node demo and a 482-node project) — sources, dims,
+> facts, stages, business keys, and column-level lineage all resolve. Still confirm the customer's
+> export early, since a project may use **custom node types (UDNs)** or the **Dynamic-Tables**
+> dimension variant, which the kind-inference may not recognize.

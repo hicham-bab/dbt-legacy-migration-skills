@@ -24,12 +24,17 @@ def _load(path: Path):
 
 
 def _upstream_ids(col: dict) -> list[str]:
+    """Return the upstream NODE ids this column draws from.
+
+    In a Coalesce column reference, `stepCounter` is the upstream *node* id and
+    `columnCounter` is the upstream *column* id — so resolve lineage via stepCounter.
+    """
     out = []
     for scr in col.get("sourceColumnReferences") or []:
         for cr in scr.get("columnReferences") or []:
-            cc = cr.get("columnCounter")
-            if cc:
-                out.append(cc)
+            node_id = cr.get("stepCounter")
+            if node_id and node_id != "0":   # "0" is Coalesce's constant/no-source marker
+                out.append(node_id)
     return out
 
 
