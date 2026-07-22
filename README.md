@@ -138,11 +138,11 @@ badges above reflect the live state of `main`.
 Two layers of evals:
 
 - **Parser evals** (above) — deterministic unit checks over the inventory parsers, gated in CI.
-- **Agent eval** — [`harbor/`](harbor/) holds a [Harbor](https://github.com/harbor-framework/harbor)
-  task that runs a whole agent *following the skills* against a real stored-procedure migration in a
-  container (targeting DuckDB, no cloud creds) and scores whether the output matches the legacy
-  result **row-for-row**. Verified solvable: the oracle solution scores reward 1, a broken migration
-  scores reward 0.
+- **Agent eval** — [`harbor/`](harbor/) holds [Harbor](https://github.com/harbor-framework/harbor)
+  tasks that run a whole agent *following the skills* against real migrations in a container
+  (targeting DuckDB, no cloud creds) and score whether the output matches the legacy result
+  **row-for-row**. Three tasks so far — **stored procedure**, **Talend**, and **Informatica** — each
+  verified solvable: the oracle solution scores reward 1, a broken migration scores reward 0.
 
 ## License
 

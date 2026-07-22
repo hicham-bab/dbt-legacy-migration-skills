@@ -1,0 +1,32 @@
+version = "1.1"
+
+[task]
+name = "harbor/migrate-informatica-to-dbt"
+authors = []
+keywords = [ "dbt", "migration", "informatica", "duckdb",]
+
+[metadata]
+author_name = "hicham-bab"
+author_email = ""
+difficulty = "medium"
+category = "data-engineering"
+tags = [ "dbt", "migration", "informatica", "parity",]
+
+[agent]
+timeout_sec = 1800.0
+
+[verifier]
+timeout_sec = 300.0
+
+[environment]
+build_timeout_sec = 900.0
+cpus = 2
+memory_mb = 4096
+storage_mb = 10240
+gpus = 0
+skills_dir = "/skills"
+mcp_servers = []
+
+[verifier.env]
+
+[solution.env]

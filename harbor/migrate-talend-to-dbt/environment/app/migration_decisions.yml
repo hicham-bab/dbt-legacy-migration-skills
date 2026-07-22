@@ -1,0 +1,5 @@
+# Decisions for this non-interactive eval run (the skill's preflight gate reads this).
+target_modeling: layered
+data_warehouse: duckdb
+packages_mode: external_hub
+landing_spot: /app/project

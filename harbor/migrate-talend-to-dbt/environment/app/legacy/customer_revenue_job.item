@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- LEGACY Talend job to migrate (reference input), originally targeting Postgres.
+     Logic (also summarized in instruction.md):
+       1. read raw_orders + raw_customers
+       2. tFilterRow: keep only status == "completed"
+       3. tMap: INNER JOIN orders to customers on customer_id (adds customer_name)
+       4. tAggregateRow: GROUP BY customer_id, customer_name
+            total_revenue = SUM(amount)   (decimal)
+            order_count   = COUNT(order_id)
+       5. write ANALYTICS.customer_revenue
+     Grain: one row per customer (completed orders only). tSendMail is a notify step. -->
+<talendfile:ProcessType xmlns:talendfile="platform:/resource/org.talend.model/model/TalendFile.xsd" name="customer_revenue_job">
+  <context name="Default">
+    <contextParameter name="db_name" type="id_String" value="sales"/>
+  </context>
+
+  <node componentName="tPostgresqlInput" uniqueName="tPostgresqlInput_orders">
+    <elementParameter name="SCHEMA_DB" value="public"/>
+    <elementParameter name="TABLENAME" value="raw_orders"/>
+    <metadata name="tPostgresqlInput_orders" connector="FLOW">
+      <column name="order_id" type="id_Integer" key="true" nullable="false"/>
+      <column name="customer_id" type="id_Integer" nullable="false"/>
+      <column name="status" type="id_String" nullable="false"/>
+      <column name="amount" type="id_BigDecimal" nullable="false"/>
+    </metadata>
+  </node>
+
+  <node componentName="tPostgresqlInput" uniqueName="tPostgresqlInput_customers">
+    <elementParameter name="SCHEMA_DB" value="public"/>
+    <elementParameter name="TABLENAME" value="raw_customers"/>
+    <metadata name="tPostgresqlInput_customers" connector="FLOW">
+      <column name="customer_id" type="id_Integer" key="true" nullable="false"/>
+      <column name="customer_name" type="id_String" nullable="false"/>
+    </metadata>
+  </node>
+
+  <node componentName="tFilterRow" uniqueName="tFilterRow_completed">
+    <elementParameter name="CONDITION" value="row_orders.status.equals(&quot;completed&quot;)"/>
+  </node>
+
+  <node componentName="tMap" uniqueName="tMap_join">
+    <elementParameter name="JOIN_MODEL" value="INNER"/>
+    <nodeData>
+      <inputTables name="row_orders"/>
+      <inputTables name="row_customers" lookupMode="LOAD_ONCE" matchingMode="UNIQUE_MATCH">
+        <mapperTableEntries name="customer_id" expression="row_orders.customer_id" filterIncoming="true"/>
+      </inputTables>
+      <outputTables name="joined">
+        <mapperTableEntries name="customer_id"   expression="row_orders.customer_id"      type="id_Integer"/>
+        <mapperTableEntries name="customer_name" expression="row_customers.customer_name"  type="id_String"/>
+        <mapperTableEntries name="amount"        expression="row_orders.amount"           type="id_BigDecimal"/>
+      </outputTables>
+    </nodeData>
+  </node>
+
+  <node componentName="tAggregateRow" uniqueName="tAggregateRow_bycustomer">
+    <elementParameter name="GROUP_BY" value="customer_id,customer_name"/>
+    <!-- operations: total_revenue = SUM(amount); order_count = COUNT(order_id) -->
+    <elementParameter name="OPERATIONS">
+      <elementValue elementRef="OUTPUT_COLUMN" value="total_revenue"/>
+      <elementValue elementRef="FUNCTION" value="sum"/>
+      <elementValue elementRef="INPUT_COLUMN" value="amount"/>
+      <elementValue elementRef="OUTPUT_COLUMN" value="order_count"/>
+      <elementValue elementRef="FUNCTION" value="count"/>
+      <elementValue elementRef="INPUT_COLUMN" value="order_id"/>
+    </elementParameter>
+  </node>
+
+  <node componentName="tPostgresqlOutput" uniqueName="tPostgresqlOutput_revenue">
+    <elementParameter name="SCHEMA_DB" value="analytics"/>
+    <elementParameter name="TABLENAME" value="customer_revenue"/>
+  </node>
+
+  <node componentName="tSendMail" uniqueName="tSendMail_notify">
+    <elementParameter name="MESSAGE" value="customer_revenue rebuilt"/>
+  </node>
+
+  <connection connectorName="FLOW" label="row_orders" source="tPostgresqlInput_orders" target="tFilterRow_completed"/>
+  <connection connectorName="LOOKUP" label="row_customers" source="tPostgresqlInput_customers" target="tMap_join"/>
+  <connection connectorName="FLOW" label="filtered" source="tFilterRow_completed" target="tMap_join"/>
+  <connection connectorName="FLOW" label="joined" source="tMap_join" target="tAggregateRow_bycustomer"/>
+  <connection connectorName="FLOW" label="agg" source="tAggregateRow_bycustomer" target="tPostgresqlOutput_revenue"/>
+  <connection connectorName="ON_SUBJOB_OK" label="notify" source="tPostgresqlOutput_revenue" target="tSendMail_notify"/>
+</talendfile:ProcessType>

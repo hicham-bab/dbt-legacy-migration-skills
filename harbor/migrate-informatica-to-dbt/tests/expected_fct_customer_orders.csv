@@ -1,0 +1,4 @@
+customer_id,lifetime_amount,order_count,value_band
+1,175.00,3,B
+2,200.00,1,A
+3,30.00,1,B
