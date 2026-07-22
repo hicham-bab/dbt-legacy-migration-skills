@@ -135,6 +135,15 @@ badges above reflect the live state of `main`.
 - **Reproduce locally:** `pip install pyyaml && python3 evals/run_evals.py` (add `--write` to
   regenerate the report + `results.json`).
 
+Two layers of evals:
+
+- **Parser evals** (above) — deterministic unit checks over the inventory parsers, gated in CI.
+- **Agent eval** — [`harbor/`](harbor/) holds [Harbor](https://github.com/harbor-framework/harbor)
+  tasks that run a whole agent *following the skills* against real migrations in a container
+  (targeting DuckDB, no cloud creds) and score whether the output matches the legacy result
+  **row-for-row**. Three tasks so far — **stored procedure**, **Talend**, and **Informatica** — each
+  verified solvable: the oracle solution scores reward 1, a broken migration scores reward 0.
+
 ## License
 
 Apache-2.0. See [LICENSE](LICENSE).
