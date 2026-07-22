@@ -105,7 +105,7 @@ a Source node is a raw column; a surrogate-key column (`isSurrogateKey`) is gene
    resolved upstream nodes (lineage), per-column transforms, the **coverage denominator**
    (non-source nodes), and the **SCD2 dimensions**.
 2. Sources → dbt `sources`; every non-source node → a dbt model (the coverage denominator).
-3. Hand the inventory to Step 2 (architecture) and the node bodies to Step 3
+3. Hand the inventory to Step 2 (modeling approach) and the node bodies to Step 3
    ([coalesce-node-mapping.md](coalesce-node-mapping.md)).
 
 > **Reference fixture:** `evals/fixtures/coalesce/` in this repo holds example node files

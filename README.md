@@ -28,8 +28,8 @@ The four migration skills share the same 8-step workflow and defer the common st
 
 - **Step 0** — Detect environment & cloud (Snowflake / Databricks / BigQuery / Redshift; Fusion vs Core)
 - **Step 1** — Inventory & map the legacy workload *(source-specific)*
-- **Step 2** — **Choose the target architecture** (see below), then classify the workload into it + detect Mesh
-- **Step 3** — Translate to dbt SQL for the chosen architecture, with cost-aware materializations *(source-specific answer key)*
+- **Step 2** — **Choose the target modeling approach** (see below), then classify the workload into it + detect Mesh
+- **Step 3** — Translate to dbt SQL for the chosen modeling approach, with cost-aware materializations *(source-specific answer key)*
 - **Step 4** — Apply best practices: tests (`arguments:` spec), docs, contracts, snapshots
 - **Step 5** — Validate: `dbt compile` gate (free), then **legacy-prod vs dbt-dev** data parity (explain every difference)
 - **Step 6** — Cost comparison: **measured** warehouse consumption (legacy vs dbt), auditable
@@ -43,12 +43,12 @@ nested spec).
 
 **Uses the dbt package ecosystem** (all Fusion-checked): **codegen** to scaffold sources/models/YAML,
 **audit_helper** to prove legacy-vs-dbt parity, **dbt_utils** + **dbt_expectations** for tests,
-**dbt_project_evaluator** as the quality gate, **datavault4dbt**/**dbt_date** per architecture — see
+**dbt_project_evaluator** as the quality gate, **datavault4dbt**/**dbt_date** per modeling approach — see
 `legacy-to-dbt-migration-foundations/references/dbt-packages.md`.
 
-## Target architecture (Step 2)
+## Target modeling approach (Step 2)
 
-After mapping the legacy workload, the skill **asks which target modeling architecture to build**,
+After mapping the legacy workload, the skill **asks which target modeling approach to build**,
 then generates the dbt models accordingly:
 
 - **Layered (default)** — faithful source-aligned staging → intermediate → mart. Lowest risk.
@@ -59,7 +59,7 @@ then generates the dbt models accordingly:
 
 The generation for each paradigm lives in the **shared foundations skill's references** — not as
 separate skills — so the install is just the four migration skills + foundations:
-`legacy-to-dbt-migration-foundations/references/target-architecture.md` (legacy→paradigm mapping +
+`legacy-to-dbt-migration-foundations/references/target-modeling.md` (legacy→paradigm mapping +
 performance), `building-datavault.md`, `building-kimball.md`, `building-starschema.md`.
 
 > **Data Vault path:** `building-datavault.md` is **distilled** from Scalefree's
