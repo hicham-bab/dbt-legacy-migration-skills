@@ -3,7 +3,7 @@
 
 The migration MUST NOT build any models until the migrator has chosen:
   1. target_modeling   (kimball | datavault | star | layered)
-  2. data_warehouse        (snowflake | databricks | bigquery | redshift)   -> drives SQL dialect
+  2. data_warehouse        (snowflake | databricks | bigquery | redshift | duckdb)   -> drives SQL dialect
   3. packages_mode         (external_hub | self_contained_macros)
 
 This script is the enforcement: the skill runs it FIRST. If the decisions file is
@@ -28,7 +28,8 @@ from pathlib import Path
 
 REQUIRED = {
     "target_modeling": {"kimball", "datavault", "star", "layered"},
-    "data_warehouse": {"snowflake", "databricks", "bigquery", "redshift"},
+    # duckdb is included for local dev / eval runs (dbt-duckdb); the rest are the cloud targets
+    "data_warehouse": {"snowflake", "databricks", "bigquery", "redshift", "duckdb"},
     "packages_mode": {"external_hub", "self_contained_macros"},
 }
 QUESTIONS = {
@@ -37,8 +38,8 @@ QUESTIONS = {
         "(Data Vault = auditable hubs/links/sats; Kimball = conformed dims+facts; "
         "star = one lightweight star; layered = faithful port).",
     "data_warehouse":
-        "Which data warehouse are we targeting? snowflake | databricks | bigquery | redshift "
-        "(this sets the SQL dialect the generated dbt models use).",
+        "Which data warehouse are we targeting? snowflake | databricks | bigquery | redshift | duckdb "
+        "(this sets the SQL dialect the generated dbt models use; duckdb = local dev/eval).",
     "packages_mode":
         "Use external dbt packages (from hub.getdbt.com) or self-contained hand-made macros? "
         "external_hub | self_contained_macros.",
