@@ -1,8 +1,8 @@
-# Building a Data Vault 2.0 (Step 3, architecture = Data Vault)
+# Building a Data Vault 2.0 (Step 3, modeling approach = Data Vault)
 
 Generate hubs / links / satellites with the **datavault4dbt** package (Scalefree) — do not hand-roll
 hashing/loading SQL — then dimensional **info marts** on top. The legacy→entity mapping is in
-[target-architecture.md](target-architecture.md#data-vault-20); this reference distils the package
+[target-modeling.md](target-modeling.md#data-vault-20); this reference distils the package
 mechanics. Install datavault4dbt on demand (see [dbt-packages.md](dbt-packages.md)).
 
 > Distilled from Scalefree's **datavault4dbt agent skills** (Apache-2.0,

@@ -1,10 +1,10 @@
-# Choosing the target architecture (Step 2)
+# Choosing the target modeling approach (Step 2)
 
 After the legacy workload is mapped (Step 1) and **before** generating any dbt models, ask the
-person doing the migration **which target modeling architecture** to build. The answer reshapes how
+person doing the migration **which target modeling approach** to build. The answer reshapes how
 you classify the workload (rest of Step 2), how you generate models (Step 3), and which tests/
 materializations you apply (Step 4). Do not assume — a migration is the natural moment to decide
-whether to re-architect, and it's the migrator's call.
+whether to re-model, and it's the migrator's call.
 
 **Always offer the choice, even when it looks obvious.** If the workload clearly resembles one
 paradigm (e.g. SCD2 dims + a fact with surrogate-key lookups → obviously Kimball), still present the
@@ -18,26 +18,26 @@ minimise risk) regardless of what the source looks like.
 - [Data Vault 2.0](#data-vault-20)
 - [Kimball dimensional](#kimball-dimensional)
 - [Star schema](#star-schema)
-- [Layered fallback (no re-architecture)](#layered-fallback-no-re-architecture)
-- [Tests, docs & contracts per architecture](#tests-docs--contracts-per-architecture)
+- [Layered fallback (no re-modeling)](#layered-fallback-no-re-modeling)
+- [Tests, docs & contracts per modeling approach](#tests-docs--contracts-per-modeling-approach)
 - [Performance cheat-sheet](#performance-cheat-sheet)
 
 ## The question to ask
 
-Present the mapped inventory, then ask the migrator to pick one of the three target architectures:
+Present the mapped inventory, then ask the migrator to pick one of the three target modeling approachs:
 
-> "I've mapped the legacy workload. Before I build the dbt models, which target architecture should
+> "I've mapped the legacy workload. Before I build the dbt models, which target modeling approach should
 > I follow?
 > - **Data Vault 2.0** — hubs / links / satellites (auditable, insert-only), with dimensional info
 >   marts on top. Best for highly-governed, multi-source, audit-heavy warehouses.
-> - **Kimball dimensional** — conformed dimensions + fact tables (full bus architecture, SCD2).
+> - **Kimball dimensional** — conformed dimensions + fact tables (bus matrix, SCD2).
 >   Best when many business processes share dimensions and BI is the goal.
 > - **Star schema** — facts + dimensions for a focused subject area, minimal ceremony. Good for a
 >   single mart / quick BI."
 
 Whichever they choose, the migration still applies data **tests, docs, and contracts** (Step 4) —
-see [tests, docs & contracts per architecture](#tests-docs--contracts-per-architecture). If the
-migrator explicitly wants **no re-architecture** (a faithful like-for-like port), fall back to the
+see [tests, docs & contracts per modeling approach](#tests-docs--contracts-per-modeling-approach). If the
+migrator explicitly wants **no re-modeling** (a faithful like-for-like port), fall back to the
 plain layered structure in [layer-classification.md](layer-classification.md).
 
 Guidance to offer:
@@ -52,11 +52,11 @@ Guidance to offer:
   explicit requirement, and confirm the team will maintain a vault.
 - The choice is per-project (or per-Mesh-domain), not per-model. Record it; it drives Steps 3-4.
 
-## Why each architecture exists (explain this to the migrator)
+## Why each modeling approach exists (explain this to the migrator)
 
 Don't just name the options — explain *why* someone picks each, so a migrator new to warehouse
 modeling can choose on purpose. The migration is the cheap moment to decide the target shape, but
-re-architecting trades short-term risk (proving parity against a differently-shaped output) for
+re-modeling trades short-term risk (proving parity against a differently-shaped output) for
 long-term benefit; a faithful port trades the opposite.
 
 - **Layered (faithful port).** *Reason:* lowest risk and fastest to trust — the final mart has the
@@ -164,16 +164,16 @@ mart or a quick migration to BI-friendly shape. Generation mechanics in
 - **Performance:** same as Kimball facts/dims (partition/cluster the fact by date + main FK; dims as
   clustered tables). Simpler DAG = cheaper to build and validate.
 
-## Layered fallback (no re-architecture)
+## Layered fallback (no re-modeling)
 
 If the migrator declines all three paradigms and wants a faithful like-for-like port, use the plain
 layered structure from [layer-classification.md](layer-classification.md): source → staging (`stg_`,
 view) → intermediate (`int_`) → mart (`fct_`/`dim_`, table/incremental). The legacy target maps 1:1
 to a mart, so parity is the most straightforward. Tests/docs/contracts still apply (below).
 
-## Tests, docs & contracts per architecture
+## Tests, docs & contracts per modeling approach
 
-Whichever paradigm is chosen, Step 4 still applies — adapted to the architecture:
+Whichever paradigm is chosen, Step 4 still applies — adapted to the modeling approach:
 
 | | Data Vault | Kimball / Star |
 |---|---|---|

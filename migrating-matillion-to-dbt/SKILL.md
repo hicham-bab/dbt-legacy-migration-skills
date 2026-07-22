@@ -54,7 +54,7 @@ link into its references for the common work. **Assume the migrator may be new t
 
 - [parsing-matillion-pipelines.md](references/parsing-matillion-pipelines.md) — how to read DPC YAML (`.orch.yaml`/`.tran.yaml`) and METL JSON, and inventory the workload
 - [matillion-component-mapping.md](references/matillion-component-mapping.md) — the component → dbt answer key, incl. Detect Changes → snapshots and variable handling
-- The **`legacy-to-dbt-migration-foundations`** skill — shared references for cloud detection, **dbt-package usage**, layer classification, target architecture, best practices, validation, cost, and coverage
+- The **`legacy-to-dbt-migration-foundations`** skill — shared references for cloud detection, **dbt-package usage**, layer classification, target modeling approach, best practices, validation, cost, and coverage
 
 ## Migration Workflow
 
@@ -72,7 +72,7 @@ If it **exits non-zero**, it prints the exact questions — **ASK the migrator t
 `migration_decisions.yml` in the project as `key: value` lines, and **re-run until it exits 0**.
 **Do not create any dbt models, project files, or macros until this exits 0.** The three decisions
 it requires:
-- **target_architecture** — kimball | datavault | star | layered
+- **target_modeling** — kimball | datavault | star | layered
 - **data_warehouse** — snowflake | databricks | bigquery | redshift *(sets the SQL dialect generated)*
 - **packages_mode** — external_hub *(hub.getdbt.com packages)* | self_contained_macros *(hand-made macros)*
 
@@ -82,10 +82,10 @@ wrong means redoing dozens of files.
 
 **As you build, explain your reasoning in plain language — the migrator may be new to dbt.** For
 each model, state in one line *why* that materialization (view / table / incremental) and, for the
-project, *why* this architecture and *why* a snapshot vs a plain model. See the "Teach as you
+project, *why* this modeling approach and *why* a snapshot vs a plain model. See the "Teach as you
 migrate" principle and
 [dbt-concepts-explained.md](../legacy-to-dbt-migration-foundations/references/dbt-concepts-explained.md);
-capture the architecture overview + per-model materialization-and-why in `migration_changes.md`.
+capture the modeling approach overview + per-model materialization-and-why in `migration_changes.md`.
 
 **Build in the chosen landing spot — not a temp folder.** Create the dbt project directly in the
 location the migrator picked and build/iterate there. Do **not** build in a scratch/`/tmp` directory
@@ -98,8 +98,8 @@ environment, **ask the migrator** (or request escalation) rather than silently u
 Matillion → dbt Migration Progress:
 - [ ] Step 0: Detect environment & cloud (warehouse, Fusion/Core, dev target, parity access, packages-vs-macros)
 - [ ] Step 1: Inventory & map pipelines (transformation components = denominator; orchestration/EL noted)
-- [ ] Step 2: Choose target architecture (layered / Data Vault / Kimball / star), then classify into it
-- [ ] Step 3: Translate to dbt SQL for the chosen architecture, with cost-aware materializations
+- [ ] Step 2: Choose target modeling approach (layered / Data Vault / Kimball / star), then classify into it
+- [ ] Step 3: Translate to dbt SQL for the chosen modeling approach, with cost-aware materializations
 - [ ] Step 4: Apply tests, docs, contracts, snapshots (Detect Changes → snapshot)
 - [ ] Step 5: Validate — compile gate, then data parity vs warehouse
 - [ ] Step 6: Cost comparison — measured warehouse consumption (legacy vs dbt), auditable
@@ -134,21 +134,21 @@ Then scaffold `_sources.yml` with **codegen** `generate_source` (foundations →
 > workload — this is the cheap moment to catch a missed job or an out-of-scope table, before dozens
 > of files exist. Wait for confirmation, then proceed.
 
-### Step 2 — Choose target architecture, then classify into it
+### Step 2 — Choose target modeling approach, then classify into it
 
-**First ask the migrator which target architecture to build** — layered (default) / Data Vault 2.0 /
+**First ask the migrator which target modeling approach to build** — layered (default) / Data Vault 2.0 /
 Kimball dimensional / pragmatic star — since it reshapes Steps 3-4. See foundations →
-[target-architecture.md](../legacy-to-dbt-migration-foundations/references/target-architecture.md).
-Then classify each transformation output into that architecture's structures (layered: source /
+[target-modeling.md](../legacy-to-dbt-migration-foundations/references/target-modeling.md).
+Then classify each transformation output into that modeling approach's structures (layered: source /
 staging / intermediate / mart; Data Vault: hubs / links / satellites; dimensional: dims / facts),
 with a confidence score, and detect domain boundaries (folders, schemas) for a possible Mesh split.
 See foundations → [layer-classification.md](../legacy-to-dbt-migration-foundations/references/layer-classification.md).
 
-### Step 3 — Translate to dbt SQL for the chosen architecture
+### Step 3 — Translate to dbt SQL for the chosen modeling approach
 
 Translate each component using [matillion-component-mapping.md](references/matillion-component-mapping.md)
 for the SQL logic. Because Matillion is push-down ELT, the component graph already implies warehouse
-SQL. Apply the chosen architecture's generation pattern (foundations → target-architecture.md):
+SQL. Apply the chosen modeling approach's generation pattern (foundations → target-modeling.md):
 **layered** → express as CTE models, `ref()`-ing upstream models where a `Table Input`
 reads a table another pipeline produced (Detect Changes → snapshot); **Kimball / Star** → follow
 foundations building-kimball.md / building-starschema.md; **Data Vault** → follow foundations
@@ -245,7 +245,7 @@ METL variable exports carry names only.
 - dbt project: [name]
 - Total transformation components inventoried: [N]  (orchestration/EL components: [M], out of scope)
 
-## Architecture
+## Modeling approach
 - Chosen: [layered / Data Vault / Kimball / Star] — recommended because […]; **confirmed by the migrator**.
 - Layer/DAG overview: source → staging → … → mart, and how the legacy units map onto it.
 

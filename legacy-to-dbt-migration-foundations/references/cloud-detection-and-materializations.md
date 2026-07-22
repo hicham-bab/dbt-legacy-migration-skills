@@ -16,7 +16,7 @@ Ask these at Step 0 and record the answers — every later step depends on them.
 batch of choices, each with a recommended default and the alternatives** (the migrator picks — see
 the "Suggest, don't decide" principle in the foundations skill). Detect what you can from the
 environment to *inform your recommendation*, but still offer the choice — don't silently default.
-Don't start parsing until at least the platform, architecture, and packages/macros calls are made.
+Don't start parsing until at least the platform, modeling approach, and packages/macros calls are made.
 
 1. **Landing spot?** A **new standalone dbt project** (clean, mirrors the legacy workload 1:1) or
    **fold into an existing project** (reuse its sources/config). Recommend new-standalone unless the
@@ -29,7 +29,7 @@ Don't start parsing until at least the platform, architecture, and packages/macr
 4. **Packages or self-contained macros?** May the migration use **external dbt packages
    (from hub.getdbt.com only)** — reusing maintained macros — or should it stay **self-contained**
    and generate the needed macros itself? Drives every later step. See [dbt-packages.md](dbt-packages.md).
-   *(The target-architecture choice is the other big one — Step 2, see target-architecture.md.)*
+   *(The target modeling-approach choice is the other big one — Step 2, see target-modeling.md.)*
 5. **What is the dev target?** A dev schema/database the migration can build into safely
    (`dbt build` in dev), separate from prod.
 6. **Is the legacy output still queryable** for parity checks? (the existing warehouse table the

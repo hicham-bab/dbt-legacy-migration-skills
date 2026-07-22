@@ -21,7 +21,7 @@ guide, a project moves data from *source-conformed* to *business-conformed* acro
 | **source** | Raw tables the legacy job reads from | (declared, not materialized) | `sources:` in a `_sources.yml` |
 | **staging** (`stg_`) | **1:1 with a source table**: rename, cast, light compute — **no joins, no aggregations**; the only place using `source()` | **view** | `stg_[source]__[entity]s` (double underscore; plural entity) |
 | **intermediate** (`int_`) | Joins, lookups, reusable business logic, fan-in; not exposed in the main prod schema | **ephemeral** (simplest) or **view** in a custom schema | `int_[entity]s_[verb]s` |
-| **mart** | Final business entities the consumers query; wide/denormalized | **start as a `view`; promote to `table` when it's slow to *query*; to `incremental` only when the table is slow to *build*** | *layered default:* plain-English entity (`customers`, `orders`). *Dimensional architectures:* `fct_`/`dim_` (a deliberate departure — see [target-architecture.md](target-architecture.md)) |
+| **mart** | Final business entities the consumers query; wide/denormalized | **start as a `view`; promote to `table` when it's slow to *query*; to `incremental` only when the table is slow to *build*** | *layered default:* plain-English entity (`customers`, `orders`). *Dimensional modeling (Kimball/Star):* `fct_`/`dim_` (a deliberate departure — see [target-modeling.md](target-modeling.md)) |
 
 > **Naming note (grounded in the docs):** dbt's structure guide names marts by **plain-English
 > entity** (`customers.sql`, `orders.sql`), *not* `fct_`/`dim_`, and it explicitly contrasts with a
@@ -55,6 +55,28 @@ topology fallback.
 
 Record `(unit, layer, confidence, reason)` for every unit; this table feeds both the generated
 folder structure and the coverage report.
+
+## Don't over-split the intermediate layer
+
+A legacy job has many sequential steps, but **one `int_` model per legacy step is wrong** — it
+produces chains of thin intermediate models (`int_a` → `int_b` → mart) where the logic belonged in a
+single model. Consolidate:
+
+- **Default: one intermediate model per logical transformation, using CTEs for its sequential
+  steps.** Several legacy steps that flow linearly into one output (filter → derive → join →
+  aggregate) become **one** `int_` model with a CTE per step, then the mart reads that one `int_`.
+  Don't materialize each step as its own model.
+- **Split into a separate `int_` model only when** one of these is true:
+  1. the intermediate result is **reused by 2+ downstream models** (build once, `ref()` it), or
+  2. it **crosses a grain change** (e.g. row-level detail → an aggregate) that a later model needs
+     at the pre-aggregated grain, or
+  3. the single model would be **too large to read/test** and a named split genuinely clarifies it.
+- **Rule of thumb:** if `int_b`'s only consumer is one mart and it doesn't change grain, fold it into
+  that mart (or into `int_a`) as a CTE instead of a standalone model. Prefer the fewest models that
+  each have a distinct, nameable purpose.
+
+This matches dbt's guidance that intermediate models are purposeful "molecules," not a 1:1 echo of
+every source step (see [How we structure our dbt projects](https://docs.getdbt.com/best-practices/how-we-structure/3-intermediate)).
 
 ## Naming conventions
 

@@ -33,10 +33,10 @@ Ask at Step 0 and record it — it governs how every later step is built:
 - **Self-contained (macros only)** — no external dependencies; the skill writes the equivalent
   macros into the project's `macros/`. You own and maintain them (no upstream fixes).
 
-**Interaction with the architecture choice (Step 2):** the **Data Vault** path effectively *requires*
+**Interaction with the modeling approach choice (Step 2):** the **Data Vault** path effectively *requires*
 the `datavault4dbt` hub package (hand-rolling its hashing/loading is impractical). If the migrator
 picks *macros only* **and** Data Vault, flag the conflict and offer to either allow that one hub
-package or pick a dimensional architecture instead. Kimball/Star and layered work fine either way
+package or pick a dimensional modeling approach instead. Kimball/Star and layered work fine either way
 (dbt snapshots and simple macros cover them).
 
 ## Rule: hub.getdbt.com only

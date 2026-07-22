@@ -2,7 +2,7 @@
 """Hard decision gate for a legacy->dbt migration (stdlib only).
 
 The migration MUST NOT build any models until the migrator has chosen:
-  1. target_architecture   (kimball | datavault | star | layered)
+  1. target_modeling   (kimball | datavault | star | layered)
   2. data_warehouse        (snowflake | databricks | bigquery | redshift)   -> drives SQL dialect
   3. packages_mode         (external_hub | self_contained_macros)
 
@@ -15,7 +15,7 @@ Usage:
     python3 preflight_decisions.py [--file migration_decisions.yml] [--profiles ~/.dbt/profiles.yml]
 
 Decisions file format (flat `key: value`, e.g. migration_decisions.yml):
-    target_architecture: kimball
+    target_modeling: kimball
     data_warehouse: snowflake
     packages_mode: external_hub
     landing_spot: /path/to/new/dbt/project      # optional but recommended
@@ -27,13 +27,13 @@ import sys
 from pathlib import Path
 
 REQUIRED = {
-    "target_architecture": {"kimball", "datavault", "star", "layered"},
+    "target_modeling": {"kimball", "datavault", "star", "layered"},
     "data_warehouse": {"snowflake", "databricks", "bigquery", "redshift"},
     "packages_mode": {"external_hub", "self_contained_macros"},
 }
 QUESTIONS = {
-    "target_architecture":
-        "Which target architecture? kimball | datavault | star | layered "
+    "target_modeling":
+        "Which target modeling approach? kimball | datavault | star | layered "
         "(Data Vault = auditable hubs/links/sats; Kimball = conformed dims+facts; "
         "star = one lightweight star; layered = faithful port).",
     "data_warehouse":
@@ -45,6 +45,10 @@ QUESTIONS = {
 }
 
 
+# deprecated key names accepted for backward compatibility
+ALIASES = {"target_architecture": "target_modeling"}
+
+
 def read_decisions(path: Path) -> dict:
     if not path.exists():
         return {}
@@ -53,7 +57,7 @@ def read_decisions(path: Path) -> dict:
         line = line.split("#", 1)[0].strip()
         m = re.match(r"^([A-Za-z0-9_]+)\s*:\s*(.+?)\s*$", line)
         if m:
-            key = m.group(1)
+            key = ALIASES.get(m.group(1), m.group(1))   # accept the old target_architecture key
             val = m.group(2).strip().strip("'\"")
             # normalize only the enum decisions; keep free-text (paths) verbatim
             out[key] = val.lower() if key in REQUIRED else val

@@ -46,7 +46,7 @@ link into its references for the common work. **Assume the migrator may be new t
 
 - [stored-proc-decomposition.md](references/stored-proc-decomposition.md) — the procedural → declarative answer key
 - [sql-dialect-notes.md](references/sql-dialect-notes.md) — per-dialect procedural constructs and target-syntax choice
-- The **`legacy-to-dbt-migration-foundations`** skill — shared references for cloud detection, **dbt-package usage**, layer classification, target architecture, best practices, validation, cost, and coverage
+- The **`legacy-to-dbt-migration-foundations`** skill — shared references for cloud detection, **dbt-package usage**, layer classification, target modeling approach, best practices, validation, cost, and coverage
 - The **`migrating-dbt-project-across-platforms`** skill — for heavy SQL-dialect translation when the source proc's dialect differs from the target cloud
 
 ## Migration Workflow
@@ -65,7 +65,7 @@ If it **exits non-zero**, it prints the exact questions — **ASK the migrator t
 `migration_decisions.yml` in the project as `key: value` lines, and **re-run until it exits 0**.
 **Do not create any dbt models, project files, or macros until this exits 0.** The three decisions
 it requires:
-- **target_architecture** — kimball | datavault | star | layered
+- **target_modeling** — kimball | datavault | star | layered
 - **data_warehouse** — snowflake | databricks | bigquery | redshift *(sets the SQL dialect generated)*
 - **packages_mode** — external_hub *(hub.getdbt.com packages)* | self_contained_macros *(hand-made macros)*
 
@@ -75,10 +75,10 @@ wrong means redoing dozens of files.
 
 **As you build, explain your reasoning in plain language — the migrator may be new to dbt.** For
 each model, state in one line *why* that materialization (view / table / incremental) and, for the
-project, *why* this architecture and *why* a snapshot vs a plain model. See the "Teach as you
+project, *why* this modeling approach and *why* a snapshot vs a plain model. See the "Teach as you
 migrate" principle and
 [dbt-concepts-explained.md](../legacy-to-dbt-migration-foundations/references/dbt-concepts-explained.md);
-capture the architecture overview + per-model materialization-and-why in `migration_changes.md`.
+capture the modeling approach overview + per-model materialization-and-why in `migration_changes.md`.
 
 **Build in the chosen landing spot — not a temp folder.** Create the dbt project directly in the
 location the migrator picked and build/iterate there. Do **not** build in a scratch/`/tmp` directory
@@ -91,8 +91,8 @@ environment, **ask the migrator** (or request escalation) rather than silently u
 Stored Procedure → dbt Migration Progress:
 - [ ] Step 0: Detect environment & cloud (warehouse, source dialect, Fusion/Core, dev target, parity access, packages-vs-macros)
 - [ ] Step 1: Inventory & map the procedure (count all procedural steps)
-- [ ] Step 2: Choose target architecture (layered / Data Vault / Kimball / star), then classify into it
-- [ ] Step 3: Decompose to dbt SQL for the chosen architecture, with cost-aware materializations
+- [ ] Step 2: Choose target modeling approach (layered / Data Vault / Kimball / star), then classify into it
+- [ ] Step 3: Decompose to dbt SQL for the chosen modeling approach, with cost-aware materializations
 - [ ] Step 4: Apply tests, docs, contracts, snapshots
 - [ ] Step 5: Validate — compile gate, then row-for-row parity vs the legacy output
 - [ ] Step 6: Cost comparison — measured warehouse consumption (legacy vs dbt), auditable
@@ -128,21 +128,21 @@ with **codegen** `generate_source` (foundations → dbt-packages.md).
 > workload — this is the cheap moment to catch a missed job or an out-of-scope table, before dozens
 > of files exist. Wait for confirmation, then proceed.
 
-### Step 2 — Choose target architecture, then classify into it
+### Step 2 — Choose target modeling approach, then classify into it
 
-**First ask the migrator which target architecture to build** — layered (default) / Data Vault 2.0 /
+**First ask the migrator which target modeling approach to build** — layered (default) / Data Vault 2.0 /
 Kimball dimensional / pragmatic star — since it reshapes Steps 3-4. See foundations →
-[target-architecture.md](../legacy-to-dbt-migration-foundations/references/target-architecture.md).
-Then map each procedural step into that architecture's structures (layered: source / staging /
+[target-modeling.md](../legacy-to-dbt-migration-foundations/references/target-modeling.md).
+Then map each procedural step into that modeling approach's structures (layered: source / staging /
 intermediate / mart, preferring **existing** staging/intermediate models over re-reading raw tables;
 Data Vault: hubs / links / satellites; dimensional: dims / facts). See foundations →
 [layer-classification.md](../legacy-to-dbt-migration-foundations/references/layer-classification.md).
 
-### Step 3 — Decompose to dbt SQL for the chosen architecture
+### Step 3 — Decompose to dbt SQL for the chosen modeling approach
 
 Turn temp tables into CTEs/intermediate models, MERGE/upsert into `incremental`, full rebuilds into
 `table`, per [stored-proc-decomposition.md](references/stored-proc-decomposition.md), and apply the
-chosen architecture's generation pattern (foundations → target-architecture.md): **layered** →
+chosen modeling approach's generation pattern (foundations → target-modeling.md): **layered** →
 CTE models (+ snapshots for history); **Kimball / Star** → follow foundations building-kimball.md /
 building-starschema.md; **Data Vault** → follow foundations
 building-datavault.md, building info marts on top. Use
@@ -228,7 +228,7 @@ Extract only the SQL logic. Never read, echo, or log credentials or connection s
 - Output grain: [one row per ...]
 - Total procedural steps inventoried: [N]
 
-## Architecture
+## Modeling approach
 - Chosen: [layered / Data Vault / Kimball / Star] — recommended because […]; **confirmed by the migrator**.
 - Layer/DAG overview: source → staging → … → mart, and how the legacy units map onto it.
 
