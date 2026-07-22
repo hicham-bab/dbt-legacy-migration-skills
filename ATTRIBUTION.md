@@ -3,7 +3,7 @@
 ## datavault4dbt (Scalefree)
 
 The Data Vault generation reference
-(`legacy-to-dbt-migration-foundations/references/building-datavault.md`) is **distilled from**
+(`skills/legacy-to-dbt-migration-foundations/references/building-datavault.md`) is **distilled from**
 Scalefree's **datavault4dbt agent skills** — the staging-driven hub/link/satellite pattern, entity
 choice, project layout/materializations, and technical tests.
 

@@ -9,7 +9,7 @@ RUN pip install --no-cache-dir dbt-duckdb pyyaml
 # skills_dir=/skills in task.toml points the agent here. Self-contained: bake them into the image.
 RUN git clone --depth 1 https://github.com/hicham-bab/dbt-legacy-migration-skills.git /tmp/skills \
     && mkdir -p /skills \
-    && cp -R /tmp/skills/legacy-to-dbt-migration-foundations /tmp/skills/migrating-* /skills/ \
+    && cp -R /tmp/skills/skills/. /skills/ \
     && rm -rf /tmp/skills
 
 # The agent's working files (raw data, legacy Talend job, decisions, empty dbt project + profile).

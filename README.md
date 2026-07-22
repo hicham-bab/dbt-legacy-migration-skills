@@ -17,16 +17,16 @@ skills are plain `SKILL.md` folders and work in any agent that supports the skil
 
 | Skill | Migrates |
 |-------|----------|
-| [`migrating-informatica-to-dbt`](migrating-informatica-to-dbt) | Informatica PowerCenter workflows/mappings (XML repository export) |
-| [`migrating-talend-to-dbt`](migrating-talend-to-dbt) | Talend ETL jobs (`.item` XML exports) |
-| [`migrating-stored-procedures-to-dbt`](migrating-stored-procedures-to-dbt) | SQL stored procedures (Snowflake, BigQuery, Databricks, T-SQL, PL/SQL) |
-| [`migrating-matillion-to-dbt`](migrating-matillion-to-dbt) | Matillion pipelines/jobs — DPC YAML (`.tran.yaml`/`.orch.yaml`), Matillion ETL JSON (export + git per-job forms), CDC/streaming, shared jobs |
-| [`migrating-coalesce-to-dbt`](migrating-coalesce-to-dbt) | Coalesce.io projects (Git-committed YAML nodes) — Source/Stage/Dimension(SCD1/2)/Fact/View nodes → models, snapshots, sources |
-| [`legacy-to-dbt-migration-foundations`](legacy-to-dbt-migration-foundations) | *Shared reference library* — not invoked directly; the four migration skills link to it |
+| [`migrating-informatica-to-dbt`](skills/migrating-informatica-to-dbt) | Informatica PowerCenter workflows/mappings (XML repository export) |
+| [`migrating-talend-to-dbt`](skills/migrating-talend-to-dbt) | Talend ETL jobs (`.item` XML exports) |
+| [`migrating-stored-procedures-to-dbt`](skills/migrating-stored-procedures-to-dbt) | SQL stored procedures (Snowflake, BigQuery, Databricks, T-SQL, PL/SQL) |
+| [`migrating-matillion-to-dbt`](skills/migrating-matillion-to-dbt) | Matillion pipelines/jobs — DPC YAML (`.tran.yaml`/`.orch.yaml`), Matillion ETL JSON (export + git per-job forms), CDC/streaming, shared jobs |
+| [`migrating-coalesce-to-dbt`](skills/migrating-coalesce-to-dbt) | Coalesce.io projects (Git-committed YAML nodes) — Source/Stage/Dimension(SCD1/2)/Fact/View nodes → models, snapshots, sources |
+| [`legacy-to-dbt-migration-foundations`](skills/legacy-to-dbt-migration-foundations) | *Shared reference library* — not invoked directly; the five migration skills link to it |
 
 ## How they fit together
 
-The four migration skills share the same 8-step workflow and defer the common steps to
+The five migration skills share the same 8-step workflow and defer the common steps to
 `legacy-to-dbt-migration-foundations`:
 
 - **Step 0** — Detect environment & cloud (Snowflake / Databricks / BigQuery / Redshift; Fusion vs Core)
@@ -47,7 +47,7 @@ nested spec).
 **Uses the dbt package ecosystem** (all Fusion-checked): **codegen** to scaffold sources/models/YAML,
 **audit_helper** to prove legacy-vs-dbt parity, **dbt_utils** + **dbt_expectations** for tests,
 **dbt_project_evaluator** as the quality gate, **datavault4dbt**/**dbt_date** per modeling approach — see
-`legacy-to-dbt-migration-foundations/references/dbt-packages.md`.
+`skills/legacy-to-dbt-migration-foundations/references/dbt-packages.md`.
 
 ## Target modeling approach (Step 2)
 
@@ -61,8 +61,8 @@ then generates the dbt models accordingly:
 - **Star schema (pragmatic)** — facts + dimensions for a focused subject area.
 
 The generation for each paradigm lives in the **shared foundations skill's references** — not as
-separate skills — so the install is just the four migration skills + foundations:
-`legacy-to-dbt-migration-foundations/references/target-modeling.md` (legacy→paradigm mapping +
+separate skills — so the install is just the five migration skills + foundations:
+`skills/legacy-to-dbt-migration-foundations/references/target-modeling.md` (legacy→paradigm mapping +
 performance), `building-datavault.md`, `building-kimball.md`, `building-starschema.md`.
 
 > **Data Vault path:** `building-datavault.md` is **distilled** from Scalefree's
@@ -73,7 +73,15 @@ performance), `building-datavault.md`, `building-kimball.md`, `building-starsche
 
 ## Install
 
-**One command** — installs (or updates) all five skills, then restart your agent:
+The skills live under `skills/<name>/` — the standard [Agent Skills](https://agentskills.io/specification)
+layout — so any skills tool can install them straight from GitHub, from anywhere:
+
+```bash
+npx skills add hicham-bab/dbt-legacy-migration-skills   # vercel-labs/skills
+# or:  gh skill install hicham-bab/dbt-legacy-migration-skills
+```
+
+**Or the bundled one-liner** (installs/updates all six skills, then restart your agent):
 
 ```bash
 git clone https://github.com/hicham-bab/dbt-legacy-migration-skills.git
@@ -81,21 +89,20 @@ cd dbt-legacy-migration-skills && ./install.sh          # dbt Wizard (~/.dbt/wiz
 #                                  ./install.sh --claude # Claude Code (~/.agents/skills)
 ```
 
-`install.sh` copies just the five skill folders into your skills directory and leaves everything
-else untouched. **It's safe to re-run to update** — it cleanly replaces only these folders. (Use
-`--dest <path>` for a custom location.) After it finishes, **restart the agent** so it reloads the
-skill list.
+`install.sh` copies just the six skill folders (from `skills/`) into your skills directory and leaves
+everything else untouched. **It's safe to re-run to update** — it cleanly replaces only these folders.
+(Use `--dest <path>` for a custom location.) After it finishes, **restart the agent** so it reloads
+the skill list.
 
-<details><summary>Alternatives (no script)</summary>
+<details><summary>Manual copy</summary>
 
-- **From inside dbt Wizard**, ask it to install with the built-in installer:
-  `install-skill-from-github.py --repo hicham-bab/dbt-legacy-migration-skills --path legacy-to-dbt-migration-foundations migrating-informatica-to-dbt migrating-talend-to-dbt migrating-stored-procedures-to-dbt migrating-matillion-to-dbt`
-  (clean download; note it aborts if a skill folder already exists, so remove the old ones first when updating).
-- **Manual copy:** `cp -R {legacy-to-dbt-migration-foundations,migrating-*} ~/.dbt/wizard/skills/`.
+```bash
+cp -R skills/* ~/.dbt/wizard/skills/
+```
 
 </details>
 
-Install **all five together** — the four migration skills reference
+Install **all six together** — the five migration skills reference
 `legacy-to-dbt-migration-foundations` by relative path, so it must sit alongside them.
 
 ## Usage
