@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
   "label": "evals",
-  "message": "25/25 passing",
+  "message": "29/29 passing",
   "color": "brightgreen",
-  "generated_at": "2026-07-22 10:04 UTC",
-  "commit": "439bf3d",
+  "generated_at": "2026-07-22 10:08 UTC",
+  "commit": "10af3c2",
   "summary": {
-    "passed": 25,
-    "total": 25,
+    "passed": 29,
+    "total": 29,
     "all_green": true
   },
   "by_group": {
@@ -28,12 +28,12 @@
       "total": 1
     },
     "coalesce": {
-      "passed": 6,
-      "total": 6
+      "passed": 9,
+      "total": 9
     },
     "proc": {
-      "passed": 5,
-      "total": 5
+      "passed": 6,
+      "total": 6
     }
   },
   "checks": [
@@ -147,6 +147,12 @@
     },
     {
       "group": "coalesce",
+      "name": "coalesce: kinds keyed off sqlType (source/stage/dimension_scd2/fact)",
+      "passed": true,
+      "detail": null
+    },
+    {
+      "group": "coalesce",
       "name": "coalesce: column lineage resolved (DIM <- STG_CUSTOMERS)",
       "passed": true,
       "detail": null
@@ -154,6 +160,18 @@
     {
       "group": "coalesce",
       "name": "coalesce: business key extracted",
+      "passed": true,
+      "detail": null
+    },
+    {
+      "group": "coalesce",
+      "name": "coalesce: SCD2 via isChangeTracking column",
+      "passed": true,
+      "detail": null
+    },
+    {
+      "group": "coalesce",
+      "name": "coalesce: dimension sqlType surfaced",
       "passed": true,
       "detail": null
     },
@@ -184,6 +202,12 @@
     {
       "group": "proc",
       "name": "proc: dynamic ANALYZE classified as maintenance(drop)",
+      "passed": true,
+      "detail": null
+    },
+    {
+      "group": "proc",
+      "name": "proc: scalar_var doesn't over-match UPDATE/MERGE SET clauses (== 2)",
       "passed": true,
       "detail": null
     }
