@@ -1,0 +1,191 @@
+{
+  "schemaVersion": 1,
+  "label": "evals",
+  "message": "25/25 passing",
+  "color": "brightgreen",
+  "generated_at": "2026-07-22 10:04 UTC",
+  "commit": "439bf3d",
+  "summary": {
+    "passed": 25,
+    "total": 25,
+    "all_green": true
+  },
+  "by_group": {
+    "talend": {
+      "passed": 6,
+      "total": 6
+    },
+    "informatica": {
+      "passed": 4,
+      "total": 4
+    },
+    "matillion(METL)": {
+      "passed": 3,
+      "total": 3
+    },
+    "matillion(DPC)": {
+      "passed": 1,
+      "total": 1
+    },
+    "coalesce": {
+      "passed": 6,
+      "total": 6
+    },
+    "proc": {
+      "passed": 5,
+      "total": 5
+    }
+  },
+  "checks": [
+    {
+      "group": "talend",
+      "name": "talend: 1 job",
+      "passed": true,
+      "detail": null
+    },
+    {
+      "group": "talend",
+      "name": "talend: 5 components",
+      "passed": true,
+      "detail": null
+    },
+    {
+      "group": "talend",
+      "name": "talend: coverage denom = 4 SQL (tSendMail excluded)",
+      "passed": true,
+      "detail": null
+    },
+    {
+      "group": "talend",
+      "name": "talend: 1 out-of-scope (tSendMail)",
+      "passed": true,
+      "detail": null
+    },
+    {
+      "group": "talend",
+      "name": "talend: ON_SUBJOB_OK classified as trigger",
+      "passed": true,
+      "detail": null
+    },
+    {
+      "group": "talend",
+      "name": "talend: LOOKUP/FLOW classified as dataflow",
+      "passed": true,
+      "detail": null
+    },
+    {
+      "group": "informatica",
+      "name": "informatica: 2 mappings",
+      "passed": true,
+      "detail": null
+    },
+    {
+      "group": "informatica",
+      "name": "informatica: coverage denom = 2",
+      "passed": true,
+      "detail": null
+    },
+    {
+      "group": "informatica",
+      "name": "informatica: SCD2 mapping detected (Update Strategy)",
+      "passed": true,
+      "detail": null
+    },
+    {
+      "group": "informatica",
+      "name": "informatica: non-glue transforms counted",
+      "passed": true,
+      "detail": null
+    },
+    {
+      "group": "matillion(METL)",
+      "name": "matillion(METL): 2 units (orch+tran)",
+      "passed": true,
+      "detail": null
+    },
+    {
+      "group": "matillion(METL)",
+      "name": "matillion(METL): coverage denom = 2 transformation comps",
+      "passed": true,
+      "detail": null
+    },
+    {
+      "group": "matillion(METL)",
+      "name": "matillion(METL): EL ingestion (S3 Load) flagged out of scope",
+      "passed": true,
+      "detail": null
+    },
+    {
+      "group": "matillion(DPC)",
+      "name": "matillion(DPC): coverage denom = 4 transformation comps",
+      "passed": true,
+      "detail": null
+    },
+    {
+      "group": "coalesce",
+      "name": "coalesce: 4 nodes",
+      "passed": true,
+      "detail": null
+    },
+    {
+      "group": "coalesce",
+      "name": "coalesce: coverage denom = 3 (non-source)",
+      "passed": true,
+      "detail": null
+    },
+    {
+      "group": "coalesce",
+      "name": "coalesce: SCD2 dimension detected",
+      "passed": true,
+      "detail": null
+    },
+    {
+      "group": "coalesce",
+      "name": "coalesce: source classified",
+      "passed": true,
+      "detail": null
+    },
+    {
+      "group": "coalesce",
+      "name": "coalesce: column lineage resolved (DIM <- STG_CUSTOMERS)",
+      "passed": true,
+      "detail": null
+    },
+    {
+      "group": "coalesce",
+      "name": "coalesce: business key extracted",
+      "passed": true,
+      "detail": null
+    },
+    {
+      "group": "proc",
+      "name": "proc: temp_table flagged",
+      "passed": true,
+      "detail": null
+    },
+    {
+      "group": "proc",
+      "name": "proc: merge flagged",
+      "passed": true,
+      "detail": null
+    },
+    {
+      "group": "proc",
+      "name": "proc: cursor_loop flagged",
+      "passed": true,
+      "detail": null
+    },
+    {
+      "group": "proc",
+      "name": "proc: dynamic_sql flagged",
+      "passed": true,
+      "detail": null
+    },
+    {
+      "group": "proc",
+      "name": "proc: dynamic ANALYZE classified as maintenance(drop)",
+      "passed": true,
+      "detail": null
+    }
+  ]
+}
