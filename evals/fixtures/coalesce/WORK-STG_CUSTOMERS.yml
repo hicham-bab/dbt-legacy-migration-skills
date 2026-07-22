@@ -4,6 +4,8 @@ name: STG_CUSTOMERS
 operation:
   locationName: WORK
   materializationType: view
+  sqlType: Stage
+  type: sql
   config:
     type2Dimension: false
     truncateBefore: true

@@ -17,10 +17,10 @@ real `coalesceio` node format.
 | Coalesce node | dbt object / materialization |
 |---|---|
 | **Source** | `sources:` entry in `_sources.yml` (+ optional `stg_` model) |
-| **Stage / Work** (`truncateBefore: true`) | staging model, `materialized='view'` (truncate+reload ≈ view/table rebuilt each run) |
-| **Persistent Stage** (history, business key) | dbt **snapshot** if it preserves history; else `incremental` |
-| **Dimension — SCD1** | `dim_` model, `materialized='table'` (or `incremental` merge on the business key) |
-| **Dimension — SCD2** (`type2Dimension: true`) | dbt **snapshot** feeding a `dim_` (see below) |
+| **Stage** (`sqlType: Stage`, `truncateBefore: true`) | staging model, `materialized='view'` (truncate+reload ≈ view/table rebuilt each run) |
+| **Persistent Stage** (`sqlType: Persistent Stage`; history, business key) | dbt **snapshot** if it preserves history; else `incremental` |
+| **Dimension — SCD1** (`sqlType: Dimension`, no change-tracking column) | `dim_` model, `materialized='table'` (or `incremental` merge on the business key) |
+| **Dimension — SCD2** (`sqlType: Dimension` + a `isChangeTracking` column) | dbt **snapshot** feeding a `dim_` (see below) |
 | **Fact / Factless Fact** | `fct_` model, `materialized='incremental'` (merge on the business key) |
 | **View** | model, `materialized='view'` |
 | **Node type** (create/run `.j2` templates) | dbt **materialization** + **macros** (usually the built-in materializations cover it) |
@@ -33,8 +33,10 @@ targets, so the dialect maps directly.
 
 ## SCD2 dimensions → snapshots
 
-A Coalesce **Dimension with `config.type2Dimension: true`** keeps version history via a MERGE (or a
-Dynamic-Table variant). Migrate it to a dbt **snapshot**, not a hand-built model:
+A Coalesce **Dimension node** ([docs](https://docs.coalesce.io/docs/get-started/coalesce-fundamentals/nodes))
+is **Type 2** when it has a **change-tracking column selected** (`isChangeTracking: true` on one or
+more columns); it keeps version history via a MERGE. Migrate it to a dbt **snapshot**, not a
+hand-built model:
 
 ```yaml
 snapshots:
@@ -42,24 +44,26 @@ snapshots:
     relation: ref('stg_customers')
     config:
       unique_key: customer_id            # the isBusinessKey column
-      # lastModifiedComparison + lastModifiedColumn  -> strategy: timestamp
-      strategy: timestamp
-      updated_at: last_modified_ts
-      # or, if change is tracked by comparing columns (changeTrackingColumns):
-      # strategy: check
-      # check_cols: [customer_name, segment]
+      # default: compare the change-tracking columns Coalesce tracks
+      strategy: check
+      check_cols: [customer_name, segment]   # the isChangeTracking columns
+      # or, if the node tracks change by a last-modified timestamp:
+      # strategy: timestamp
+      # updated_at: last_modified_ts
 ```
 
-Map the config: `lastModifiedComparison`/`lastModifiedColumn` → `strategy: timestamp` + `updated_at`;
-`changeTrackingColumns` → `strategy: check` + `check_cols`; the `isBusinessKey` column →
-`unique_key`. Coalesce's auto system columns (`<NODE>_KEY` surrogate, `SYSTEM_VERSION`,
+Map the config: the **`isChangeTracking` columns** → `strategy: check` + `check_cols` (or
+`strategy: timestamp` + `updated_at` when a single last-modified column drives it); the
+`isBusinessKey` column → `unique_key`. Coalesce's auto system columns (`<NODE>_KEY` surrogate,
+`SYSTEM_VERSION`,
 record-start/end) are provided by the snapshot's `dbt_valid_from`/`dbt_valid_to` + a
 `generate_surrogate_key` — don't hand-build them. **SCD1** dimension → a plain `table` model.
 
 ## Columns, transforms & keys
 
 - Each target column = `<transform> AS <name>` in the SELECT; resolve its
-  `sourceColumnReferences.columnReferences[].columnCounter` to the upstream node → a `ref()`/`source()`.
+  `sourceColumnReferences.columnReferences[].stepCounter` (the upstream **node** id — *not*
+  `columnCounter`, which is the upstream column id) to the upstream node → a `ref()`/`source()`.
 - `isBusinessKey` columns → the model grain: `unique` + `not_null` tests; `unique_key` for
   incremental/snapshot.
 - `isSurrogateKey` columns → `{{ dbt_utils.generate_surrogate_key([<business keys>]) }}`.
@@ -88,11 +92,11 @@ select
 from source
 ```
 ```yaml
-# snapshots/dim_customer_snapshot.yml  (Dimension node, type2Dimension: true)
+# snapshots/dim_customer_snapshot.yml  (Dimension node with an isChangeTracking column -> Type 2)
 snapshots:
   - name: dim_customer_snapshot
     relation: ref('stg_customers')
-    config: {unique_key: customer_id, strategy: timestamp, updated_at: last_modified_ts}
+    config: {unique_key: customer_id, strategy: check, check_cols: [customer_name, segment]}
 ```
 The Fact node (`FCT_ORDERS`, business key `ORDER_ID`, FK `DIM_CUSTOMER_KEY`) becomes an
 `incremental` `fct_orders` that joins `ref('dim_customer')` for the surrogate key — see foundations →

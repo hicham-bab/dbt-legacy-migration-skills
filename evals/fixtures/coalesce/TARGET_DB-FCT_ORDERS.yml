@@ -4,6 +4,8 @@ name: FCT_ORDERS
 operation:
   locationName: TARGET_DB
   materializationType: table
+  sqlType: Fact
+  type: sql
   config:
     type2Dimension: false
   metadata:

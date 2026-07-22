@@ -97,10 +97,17 @@ try:
     check("coalesce: coverage denom = 3 (non-source)", s["coverage_denominator"] == 3, s["coverage_denominator"])
     check("coalesce: SCD2 dimension detected", "DIM_CUSTOMER_SCD2" in s["scd2_dimensions"], s["scd2_dimensions"])
     check("coalesce: source classified", s["by_kind"].get("source") == 1, s["by_kind"])
+    # classification is driven by operation.sqlType (the node-type discriminator)
+    check("coalesce: kinds keyed off sqlType (source/stage/dimension_scd2/fact)",
+          s["by_kind"] == {"source": 1, "stage": 1, "dimension_scd2": 1, "fact": 1}, s["by_kind"])
     dim = next((n for n in inv["nodes"] if n["name"] == "DIM_CUSTOMER_SCD2"), {})
     check("coalesce: column lineage resolved (DIM <- STG_CUSTOMERS)",
           "STG_CUSTOMERS" in dim.get("upstream_nodes", []), dim.get("upstream_nodes"))
     check("coalesce: business key extracted", dim.get("business_keys") == ["CUSTOMER_ID"], dim.get("business_keys"))
+    # SCD Type 2 is detected from a change-tracking column (docs: "Type 2 = change tracking column")
+    check("coalesce: SCD2 via isChangeTracking column", dim.get("change_tracking_keys") == ["SEGMENT_EFFECTIVE_FROM"],
+          dim.get("change_tracking_keys"))
+    check("coalesce: dimension sqlType surfaced", dim.get("sql_type") == "Dimension", dim.get("sql_type"))
 except ImportError:
     results.append(("coalesce: SKIPPED (pyyaml not installed)", True, "install pyyaml to cover"))
 except Exception as e:
