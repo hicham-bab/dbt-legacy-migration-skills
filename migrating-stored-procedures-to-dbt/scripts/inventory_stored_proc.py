@@ -20,15 +20,18 @@ PATTERNS = [
     ("target_rebuild",   r"\bCREATE\s+OR\s+REPLACE\s+TABLE\s+([A-Za-z0-9_.]+)", "-> table model (full rebuild)"),
     ("temp_table",       r"\bCREATE\s+(?:OR\s+REPLACE\s+)?(?:TEMP|TEMPORARY|GLOBAL TEMPORARY|VOLATILE)\s+TABLE\s+([A-Za-z0-9_.#]+)", "-> CTE or int_ model"),
     ("merge",            r"\bMERGE\s+INTO\s+([A-Za-z0-9_.]+)", "-> incremental (plain) / model explicitly (conditional)"),
-    ("insert",           r"\bINSERT\s+(?:INTO\s+)?([A-Za-z0-9_.]+)", "-> incremental append / part of a model"),
+    ("insert",           r"\bINSERT\s+INTO\s+([A-Za-z0-9_.]+)", "-> incremental append / part of a model"),
     ("update",           r"\bUPDATE\s+([A-Za-z0-9_.]+)\s+SET", "-> set-based column / merge"),
     ("cursor_loop",      r"\b(FOR\s+\w+\s+IN|WHILE\s+|LOOP\b|OPEN\s+\w+\s+CURSOR|CURSOR\s+FOR)", "-> set-based query (or residual if stateful)"),
     ("if_branch",        r"\bIF\s+.+?\bTHEN\b", "-> case when / separate models"),
     ("dynamic_sql",      r"\b(EXECUTE\s+IMMEDIATE|sp_executesql|EXEC\s*\()", "RESIDUAL (transform) or DROP (DDL/maintenance)"),
-    ("scalar_var",       r"^\s*(?:DECLARE\s+\w+|SET\s+\w+\s*:?=|\w+\s*:=)", "-> CTE computing the value"),
+    # scalar var = DECLARE, T-SQL `SET @var =`, or `var :=` assignment.
+    # NOT `SET col = ...` (that's an UPDATE ... SET clause, not a variable).
+    ("scalar_var",       r"(?:^\s*DECLARE\s+@?\w+|^\s*SET\s+@\w+\s*=|\b[A-Za-z_]\w*\s*:=)", "-> CTE computing the value"),
 ]
-# dynamic-SQL bodies that are DDL/maintenance -> DROP (not residual)
-MAINT_RE = re.compile(r"(ANALYZE|GRANT|CREATE\s+INDEX|VACUUM|GATHER_TABLE_STATS)", re.I)
+# dynamic-SQL whose body is DDL/maintenance -> DROP (not a transform residual)
+MAINT_RE = re.compile(r"\b(DROP|CREATE|ALTER|TRUNCATE|RENAME|COMMENT|GRANT|REVOKE|ANALYZE|VACUUM|"
+                      r"GATHER_TABLE_STATS)\b", re.I)
 
 
 def scan(path: Path) -> dict:
@@ -39,6 +42,9 @@ def scan(path: Path) -> dict:
     hits = {}
     for label, rx, note in PATTERNS:
         found = re.findall(rx, body, flags=re.I | re.M)
+        if label == "if_branch":
+            # drop PL/SQL exception guards (IF SQLCODE ... THEN) — not data branches
+            found = [f for f in found if "SQLCODE" not in (f if isinstance(f, str) else f[0]).upper()]
         if found:
             hits[label] = {"count": len(found), "note": note,
                            "targets": sorted({f if isinstance(f, str) else f[0]

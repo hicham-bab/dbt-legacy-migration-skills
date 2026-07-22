@@ -117,6 +117,11 @@ try:
     check("proc: dynamic_sql flagged", "dynamic_sql" in c, list(c))
     check("proc: dynamic ANALYZE classified as maintenance(drop)",
           any("maintenance(drop)" in d for d in sc["dynamic_sql_detail"]), sc["dynamic_sql_detail"])
+    # regression (from real-proc verification): UPDATE/MERGE `SET col = ...` must NOT be counted as
+    # scalar variables — only DECLARE / SET @var / `:=` assignments are. The fixture's only real
+    # scalar bits are `DECLARE cutoff` + `cutoff :=` (2); the MERGE's `SET ltv_90d=` must not leak.
+    sv = c.get("scalar_var", {}).get("count", 0)
+    check("proc: scalar_var doesn't over-match UPDATE/MERGE SET clauses (== 2)", sv == 2, sv)
 except Exception as e:
     check("proc: scanner ran", False, repr(e))
 
