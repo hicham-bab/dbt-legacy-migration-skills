@@ -1,9 +1,9 @@
-# Building a Kimball dimensional model (Step 3, architecture = Kimball)
+# Building a Kimball dimensional model (Step 3, modeling approach = Kimball)
 
 Generate conformed **dimensions** + **fact** tables laid out as star schemas, dbt-native
 (`dbt_utils.generate_surrogate_key` + snapshots; add `godatadriven/dbt_date` for a calendar dim —
 see [dbt-packages.md](dbt-packages.md)). The legacy→dim/fact mapping is in
-[target-architecture.md](target-architecture.md#kimball-dimensional); this reference is the *how*.
+[target-modeling.md](target-modeling.md#kimball-dimensional); this reference is the *how*.
 
 ## Contents
 

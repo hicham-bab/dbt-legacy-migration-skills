@@ -1,9 +1,9 @@
-# Building a star schema (Step 3, architecture = Star)
+# Building a star schema (Step 3, modeling approach = Star)
 
 One star for one subject area: a single `fct_` + its `dim_`s, minimal ceremony. Same building blocks
 as [building-kimball.md](building-kimball.md) without the conformed-dimension / bus-matrix program —
 use this for a focused mart or a quick BI-friendly migration. The legacy→dim/fact mapping is in
-[target-architecture.md](target-architecture.md#star-schema).
+[target-modeling.md](target-modeling.md#star-schema).
 
 ## Approach
 
