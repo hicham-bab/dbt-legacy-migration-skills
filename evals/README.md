@@ -29,7 +29,7 @@ python3 evals/run_evals.py --write     # also regenerates RESULTS.md + results.j
 Parsers under test:
 | Source | Script |
 |--------|--------|
-| Talend | `migrating-talend-to-dbt/scripts/inventory_talend.py` |
-| Informatica | `migrating-informatica-to-dbt/scripts/inventory_informatica.py` |
-| Matillion | `migrating-matillion-to-dbt/scripts/inventory_matillion.py` |
-| Stored procedures | `migrating-stored-procedures-to-dbt/scripts/inventory_stored_proc.py` (heuristic scan) |
+| Talend | `skills/migrating-talend-to-dbt/scripts/inventory_talend.py` |
+| Informatica | `skills/migrating-informatica-to-dbt/scripts/inventory_informatica.py` |
+| Matillion | `skills/migrating-matillion-to-dbt/scripts/inventory_matillion.py` |
+| Stored procedures | `skills/migrating-stored-procedures-to-dbt/scripts/inventory_stored_proc.py` (heuristic scan) |

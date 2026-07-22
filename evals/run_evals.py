@@ -34,7 +34,7 @@ def check(name, cond, detail=""):
 
 # --- Talend --------------------------------------------------------------
 try:
-    inv = run_json("migrating-talend-to-dbt/scripts/inventory_talend.py", FIX / "talend")
+    inv = run_json("skills/migrating-talend-to-dbt/scripts/inventory_talend.py", FIX / "talend")
     s = inv["summary"]
     check("talend: 1 job", s["job_count"] == 1, s["job_count"])
     check("talend: 5 components", s["total_components"] == 5, s["total_components"])
@@ -52,7 +52,7 @@ except Exception as e:
 
 # --- Informatica ---------------------------------------------------------
 try:
-    inv = run_json("migrating-informatica-to-dbt/scripts/inventory_informatica.py", FIX / "informatica" / "mini_edw.XML")
+    inv = run_json("skills/migrating-informatica-to-dbt/scripts/inventory_informatica.py", FIX / "informatica" / "mini_edw.XML")
     s = inv["summary"]
     check("informatica: 2 mappings", s["mapping_count"] == 2, s["mapping_count"])
     check("informatica: coverage denom = 2", s["coverage_denominator"] == 2, s["coverage_denominator"])
@@ -66,7 +66,7 @@ except Exception as e:
 
 # --- Matillion METL JSON (stdlib, always) --------------------------------
 try:
-    inv = run_json("migrating-matillion-to-dbt/scripts/inventory_matillion.py", FIX / "matillion" / "load.orch.export.json")
+    inv = run_json("skills/migrating-matillion-to-dbt/scripts/inventory_matillion.py", FIX / "matillion" / "load.orch.export.json")
     s = inv["summary"]
     check("matillion(METL): 2 units (orch+tran)", s["unit_count"] == 2, s["unit_count"])
     check("matillion(METL): coverage denom = 2 transformation comps",
@@ -79,7 +79,7 @@ except Exception as e:
 # --- Matillion DPC YAML (needs pyyaml; skip-with-note otherwise) ---------
 try:
     import yaml  # noqa: F401
-    inv = run_json("migrating-matillion-to-dbt/scripts/inventory_matillion.py", FIX / "matillion" / "build_marts.tran.yaml")
+    inv = run_json("skills/migrating-matillion-to-dbt/scripts/inventory_matillion.py", FIX / "matillion" / "build_marts.tran.yaml")
     s = inv["summary"]
     check("matillion(DPC): coverage denom = 4 transformation comps",
           s["coverage_denominator"] == 4, s["coverage_denominator"])
@@ -91,7 +91,7 @@ except Exception as e:
 # --- Coalesce (needs pyyaml; skip-with-note otherwise) -------------------
 try:
     import yaml  # noqa: F401
-    inv = run_json("migrating-coalesce-to-dbt/scripts/inventory_coalesce.py", FIX / "coalesce")
+    inv = run_json("skills/migrating-coalesce-to-dbt/scripts/inventory_coalesce.py", FIX / "coalesce")
     s = inv["summary"]
     check("coalesce: 4 nodes", s["node_count"] == 4, s["node_count"])
     check("coalesce: coverage denom = 3 (non-source)", s["coverage_denominator"] == 3, s["coverage_denominator"])
@@ -115,7 +115,7 @@ except Exception as e:
 
 # --- Stored proc (heuristic scan) ----------------------------------------
 try:
-    inv = run_json("migrating-stored-procedures-to-dbt/scripts/inventory_stored_proc.py", FIX / "stored_proc" / "refresh_metrics.sql")
+    inv = run_json("skills/migrating-stored-procedures-to-dbt/scripts/inventory_stored_proc.py", FIX / "stored_proc" / "refresh_metrics.sql")
     sc = inv["procedures"][0]
     c = sc["constructs"]
     check("proc: temp_table flagged", "temp_table" in c, list(c))
