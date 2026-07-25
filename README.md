@@ -73,15 +73,20 @@ performance), `building-datavault.md`, `building-kimball.md`, `building-starsche
 
 ## Install
 
-The skills live under `skills/<name>/` - the standard [Agent Skills](https://agentskills.io/specification)
-layout - so any skills tool can install them straight from GitHub, from anywhere:
+> **Run these in your terminal, not inside the dbt Wizard prompt.** Installing skills is just file
+> copying into `~/.dbt/wizard/skills/`; it needs no login and no model call. Pasting the commands into
+> the Wizard chat only makes the Wizard spend a model call to run shell for you (and fails if your
+> dbt Platform auth is not set up). After installing, **restart the Wizard** so it reloads the skills.
+
+The skills live under `skills/<name>/`, the standard [Agent Skills](https://agentskills.io/specification)
+layout, so any skills tool can install them straight from GitHub, from anywhere:
 
 ```bash
 npx skills add hicham-bab/dbt-legacy-migration-skills   # vercel-labs/skills
 # or:  gh skill install hicham-bab/dbt-legacy-migration-skills
 ```
 
-**Or the bundled one-liner** (installs/updates all six skills, then restart your agent):
+**Or the bundled one-liner** (installs/updates all six skills):
 
 ```bash
 git clone https://github.com/hicham-bab/dbt-legacy-migration-skills.git
@@ -90,9 +95,9 @@ cd dbt-legacy-migration-skills && ./install.sh          # dbt Wizard (~/.dbt/wiz
 ```
 
 `install.sh` copies just the six skill folders (from `skills/`) into your skills directory and leaves
-everything else untouched. **It's safe to re-run to update** - it cleanly replaces only these folders.
-(Use `--dest <path>` for a custom location.) After it finishes, **restart the agent** so it reloads
-the skill list.
+everything else untouched. If you run it outside a clone it fetches the skills from GitHub for you.
+**It's safe to re-run to update**; it cleanly replaces only these folders. (Use `--dest <path>` for a
+custom location.) After it finishes, **restart the agent** so it reloads the skill list.
 
 <details><summary>Manual copy</summary>
 
