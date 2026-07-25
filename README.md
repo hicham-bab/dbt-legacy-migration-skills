@@ -123,6 +123,20 @@ Once installed, ask the agent to migrate a project and point it at the source ar
 The skill runs the 8-step workflow, asks which cloud you're targeting, and produces the dbt
 models, tests, docs, a parity check, a cost comparison, and a coverage report.
 
+**Grant approval up front.** A migration is a multi-step run (it writes models and runs `dbt`), so
+approve it once at the start rather than at every command. Start the Wizard with a
+workspace-scoped sandbox and on-request approvals:
+
+```bash
+dbt-wizard --sandbox workspace-write --ask-for-approval on-request
+```
+
+That lets the Wizard write files and run `dbt` inside your project without prompting each time,
+while still escalating anything risky or outside the workspace (in the interactive TUI you can pick
+the same posture from the approval prompt at the start). Use a fully unattended posture
+(`--ask-for-approval never`, or `--dangerously-bypass-approvals-and-sandbox` for an externally
+sandboxed/CI run) only in a throwaway environment you trust end to end.
+
 ## Scope & caveats
 
 - **Only transformation logic migrates to dbt.** Ingestion/extract-load (Informatica sessions
