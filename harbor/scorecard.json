@@ -1,0 +1,215 @@
+{
+  "tasks": [
+    {
+      "task": "migrate-coalesce-to-dbt",
+      "total": 1.0,
+      "dimensions": [
+        {
+          "name": "build",
+          "score": 1.0,
+          "weight": 0.0,
+          "ran": true,
+          "detail": "dbt build succeeded"
+        },
+        {
+          "name": "parity",
+          "score": 1.0,
+          "weight": 3.0,
+          "ran": true,
+          "detail": "mart_dim_customer: \u2713 4 rows; mart_fct_orders: \u2713 5 rows"
+        },
+        {
+          "name": "coverage",
+          "score": 1.0,
+          "weight": 1.5,
+          "ran": true,
+          "detail": "5/5 required models present"
+        },
+        {
+          "name": "structural",
+          "score": 1.0,
+          "weight": 1.0,
+          "ran": true,
+          "detail": "tests 100% \u00b7 docs 100% \u00b7 layering yes"
+        },
+        {
+          "name": "judge",
+          "score": 0.0,
+          "weight": 1.0,
+          "ran": false,
+          "detail": "skipped (no judge backend: install dbt-wizard or set ANTHROPIC_API_KEY)"
+        }
+      ],
+      "reward": 1
+    },
+    {
+      "task": "migrate-informatica-to-dbt",
+      "total": 1.0,
+      "dimensions": [
+        {
+          "name": "build",
+          "score": 1.0,
+          "weight": 0.0,
+          "ran": true,
+          "detail": "dbt build succeeded"
+        },
+        {
+          "name": "parity",
+          "score": 1.0,
+          "weight": 3.0,
+          "ran": true,
+          "detail": "mart_fct_customer_orders: \u2713 3 rows"
+        },
+        {
+          "name": "coverage",
+          "score": 1.0,
+          "weight": 1.5,
+          "ran": true,
+          "detail": "2/2 required models present"
+        },
+        {
+          "name": "structural",
+          "score": 1.0,
+          "weight": 1.0,
+          "ran": true,
+          "detail": "tests 100% \u00b7 docs 100% \u00b7 layering yes"
+        },
+        {
+          "name": "judge",
+          "score": 0.0,
+          "weight": 1.0,
+          "ran": false,
+          "detail": "skipped (no judge backend: install dbt-wizard or set ANTHROPIC_API_KEY)"
+        }
+      ],
+      "reward": 1
+    },
+    {
+      "task": "migrate-matillion-to-dbt",
+      "total": 1.0,
+      "dimensions": [
+        {
+          "name": "build",
+          "score": 1.0,
+          "weight": 0.0,
+          "ran": true,
+          "detail": "dbt build succeeded"
+        },
+        {
+          "name": "parity",
+          "score": 1.0,
+          "weight": 3.0,
+          "ran": true,
+          "detail": "mart_fct_orders: \u2713 5 rows; mart_agg_customer_sales: \u2713 3 rows"
+        },
+        {
+          "name": "coverage",
+          "score": 1.0,
+          "weight": 1.5,
+          "ran": true,
+          "detail": "5/5 required models present"
+        },
+        {
+          "name": "structural",
+          "score": 1.0,
+          "weight": 1.0,
+          "ran": true,
+          "detail": "tests 100% \u00b7 docs 100% \u00b7 layering yes"
+        },
+        {
+          "name": "judge",
+          "score": 0.0,
+          "weight": 1.0,
+          "ran": false,
+          "detail": "skipped (no judge backend: install dbt-wizard or set ANTHROPIC_API_KEY)"
+        }
+      ],
+      "reward": 1
+    },
+    {
+      "task": "migrate-stored-proc-to-dbt",
+      "total": 1.0,
+      "dimensions": [
+        {
+          "name": "build",
+          "score": 1.0,
+          "weight": 0.0,
+          "ran": true,
+          "detail": "dbt build succeeded"
+        },
+        {
+          "name": "parity",
+          "score": 1.0,
+          "weight": 3.0,
+          "ran": true,
+          "detail": "mart_customer_ltv: \u2713 3 rows"
+        },
+        {
+          "name": "coverage",
+          "score": 1.0,
+          "weight": 1.5,
+          "ran": true,
+          "detail": "3 models / 2 inventoried units = 100%"
+        },
+        {
+          "name": "structural",
+          "score": 1.0,
+          "weight": 1.0,
+          "ran": true,
+          "detail": "tests 100% \u00b7 docs 100% \u00b7 layering yes"
+        },
+        {
+          "name": "judge",
+          "score": 0.0,
+          "weight": 1.0,
+          "ran": false,
+          "detail": "skipped (no judge backend: install dbt-wizard or set ANTHROPIC_API_KEY)"
+        }
+      ],
+      "reward": 1
+    },
+    {
+      "task": "migrate-talend-to-dbt",
+      "total": 1.0,
+      "dimensions": [
+        {
+          "name": "build",
+          "score": 1.0,
+          "weight": 0.0,
+          "ran": true,
+          "detail": "dbt build succeeded"
+        },
+        {
+          "name": "parity",
+          "score": 1.0,
+          "weight": 3.0,
+          "ran": true,
+          "detail": "mart_customer_revenue: \u2713 3 rows"
+        },
+        {
+          "name": "coverage",
+          "score": 1.0,
+          "weight": 1.5,
+          "ran": true,
+          "detail": "3/3 required models present"
+        },
+        {
+          "name": "structural",
+          "score": 1.0,
+          "weight": 1.0,
+          "ran": true,
+          "detail": "tests 100% \u00b7 docs 100% \u00b7 layering yes"
+        },
+        {
+          "name": "judge",
+          "score": 0.0,
+          "weight": 1.0,
+          "ran": false,
+          "detail": "skipped (no judge backend: install dbt-wizard or set ANTHROPIC_API_KEY)"
+        }
+      ],
+      "reward": 1
+    }
+  ],
+  "all_reward": true
+}

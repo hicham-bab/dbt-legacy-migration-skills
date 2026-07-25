@@ -1,1 +1,7 @@
 .DS_Store
+__pycache__/
+*.pyc
+
+# dbt Wizard OAuth creds staged into task build contexts — never commit live tokens
+harbor/*/environment/wizard-auth/*
+!harbor/*/environment/wizard-auth/.gitkeep

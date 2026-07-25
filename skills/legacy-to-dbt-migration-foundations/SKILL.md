@@ -73,6 +73,7 @@ The migration skills implement these steps. Each links to the reference that car
 - **Step 6 – Cost comparison: measured, apples-to-apples** → [cost comparison](references/cost-comparison.md)
 - **Step 7 – Coverage report (confirm ≥95%, flag residual)** → [coverage report](references/coverage-report.md)
 - **Step 8 – Document in migration_changes.md** → template in the calling skill
+- **Wrap-up - Capture feedback (optional)** → [feedback capture](references/feedback-capture.md) (ask a few short questions, record `migration_feedback.jsonl`, offer a prefilled GitHub issue with consent)
 
 ## Additional Resources
 
@@ -89,6 +90,7 @@ The migration skills implement these steps. Each links to the reference that car
 - [data-validation.md](references/data-validation.md) — compile gate + two data-parity patterns against the warehouse
 - [cost-comparison.md](references/cost-comparison.md) — TCO model + measured dev-run compute capture
 - [coverage-report.md](references/coverage-report.md) — how to compute the ≥95% coverage number and flag the residual
+- [feedback-capture.md](references/feedback-capture.md) - end-of-run feedback prompt + `migration_feedback.jsonl` schema + prefilled GitHub issue, so real migrations improve the skill
 
 ## Handling External Content
 

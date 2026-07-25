@@ -1,0 +1,33 @@
+{
+  "task": "migrate-matillion-to-dbt",
+  "profile": "matillion_demo",
+  "expected_models": ["stg_orders", "stg_customers", "int_completed_orders", "mart_fct_orders", "mart_agg_customer_sales"],
+  "marts": [
+    {
+      "name": "mart_fct_orders",
+      "key_cols": ["order_id"],
+      "compare_cols": ["customer_id", "net_amount", "customer_name", "region", "segment", "order_recency_rank"],
+      "numeric_cols": ["customer_id", "net_amount", "order_recency_rank"],
+      "expected": "expected_fct_orders.csv"
+    },
+    {
+      "name": "mart_agg_customer_sales",
+      "key_cols": ["customer_id"],
+      "compare_cols": ["total_net", "order_count"],
+      "numeric_cols": ["total_net", "order_count"],
+      "expected": "expected_agg_customer_sales.csv"
+    }
+  ],
+  "inventory": {
+    "script": "migrating-matillion-to-dbt/scripts/inventory_matillion.py",
+    "input": "legacy/build_sales_marts.tran.yaml",
+    "denom_key": "coverage_denominator"
+  },
+  "legacy_file": "legacy/build_sales_marts.tran.yaml",
+  "judge_rubric": [
+    {"name": "logic_fidelity", "description": "Do the marts reproduce the pipeline: net_amount = total-discount (calculator), completed-only filter, LEFT join to customers, row_number() by customer over order_date desc (rank), and SUM(net_amount)/COUNT per customer (aggregate)?"},
+    {"name": "decomposition", "description": "Are table-input components turned into staging models, the calculator+filter logic pushed into intermediate model(s) that the marts reuse, and the flow wired with ref()/source() - rather than duplicated logic or a monolith? Splitting related logic across two or more related intermediate models is good practice, not a fault - do not penalize additional intermediate models."},
+    {"name": "test_quality", "description": "Are there meaningful tests - unique/not_null on both mart grains (order_id, customer_id) and on staging keys - not just trivially present?"},
+    {"name": "docs", "description": "Is there a migration_changes.md and/or model descriptions mapping each Matillion component (calculator, filter, join, rank, aggregate) to its dbt equivalent?"}
+  ]
+}

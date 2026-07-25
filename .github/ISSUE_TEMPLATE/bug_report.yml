@@ -1,0 +1,51 @@
+name: Bug report
+description: The skill produced wrong, broken, or non-compiling output.
+title: "[bug] <short summary>"
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: "Please do not paste secrets or proprietary data. Sanitize artifacts and logs first."
+  - type: dropdown
+    id: source_system
+    attributes:
+      label: Source system
+      options:
+        - Informatica (PowerCenter)
+        - Talend
+        - Matillion
+        - Coalesce
+        - Stored procedure
+        - Other / N/A
+    validations:
+      required: true
+  - type: textarea
+    id: what_happened
+    attributes:
+      label: What happened
+      description: What the skill did wrong (wrong SQL, missing model, bad parse, non-compiling output).
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: What you expected instead
+    validations:
+      required: true
+  - type: textarea
+    id: repro
+    attributes:
+      label: Steps to reproduce
+      description: The prompt used, the artifact shape, and the command, if any.
+    validations:
+      required: true
+  - type: textarea
+    id: logs
+    attributes:
+      label: Relevant output or logs
+      render: shell
+  - type: input
+    id: env
+    attributes:
+      label: Agent + skills version
+      placeholder: "e.g. dbt Wizard 2.0.0-preview.196, skills @ <sha>"

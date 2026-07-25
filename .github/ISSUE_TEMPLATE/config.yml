@@ -1,0 +1,5 @@
+blank_issues_enabled: false
+contact_links:
+  - name: dbt Community Slack
+    url: https://www.getdbt.com/community/join-the-community
+    about: For general dbt questions and discussion (not skill-specific bugs).

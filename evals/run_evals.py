@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Eval harness for the deterministic inventory parsers.
 
-Runs each parser against a committed fixture and asserts on its JSON output — so a change
+Runs each parser against a committed fixture and asserts on its JSON output - so a change
 to a parser or answer key that breaks inventory/coverage is caught automatically. Fixtures
 under evals/fixtures/ are small and self-authored (no user/third-party data). Stdlib only,
 except the Matillion DPC-YAML case which is skipped with a note if `pyyaml` is absent
@@ -125,12 +125,59 @@ try:
     check("proc: dynamic ANALYZE classified as maintenance(drop)",
           any("maintenance(drop)" in d for d in sc["dynamic_sql_detail"]), sc["dynamic_sql_detail"])
     # regression (from real-proc verification): UPDATE/MERGE `SET col = ...` must NOT be counted as
-    # scalar variables — only DECLARE / SET @var / `:=` assignments are. The fixture's only real
+    # scalar variables - only DECLARE / SET @var / `:=` assignments are. The fixture's only real
     # scalar bits are `DECLARE cutoff` + `cutoff :=` (2); the MERGE's `SET ltv_90d=` must not leak.
     sv = c.get("scalar_var", {}).get("count", 0)
     check("proc: scalar_var doesn't over-match UPDATE/MERGE SET clauses (== 2)", sv == 2, sv)
 except Exception as e:
     check("proc: scanner ran", False, repr(e))
+
+# --- Matillion harbor DPC (richer real pipeline; needs pyyaml) -----------
+HARBOR = ROOT / "harbor"
+try:
+    import yaml  # noqa: F401
+    inv = run_json("skills/migrating-matillion-to-dbt/scripts/inventory_matillion.py",
+                   HARBOR / "migrate-matillion-to-dbt" / "environment" / "app" / "legacy" / "build_sales_marts.tran.yaml")
+    s = inv["summary"]
+    check("matillion(harbor): 1 transformation unit", s["unit_count"] == 1, s["unit_count"])
+    check("matillion(harbor): 9 transformation comps (calculator/filter/join/rank/aggregate/...)",
+          s["coverage_denominator"] == 9, s["coverage_denominator"])
+except ImportError:
+    results.append(("matillion(harbor): SKIPPED (pyyaml not installed)", True, "install pyyaml to cover"))
+except Exception as e:
+    check("matillion(harbor): parser ran", False, repr(e))
+
+# --- Coalesce harbor nodes (SCD2 + column lineage; needs pyyaml) ---------
+try:
+    import yaml  # noqa: F401
+    inv = run_json("skills/migrating-coalesce-to-dbt/scripts/inventory_coalesce.py",
+                   HARBOR / "migrate-coalesce-to-dbt" / "environment" / "app" / "legacy" / "nodes")
+    s = inv["summary"]
+    check("coalesce(harbor): 8 nodes", s["node_count"] == 8, s["node_count"])
+    check("coalesce(harbor): coverage denom = 5 non-source", s["coverage_denominator"] == 5, s["coverage_denominator"])
+    check("coalesce(harbor): by_kind source=3 stage=3 dimension_scd2=1 fact=1",
+          s["by_kind"] == {"source": 3, "stage": 3, "dimension_scd2": 1, "fact": 1}, s["by_kind"])
+    check("coalesce(harbor): SCD2 dimension = DIM_CUSTOMER",
+          s["scd2_dimensions"] == ["DIM_CUSTOMER"], s["scd2_dimensions"])
+    dim = next((n for n in inv["nodes"] if n["name"] == "DIM_CUSTOMER"), {})
+    check("coalesce(harbor): DIM lineage <- STG_CUSTOMER & STG_NATION",
+          set(dim.get("upstream_nodes", [])) == {"STG_CUSTOMER", "STG_NATION"}, dim.get("upstream_nodes"))
+    fct = next((n for n in inv["nodes"] if n["name"] == "FCT_ORDERS"), {})
+    check("coalesce(harbor): FCT lineage <- STG_ORDERS & DIM_CUSTOMER",
+          set(fct.get("upstream_nodes", [])) == {"STG_ORDERS", "DIM_CUSTOMER"}, fct.get("upstream_nodes"))
+except ImportError:
+    results.append(("coalesce(harbor): SKIPPED (pyyaml not installed)", True, "install pyyaml to cover"))
+except Exception as e:
+    check("coalesce(harbor): parser ran", False, repr(e))
+
+# --- scorer sync (each task's tests/ copy matches harbor/_scorer/) -------
+try:
+    r = subprocess.run([sys.executable, str(ROOT / "harbor" / "_scorer" / "check_sync.py")],
+                       capture_output=True, text=True)
+    check("scorer: task tests/ copies in sync with harbor/_scorer",
+          r.returncode == 0, (r.stdout + r.stderr).strip()[-300:])
+except Exception as e:
+    check("scorer: sync check ran", False, repr(e))
 
 
 # --- report --------------------------------------------------------------
@@ -184,7 +231,7 @@ if "--write" in sys.argv:
         "",
         f"**{passed}/{total} checks passing** &nbsp;·&nbsp; commit `{sha}` &nbsp;·&nbsp; {ts}",
         "",
-        "These are deterministic regression checks over the migration skills' inventory **parsers** — "
+        "These are deterministic regression checks over the migration skills' inventory **parsers** - "
         "the step that reads a legacy export and produces the workload inventory (component counts, "
         "coverage denominator, out-of-scope detection, SCD2 / dynamic-SQL flagging). A parser or "
         "answer-key change that breaks the inventory fails CI. The parsers were **also** verified "
@@ -205,7 +252,7 @@ if "--write" in sys.argv:
         lines.append("")
         for name, ok, detail in groups[g]:
             mark = "✅" if ok else "❌"
-            tail = "" if ok else f" — got: `{detail}`"
+            tail = "" if ok else f" - got: `{detail}`"
             lines.append(f"- {mark} {name}{tail}")
         lines.append("")
     lines += [

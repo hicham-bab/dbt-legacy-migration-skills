@@ -1,0 +1,2 @@
+# Placeholder so the wizard-auth/ build-context dir always exists for the Dockerfile COPY.
+# Real OAuth files are staged here by harbor/_scorer/stage_wizard_auth.sh and are gitignored.

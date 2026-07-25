@@ -1,0 +1,51 @@
+fileVersion: 1
+id: 10000000-0000-0000-0000-000000000006
+name: STG_ORDERS
+type: Node
+operation:
+  sqlType: Stage
+  locationName: WORK
+  materializationType: table
+  description: Staged orders
+  config:
+    testsEnabled: true
+  isMultisource: false
+  metadata:
+    appliedNodeTests: []
+    columns:
+    - name: O_ORDERKEY
+      dataType: NUMBER(38,0)
+      nullable: true
+      description: ''
+      sourceColumnReferences:
+      - columnReferences:
+        - stepCounter: 10000000-0000-0000-0000-000000000003
+          columnCounter: col-0019
+        transform: ''
+    - name: O_CUSTKEY
+      dataType: NUMBER(38,0)
+      nullable: true
+      description: ''
+      sourceColumnReferences:
+      - columnReferences:
+        - stepCounter: 10000000-0000-0000-0000-000000000003
+          columnCounter: col-0020
+        transform: ''
+    - name: O_ORDERSTATUS
+      dataType: STRING
+      nullable: true
+      description: ''
+      sourceColumnReferences:
+      - columnReferences:
+        - stepCounter: 10000000-0000-0000-0000-000000000003
+          columnCounter: col-0021
+        transform: ''
+    - name: O_TOTALPRICE
+      dataType: NUMBER(12,2)
+      nullable: true
+      description: ''
+      sourceColumnReferences:
+      - columnReferences:
+        - stepCounter: 10000000-0000-0000-0000-000000000003
+          columnCounter: col-0022
+        transform: ''

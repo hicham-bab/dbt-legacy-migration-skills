@@ -1,0 +1,26 @@
+{
+  "task": "migrate-talend-to-dbt",
+  "profile": "talend_demo",
+  "expected_models": ["stg_orders", "stg_customers", "mart_customer_revenue"],
+  "marts": [
+    {
+      "name": "mart_customer_revenue",
+      "key_cols": ["customer_id"],
+      "compare_cols": ["customer_name", "total_revenue", "order_count"],
+      "numeric_cols": ["total_revenue", "order_count"],
+      "expected": "expected_customer_revenue.csv"
+    }
+  ],
+  "inventory": {
+    "script": "migrating-talend-to-dbt/scripts/inventory_talend.py",
+    "input": "legacy/customer_revenue_job.item",
+    "denom_key": "coverage_denominator"
+  },
+  "legacy_file": "legacy/customer_revenue_job.item",
+  "judge_rubric": [
+    {"name": "logic_fidelity", "description": "Does the mart reproduce the Talend job: tFilterRow keeps status='completed', tMap INNER JOINs orders to customers on customer_id, tAggregateRow groups per customer producing SUM(amount) as total_revenue and COUNT as order_count?"},
+    {"name": "decomposition", "description": "Are tPostgresqlInput components turned into staging models and the flow wired with ref()/source() through sensible layering, rather than one monolithic model? Is tSendMail correctly treated as out-of-scope? Splitting related logic across multiple related staging/intermediate models is good practice, not a fault - do not penalize extra intermediate models."},
+    {"name": "test_quality", "description": "Are there meaningful tests - unique/not_null on the customer_id grain and on staging keys - not just trivially present?"},
+    {"name": "docs", "description": "Is there a migration_changes.md and/or model descriptions mapping each Talend component to its dbt equivalent, including the out-of-scope notify step?"}
+  ]
+}

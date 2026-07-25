@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# canary GUID (Terminal-Bench/Harbor convention — keep to prevent training-data contamination):
+# canary GUID (Terminal-Bench/Harbor convention - keep to prevent training-data contamination):
 # HARBOR-TASK-CANARY 7b2e9f14-migrate-talend-to-dbt
 #
 # Oracle reference solution: writes the migrated dbt project the way the skill should, so
@@ -59,6 +59,61 @@ agg as (
 )
 select * from agg
 SQL
+
+cat > models/staging/_staging.yml <<'YAML'
+version: 2
+models:
+  - name: stg_orders
+    description: "Typed passthrough of raw_orders (tPostgresqlInput orders)."
+    columns:
+      - name: order_id
+        description: "Order primary key."
+        data_tests: [unique, not_null]
+  - name: stg_customers
+    description: "Typed passthrough of raw_customers (tPostgresqlInput customers)."
+    columns:
+      - name: customer_id
+        description: "Customer primary key."
+        data_tests: [unique, not_null]
+YAML
+
+cat > models/marts/_marts.yml <<'YAML'
+version: 2
+models:
+  - name: mart_customer_revenue
+    description: >
+      Revenue per customer, migrated from customer_revenue_job. Completed orders only,
+      inner-joined to customers, aggregated to one row per customer.
+    columns:
+      - name: customer_id
+        description: "Grain: one row per customer."
+        data_tests: [unique, not_null]
+      - name: customer_name
+        description: "From the tMap inner join to customers."
+        data_tests: [not_null]
+      - name: total_revenue
+        description: "SUM(amount) over completed orders (tAggregateRow)."
+        data_tests: [not_null]
+      - name: order_count
+        description: "COUNT of completed orders (tAggregateRow)."
+        data_tests: [not_null]
+YAML
+
+cat > migration_changes.md <<'MD'
+# Migration changes - customer_revenue_job (Talend) -> dbt
+
+| Talend component | dbt equivalent |
+|---|---|
+| tPostgresqlInput (orders) | `stg_orders` staging model |
+| tPostgresqlInput (customers) | `stg_customers` staging model |
+| tFilterRow (`status = 'completed'`) | `completed` CTE (`where status = 'completed'`) |
+| tMap (INNER JOIN on customer_id) | `joined` CTE (`join ... using (customer_id)`) |
+| tAggregateRow (SUM/COUNT, group by customer) | `agg` CTE + `mart_customer_revenue` |
+| tSendMail_notify | **out of scope** (notification side-effect, not a data transform) |
+
+Grain: one row per customer. Coverage: all 6 SQL components represented; the 1 notify component is
+intentionally excluded (out of scope for dbt).
+MD
 
 export DBT_PROFILES_DIR=/app/project
 dbt build

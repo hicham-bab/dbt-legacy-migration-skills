@@ -1,0 +1,146 @@
+type: "transformation"
+version: "1.0"
+pipeline:
+  components:
+    Read orders:
+      type: "table-input"
+      parameters:
+        componentName: "Read orders"
+        database: "RAW"
+        schema: "PUBLIC"
+        targetTable: "orders"
+        columnNames:
+        - "order_id"
+        - "customer_id"
+        - "order_date"
+        - "status"
+        - "total_amount"
+        - "discount_amount"
+    Read customers:
+      type: "table-input"
+      parameters:
+        componentName: "Read customers"
+        database: "RAW"
+        schema: "PUBLIC"
+        targetTable: "customers"
+        columnNames:
+        - "customer_id"
+        - "customer_name"
+        - "region"
+        - "segment"
+    Compute net amount:
+      type: "calculator"
+      sources:
+      - "Read orders"
+      parameters:
+        componentName: "Compute net amount"
+        calculations:
+        - name: "net_amount"
+          expression: "total_amount - discount_amount"
+    Completed only:
+      type: "filter"
+      sources:
+      - "Compute net amount"
+      parameters:
+        componentName: "Completed only"
+        filterConditions:
+        - inputColumn: "status"
+          qualifier: "Is"
+          comparator: "Equal to"
+          value: "completed"
+        combineCondition: "And"
+    Join customer:
+      type: "join"
+      sources:
+      - "Completed only"
+      - "Read customers"
+      parameters:
+        componentName: "Join customer"
+        mainTable: "Completed only"
+        joins:
+        - joinTable: "Read customers"
+          joinType: "Left"
+          joinExpressions:
+          - mainColumn: "customer_id"
+            joinColumn: "customer_id"
+    Rank recent per customer:
+      type: "rank"
+      sources:
+      - "Join customer"
+      parameters:
+        componentName: "Rank recent per customer"
+        partitionData:
+        - "customer_id"
+        orderData:
+        - column: "order_date"
+          direction: "Descending"
+        functions:
+        - function: "row_number"
+          outputColumn: "order_recency_rank"
+    Aggregate by customer:
+      type: "aggregate"
+      sources:
+      - "Completed only"
+      parameters:
+        componentName: "Aggregate by customer"
+        groupings:
+        - "customer_id"
+        aggregations:
+        - inputColumn: "net_amount"
+          function: "sum"
+          outputColumn: "total_net"
+        - inputColumn: "order_id"
+          function: "count"
+          outputColumn: "order_count"
+    Write fct_orders:
+      type: "rewrite-table"
+      sources:
+      - "Rank recent per customer"
+      parameters:
+        componentName: "Write fct_orders"
+        warehouse: "TRANSFORMING"
+        database: "ANALYTICS"
+        schema: "MARTS"
+        targetTable: "fct_orders"
+    Write agg_customer_sales:
+      type: "table-output"
+      sources:
+      - "Aggregate by customer"
+      parameters:
+        componentName: "Write agg_customer_sales"
+        warehouse: "TRANSFORMING"
+        database: "ANALYTICS"
+        schema: "MARTS"
+        targetTable: "agg_customer_sales"
+        outputMode: "Append"
+        primaryKeys:
+        - "customer_id"
+design:
+  components:
+    Read orders:
+      position: {x: -320, y: -80}
+      tempMetlId: 1
+    Read customers:
+      position: {x: -320, y: 120}
+      tempMetlId: 2
+    Compute net amount:
+      position: {x: -160, y: -80}
+      tempMetlId: 3
+    Completed only:
+      position: {x: -20, y: -80}
+      tempMetlId: 4
+    Join customer:
+      position: {x: 140, y: 0}
+      tempMetlId: 5
+    Rank recent per customer:
+      position: {x: 300, y: -40}
+      tempMetlId: 6
+    Aggregate by customer:
+      position: {x: 140, y: 200}
+      tempMetlId: 7
+    Write fct_orders:
+      position: {x: 460, y: -40}
+      tempMetlId: 8
+    Write agg_customer_sales:
+      position: {x: 300, y: 200}
+      tempMetlId: 9

@@ -1,0 +1,14 @@
+{
+  "name": "bad_stored_proc_migration",
+  "legacy_text": "CREATE OR REPLACE PROCEDURE build_customer_ltv() AS BEGIN CREATE TEMP TABLE _completed AS SELECT customer_id, amount FROM raw_orders WHERE status='completed'; CREATE OR REPLACE TABLE analytics.customer_ltv AS SELECT customer_id, SUM(amount) AS lifetime_value, COUNT(*) AS order_count, CASE WHEN SUM(amount)>=150 THEN 'high' ELSE 'low' END AS ltv_segment FROM _completed GROUP BY customer_id; END;",
+  "rubric": [
+    {"name": "logic_fidelity", "description": "Does the mart reproduce completed-only filter, SUM/COUNT, the >=150 segment threshold, per-customer grain?"},
+    {"name": "decomposition", "description": "Is the proc split into staging + mart models wired with ref(), not a monolith reading raw tables directly?"},
+    {"name": "test_quality", "description": "Are there meaningful tests (unique/not_null on grain, accepted_values on segment)?"},
+    {"name": "docs", "description": "Is there a migration_changes.md and/or model descriptions explaining the mapping?"}
+  ],
+  "labels": {"logic_fidelity": "low", "decomposition": "low", "test_quality": "low", "docs": "low"},
+  "files": {
+    "models/customer_ltv.sql": "-- monolithic, reads the raw seed directly, no filter on status, wrong threshold, no staging\nselect customer_id, sum(amount) as lifetime_value, count(*) as order_count, case when sum(amount) >= 1000 then 'high' else 'low' end as ltv_segment from raw_orders group by customer_id"
+  }
+}
