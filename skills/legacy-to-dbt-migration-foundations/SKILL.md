@@ -64,6 +64,11 @@ declines packages, it generates the equivalent macros instead. See
 
 The migration skills implement these steps. Each links to the reference that carries the detail.
 
+- **Preflight - approvals:** a migration is a multi-step run that writes models and executes `dbt`,
+  so have the user grant approval up front instead of at every command. Prefer a workspace-scoped
+  sandbox with on-request approvals (`dbt-wizard --sandbox workspace-write --ask-for-approval on-request`),
+  which lets the run proceed without a prompt per command while still escalating risky or
+  out-of-workspace actions. Do not use a full-bypass posture except in a throwaway/CI sandbox.
 - **Step 0 – Detect environment & cloud** → [cloud detection & materializations](references/cloud-detection-and-materializations.md)
 - **Step 1 – Inventory & map the legacy workload** → *source-specific* (see the calling skill's parsing reference)
 - **Step 2 – Choose target modeling approach, then classify into it** → [target modeling approach](references/target-modeling.md) + [layer classification](references/layer-classification.md)
