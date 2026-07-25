@@ -6,18 +6,19 @@ in your skills directory) and its shared `legacy-to-dbt-migration-foundations` r
 
 ## What's provided (under `/app`)
 
-- `legacy/sp_customer_ltv.sql` — the legacy stored procedure to migrate (its logic is in comments).
-- `data/raw_orders.csv`, `data/raw_customers.csv` — the raw source data.
+- `legacy/sp_customer_ltv.sql` - the legacy stored procedure to migrate (a Snowflake `CREATE OR
+  REPLACE PROCEDURE`; its intent is also summarized in the header comment).
+- `data/raw_orders.csv`, `data/raw_customers.csv` - the raw source data.
 
 The legacy procedure's **production output** is the source of truth your mart must match, but it is
-**held out with the verifier** — it is not in `/app`. Reproduce it from the procedure's logic; the
+**held out with the verifier** - it is not in `/app`. Reproduce it from the procedure's logic; the
 verifier will compare your `mart_customer_ltv` against it row-for-row.
 
 ## What to do
 
 1. Follow the skill's workflow. A `migration_decisions.yml` is already provided at `/app` recording
    the decisions for this run (modeling approach: layered; warehouse: duckdb; packages: external_hub)
-   so you can proceed non-interactively — read it and honor it.
+   so you can proceed non-interactively - read it and honor it.
 2. Build the dbt project **in `/app/project`** (a dbt-duckdb project). Load the two raw CSVs as dbt
    **seeds**, add a staging model, and produce a mart **`mart_customer_ltv`** that reproduces the
    procedure's logic (grain: one row per customer; completed orders only; `lifetime_value`,

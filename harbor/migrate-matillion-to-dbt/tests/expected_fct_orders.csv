@@ -1,0 +1,6 @@
+order_id,customer_id,order_date,net_amount,customer_name,region,segment,order_recency_rank
+1001,1,2024-01-10,90.00,Alice,West,Consumer,2
+1002,1,2024-02-15,60.00,Alice,West,Consumer,1
+1004,2,2024-01-05,180.00,Bob,East,SMB,2
+1005,2,2024-02-01,50.00,Bob,East,SMB,1
+1006,3,2024-01-01,30.00,Carol,West,Enterprise,1

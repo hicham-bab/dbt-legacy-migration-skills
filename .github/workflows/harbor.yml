@@ -1,0 +1,52 @@
+name: harbor-scorecard
+
+# End-to-end scorecard (manual). Unlike the parser-tier `evals` workflow (which runs on every
+# push/PR), this runs the ORACLE solution of each harbor task through the shared scorer and
+# publishes the aggregate scorecard. It is workflow_dispatch-only because a full agent eval needs
+# Docker + an LLM; this smoke test proves every task is solvable and the scorecard discriminates.
+# The LLM-as-judge dimension is disabled here (HARBOR_JUDGE_BACKEND=off): the default judge backend
+# is the dbt Wizard via dbt-managed inference, which needs an interactive `dbt login` - so the judge
+# is validated locally (harbor/_scorer/calibrate_judge.py + run_all.py), not in CI.
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  scorecard:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install deps (dbt-duckdb + parsers)
+        run: pip install dbt-duckdb duckdb pyyaml
+
+      - name: Run all task oracles through the scorecard
+        id: harbor
+        continue-on-error: true
+        env:
+          HARBOR_JUDGE_BACKEND: "off"   # judge (dbt Wizard) needs interactive login; validate locally
+        run: python3 harbor/_scorer/run_all.py
+
+      - name: Publish aggregate scorecard to job summary
+        if: always()
+        run: cat harbor/SCORECARD.md >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Upload scorecard.json
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: harbor-scorecard
+          path: harbor/scorecard.json
+
+      - name: Fail if any task did not reward
+        if: steps.harbor.outcome == 'failure'
+        run: |
+          echo "A harbor task oracle did not score reward=1 - see the summary above." >&2
+          exit 1

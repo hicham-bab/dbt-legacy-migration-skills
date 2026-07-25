@@ -4,7 +4,7 @@
 # and writes the reward to /logs/verifier/reward.txt (1 = pass, 0 = fail).
 set -uo pipefail
 mkdir -p /logs/verifier
-pip install --no-cache-dir pytest duckdb >/dev/null 2>&1 || true
+pip install --no-cache-dir pytest duckdb anthropic >/dev/null 2>&1 || true
 
 pytest -q /tests/test_migration.py
 if [ $? -eq 0 ]; then

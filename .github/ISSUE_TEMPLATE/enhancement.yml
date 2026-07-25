@@ -1,0 +1,33 @@
+name: Enhancement / idea
+description: Suggest an improvement to a skill, parser, mapping, or the eval harness.
+title: "[enhancement] <short summary>"
+labels: ["enhancement"]
+body:
+  - type: dropdown
+    id: area
+    attributes:
+      label: Area
+      options:
+        - Informatica skill
+        - Talend skill
+        - Matillion skill
+        - Coalesce skill
+        - Stored-procedure skill
+        - Shared foundations
+        - Eval harness (parser tier / harbor scorecard)
+        - Other
+    validations:
+      required: true
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem / motivation
+      description: What is hard or missing today?
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposed change
+    validations:
+      required: true

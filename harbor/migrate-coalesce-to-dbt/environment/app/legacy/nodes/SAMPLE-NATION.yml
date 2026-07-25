@@ -1,0 +1,29 @@
+fileVersion: 1
+id: 10000000-0000-0000-0000-000000000002
+name: NATION
+type: Node
+operation:
+  sqlType: Source
+  locationName: SAMPLE
+  materializationType: null
+  description: Nation reference data as defined by TPC-H
+  config:
+    testsEnabled: true
+  isMultisource: false
+  metadata:
+    appliedNodeTests: []
+    columns:
+    - name: N_NATIONKEY
+      dataType: NUMBER(38,0)
+      nullable: true
+      description: ''
+      sourceColumnReferences:
+      - columnReferences: []
+        transform: ''
+    - name: N_NAME
+      dataType: STRING
+      nullable: true
+      description: ''
+      sourceColumnReferences:
+      - columnReferences: []
+        transform: ''

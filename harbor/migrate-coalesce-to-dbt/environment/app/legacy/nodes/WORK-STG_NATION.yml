@@ -1,0 +1,33 @@
+fileVersion: 1
+id: 10000000-0000-0000-0000-000000000005
+name: STG_NATION
+type: Node
+operation:
+  sqlType: Stage
+  locationName: WORK
+  materializationType: table
+  description: Staged nations
+  config:
+    testsEnabled: true
+  isMultisource: false
+  metadata:
+    appliedNodeTests: []
+    columns:
+    - name: N_NATIONKEY
+      dataType: NUMBER(38,0)
+      nullable: true
+      description: ''
+      sourceColumnReferences:
+      - columnReferences:
+        - stepCounter: 10000000-0000-0000-0000-000000000002
+          columnCounter: col-0017
+        transform: ''
+    - name: N_NAME
+      dataType: STRING
+      nullable: true
+      description: ''
+      sourceColumnReferences:
+      - columnReferences:
+        - stepCounter: 10000000-0000-0000-0000-000000000002
+          columnCounter: col-0018
+        transform: ''

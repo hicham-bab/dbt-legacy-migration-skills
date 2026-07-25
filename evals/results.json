@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
   "label": "evals",
-  "message": "29/29 passing",
+  "message": "38/38 passing",
   "color": "brightgreen",
-  "generated_at": "2026-07-22 12:54 UTC",
-  "commit": "8edf0e8",
+  "generated_at": "2026-07-25 13:53 UTC",
+  "commit": "1780486",
   "summary": {
-    "passed": 29,
-    "total": 29,
+    "passed": 38,
+    "total": 38,
     "all_green": true
   },
   "by_group": {
@@ -34,6 +34,18 @@
     "proc": {
       "passed": 6,
       "total": 6
+    },
+    "matillion(harbor)": {
+      "passed": 2,
+      "total": 2
+    },
+    "coalesce(harbor)": {
+      "passed": 6,
+      "total": 6
+    },
+    "scorer": {
+      "passed": 1,
+      "total": 1
     }
   },
   "checks": [
@@ -208,6 +220,60 @@
     {
       "group": "proc",
       "name": "proc: scalar_var doesn't over-match UPDATE/MERGE SET clauses (== 2)",
+      "passed": true,
+      "detail": null
+    },
+    {
+      "group": "matillion(harbor)",
+      "name": "matillion(harbor): 1 transformation unit",
+      "passed": true,
+      "detail": null
+    },
+    {
+      "group": "matillion(harbor)",
+      "name": "matillion(harbor): 9 transformation comps (calculator/filter/join/rank/aggregate/...)",
+      "passed": true,
+      "detail": null
+    },
+    {
+      "group": "coalesce(harbor)",
+      "name": "coalesce(harbor): 8 nodes",
+      "passed": true,
+      "detail": null
+    },
+    {
+      "group": "coalesce(harbor)",
+      "name": "coalesce(harbor): coverage denom = 5 non-source",
+      "passed": true,
+      "detail": null
+    },
+    {
+      "group": "coalesce(harbor)",
+      "name": "coalesce(harbor): by_kind source=3 stage=3 dimension_scd2=1 fact=1",
+      "passed": true,
+      "detail": null
+    },
+    {
+      "group": "coalesce(harbor)",
+      "name": "coalesce(harbor): SCD2 dimension = DIM_CUSTOMER",
+      "passed": true,
+      "detail": null
+    },
+    {
+      "group": "coalesce(harbor)",
+      "name": "coalesce(harbor): DIM lineage <- STG_CUSTOMER & STG_NATION",
+      "passed": true,
+      "detail": null
+    },
+    {
+      "group": "coalesce(harbor)",
+      "name": "coalesce(harbor): FCT lineage <- STG_ORDERS & DIM_CUSTOMER",
+      "passed": true,
+      "detail": null
+    },
+    {
+      "group": "scorer",
+      "name": "scorer: task tests/ copies in sync with harbor/_scorer",
       "passed": true,
       "detail": null
     }

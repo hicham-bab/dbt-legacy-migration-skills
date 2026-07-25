@@ -1,0 +1,26 @@
+{
+  "task": "migrate-informatica-to-dbt",
+  "profile": "informatica_demo",
+  "expected_models": ["stg_orders", "mart_fct_customer_orders"],
+  "marts": [
+    {
+      "name": "mart_fct_customer_orders",
+      "key_cols": ["customer_id"],
+      "compare_cols": ["lifetime_amount", "order_count", "value_band"],
+      "numeric_cols": ["lifetime_amount", "order_count"],
+      "expected": "expected_fct_customer_orders.csv"
+    }
+  ],
+  "inventory": {
+    "script": "migrating-informatica-to-dbt/scripts/inventory_informatica.py",
+    "input": "legacy/wf_customer_orders.XML",
+    "denom_key": "coverage_denominator"
+  },
+  "legacy_file": "legacy/wf_customer_orders.XML",
+  "judge_rubric": [
+    {"name": "logic_fidelity", "description": "Does the mart reproduce the PowerCenter mapping: Filter keeps status='completed', Aggregator SUM(amount)->lifetime_amount and COUNT->order_count grouped per customer, and the Expression IIF(lifetime_amount>=200,'A','B') band?"},
+    {"name": "decomposition", "description": "Is the Source Qualifier turned into a staging model and the mapping wired with ref()/source() through sensible staging->(intermediate)->mart layering rather than a monolith? Splitting related logic across multiple related intermediate models is good practice, not a fault - do not penalize extra intermediate models."},
+    {"name": "test_quality", "description": "Are there meaningful tests - unique/not_null on the customer_id grain and accepted_values on value_band (A/B) - not just trivially present?"},
+    {"name": "docs", "description": "Is there a migration_changes.md and/or model descriptions mapping each PowerCenter transformation (Source Qualifier, Filter, Aggregator, Expression) to its dbt equivalent?"}
+  ]
+}

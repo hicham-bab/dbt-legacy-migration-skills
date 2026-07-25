@@ -1,0 +1,33 @@
+{
+  "task": "migrate-coalesce-to-dbt",
+  "profile": "coalesce_demo",
+  "expected_models": ["stg_customer", "stg_nation", "stg_orders", "mart_dim_customer", "mart_fct_orders"],
+  "marts": [
+    {
+      "name": "mart_dim_customer",
+      "key_cols": ["c_custkey"],
+      "compare_cols": ["dim_customer_key", "c_name", "nation_name", "c_mktsegment"],
+      "numeric_cols": ["dim_customer_key"],
+      "expected": "expected_dim_customer.csv"
+    },
+    {
+      "name": "mart_fct_orders",
+      "key_cols": ["o_orderkey"],
+      "compare_cols": ["dim_customer_key", "o_orderstatus", "o_totalprice"],
+      "numeric_cols": ["dim_customer_key", "o_totalprice"],
+      "expected": "expected_fct_orders.csv"
+    }
+  ],
+  "inventory": {
+    "script": "migrating-coalesce-to-dbt/scripts/inventory_coalesce.py",
+    "input": "legacy/nodes",
+    "denom_key": "coverage_denominator"
+  },
+  "legacy_file": "legacy/nodes",
+  "judge_rubric": [
+    {"name": "scd2_handling", "description": "Is the Type 2 DIM_CUSTOMER (change-tracking on c_name) migrated as a dbt snapshot with a check strategy on c_name, rather than a plain table that loses history?"},
+    {"name": "logic_fidelity", "description": "Do the marts reproduce the node graph: surrogate dim_customer_key = row_number over c_custkey, nation_name joined from stg_nation, and the fact at order grain with a dim_customer_key FK?"},
+    {"name": "decomposition", "description": "Are Source->Stage->Dimension/Fact nodes mapped to seeds->staging->(intermediate)->snapshot+marts wired with ref()/source(), preserving the star-schema shape rather than a monolith? Splitting related logic across multiple related intermediate models is good practice, not a fault - do not penalize extra intermediate models."},
+    {"name": "test_quality", "description": "Are there meaningful tests - unique/not_null on c_custkey, o_orderkey and the surrogate key, plus a relationship/not_null on the fact's dim_customer_key - not just trivially present?"}
+  ]
+}

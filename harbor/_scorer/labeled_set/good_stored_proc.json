@@ -1,0 +1,17 @@
+{
+  "name": "good_stored_proc_migration",
+  "legacy_text": "CREATE OR REPLACE PROCEDURE build_customer_ltv() AS BEGIN CREATE TEMP TABLE _completed AS SELECT customer_id, amount FROM raw_orders WHERE status='completed'; CREATE OR REPLACE TABLE analytics.customer_ltv AS SELECT customer_id, SUM(amount) AS lifetime_value, COUNT(*) AS order_count, CASE WHEN SUM(amount)>=150 THEN 'high' ELSE 'low' END AS ltv_segment FROM _completed GROUP BY customer_id; END;",
+  "rubric": [
+    {"name": "logic_fidelity", "description": "Does the mart reproduce completed-only filter, SUM/COUNT, the >=150 segment threshold, per-customer grain?"},
+    {"name": "decomposition", "description": "Is the proc split into staging + mart models wired with ref(), not a monolith reading raw tables directly?"},
+    {"name": "test_quality", "description": "Are there meaningful tests (unique/not_null on grain, accepted_values on segment)?"},
+    {"name": "docs", "description": "Is there a migration_changes.md and/or model descriptions explaining the mapping?"}
+  ],
+  "labels": {"logic_fidelity": "high", "decomposition": "high", "test_quality": "high", "docs": "high"},
+  "files": {
+    "models/staging/stg_orders.sql": "select cast(order_id as integer) as order_id, cast(customer_id as integer) as customer_id, status, cast(amount as decimal(18,2)) as amount from {{ ref('raw_orders') }}",
+    "models/marts/mart_customer_ltv.sql": "with completed as (select customer_id, amount from {{ ref('stg_orders') }} where status='completed'), final as (select customer_id, cast(sum(amount) as decimal(18,2)) as lifetime_value, count(*) as order_count, case when sum(amount)>=150 then 'high' else 'low' end as ltv_segment from completed group by customer_id) select * from final",
+    "models/marts/_marts.yml": "version: 2\nmodels:\n  - name: mart_customer_ltv\n    description: Customer lifetime value migrated from sp_customer_ltv; completed orders only, >=150 -> high.\n    columns:\n      - name: customer_id\n        description: Grain one row per customer.\n        data_tests: [unique, not_null]\n      - name: ltv_segment\n        data_tests:\n          - accepted_values:\n              arguments:\n                values: ['high','low']\n",
+    "migration_changes.md": "# Migration changes\n\n| Legacy | dbt |\n|---|---|\n| TEMP TABLE _completed | completed CTE |\n| CREATE OR REPLACE TABLE customer_ltv | mart_customer_ltv |\n| raw_orders read | stg_orders via ref() |\n\nThreshold >=150 -> high preserved. Grain: one row per customer."
+  }
+}

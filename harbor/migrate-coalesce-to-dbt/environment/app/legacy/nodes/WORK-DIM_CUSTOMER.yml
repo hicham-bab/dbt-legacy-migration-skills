@@ -1,0 +1,63 @@
+fileVersion: 1
+id: 10000000-0000-0000-0000-000000000007
+name: DIM_CUSTOMER
+type: Node
+operation:
+  sqlType: Dimension
+  locationName: WORK
+  materializationType: table
+  description: Customer dimension (Type 2 on C_NAME)
+  config:
+    testsEnabled: true
+  isMultisource: false
+  metadata:
+    appliedNodeTests: []
+    columns:
+    - name: DIM_CUSTOMER_KEY
+      dataType: NUMBER
+      nullable: true
+      description: ''
+      sourceColumnReferences:
+      - columnReferences: []
+        transform: ROW_NUMBER() OVER (ORDER BY C_CUSTKEY)
+      isSurrogateKey: true
+      transform: ROW_NUMBER() OVER (ORDER BY C_CUSTKEY)
+    - name: C_CUSTKEY
+      dataType: NUMBER(38,0)
+      nullable: true
+      description: ''
+      sourceColumnReferences:
+      - columnReferences:
+        - stepCounter: 10000000-0000-0000-0000-000000000004
+          columnCounter: col-0024
+        transform: ''
+      isBusinessKey: true
+    - name: C_NAME
+      dataType: STRING
+      nullable: true
+      description: ''
+      sourceColumnReferences:
+      - columnReferences:
+        - stepCounter: 10000000-0000-0000-0000-000000000004
+          columnCounter: col-0025
+        transform: ''
+      isChangeTracking: true
+    - name: NATION_NAME
+      dataType: STRING
+      nullable: true
+      description: ''
+      sourceColumnReferences:
+      - columnReferences:
+        - stepCounter: 10000000-0000-0000-0000-000000000005
+          columnCounter: col-0026
+        transform: STG_NATION.N_NAME
+      transform: STG_NATION.N_NAME
+    - name: C_MKTSEGMENT
+      dataType: STRING
+      nullable: true
+      description: ''
+      sourceColumnReferences:
+      - columnReferences:
+        - stepCounter: 10000000-0000-0000-0000-000000000004
+          columnCounter: col-0027
+        transform: ''

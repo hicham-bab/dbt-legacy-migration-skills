@@ -1,0 +1,94 @@
+name: Migration report (feedback)
+description: Tell us how a real migration with these skills went, so we can improve them.
+title: "[migration] <source system> to dbt"
+labels: ["migration-report", "feedback"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for reporting a real migration. The most useful field is "What needed manual fixing":
+        those become fixes and new eval fixtures. Please do not paste secrets or proprietary data.
+  - type: dropdown
+    id: source_system
+    attributes:
+      label: Source system migrated
+      options:
+        - Informatica (PowerCenter)
+        - Talend
+        - Matillion
+        - Coalesce
+        - Stored procedure
+        - Other
+    validations:
+      required: true
+  - type: dropdown
+    id: target_platform
+    attributes:
+      label: Target data platform
+      options: [Snowflake, Databricks, BigQuery, Redshift, DuckDB, Other]
+    validations:
+      required: true
+  - type: dropdown
+    id: agent
+    attributes:
+      label: Agent used
+      options: [dbt Wizard, Claude Code, Other]
+    validations:
+      required: true
+  - type: dropdown
+    id: modeling_approach
+    attributes:
+      label: Target modeling approach chosen
+      options: [Layered, Kimball, Star, Data Vault]
+    validations:
+      required: true
+  - type: input
+    id: coverage
+    attributes:
+      label: Coverage achieved
+      description: The percentage of migratable units the skill covered (from the coverage report).
+      placeholder: "e.g. 96%"
+  - type: dropdown
+    id: parity
+    attributes:
+      label: Data parity result
+      options:
+        - Matched (row-for-row)
+        - Diffs, all explained
+        - Diffs, not fully explained
+        - Not checked
+    validations:
+      required: true
+  - type: textarea
+    id: worked_well
+    attributes:
+      label: What worked well
+  - type: textarea
+    id: needed_fixing
+    attributes:
+      label: What needed manual fixing
+      description: The single most valuable field. Be concrete about what you changed and why.
+    validations:
+      required: true
+  - type: textarea
+    id: correctly_kept
+    attributes:
+      label: Anything the skill did that surprised you but was actually right?
+      description: e.g. it split related logic across several intermediate models on purpose.
+  - type: input
+    id: artifact_size
+    attributes:
+      label: Artifact size / complexity
+      placeholder: "e.g. 9 mappings, SCD2, 3-table joins, ~40 components"
+  - type: input
+    id: skill_commit
+    attributes:
+      label: Skills version (git short SHA, if known)
+  - type: dropdown
+    id: share_fixture
+    attributes:
+      label: May we turn this into an eval fixture?
+      description: A sanitized artifact + expected output becomes a regression guard for everyone.
+      options: ["Yes, I can share a sanitized artifact", "No", "Maybe, let's discuss"]
+    validations:
+      required: true

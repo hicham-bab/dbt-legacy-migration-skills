@@ -1,0 +1,26 @@
+{
+  "task": "migrate-stored-proc-to-dbt",
+  "profile": "stored_proc",
+  "coverage_threshold": 0.95,
+  "marts": [
+    {
+      "name": "mart_customer_ltv",
+      "key_cols": ["customer_id"],
+      "compare_cols": ["lifetime_value", "order_count", "ltv_segment"],
+      "numeric_cols": ["lifetime_value", "order_count"],
+      "expected": "legacy_customer_ltv.csv"
+    }
+  ],
+  "inventory": {
+    "script": "migrating-stored-procedures-to-dbt/scripts/inventory_stored_proc.py",
+    "input": "legacy/sp_customer_ltv.sql",
+    "denom_key": "coverage_denominator"
+  },
+  "legacy_file": "legacy/sp_customer_ltv.sql",
+  "judge_rubric": [
+    {"name": "logic_fidelity", "description": "Does the mart faithfully reproduce the procedure's logic: completed-orders-only filter, SUM(amount) as lifetime_value, COUNT as order_count, the >=150 -> 'high' segment threshold, and one-row-per-customer grain?"},
+    {"name": "decomposition", "description": "Is the procedure sensibly decomposed into staging + mart (and, where helpful, intermediate) dbt models wired with ref()/source(), rather than one monolithic model or raw table references? Splitting related logic across multiple related models is good practice, not a fault - do not penalize extra intermediate models."},
+    {"name": "test_quality", "description": "Are there meaningful tests - unique/not_null on the customer_id grain and accepted_values on ltv_segment - not just trivially present?"},
+    {"name": "docs", "description": "Is there a migration_changes.md and/or model descriptions that explain how the legacy procedure maps to the dbt models?"}
+  ]
+}

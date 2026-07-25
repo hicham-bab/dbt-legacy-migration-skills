@@ -1,0 +1,5 @@
+dim_customer_key,c_custkey,c_name,nation_name,c_mktsegment
+1,1,Customer#001,UNITED STATES,BUILDING
+2,2,Customer#002,UNITED STATES,AUTOMOBILE
+3,3,Customer#003,GERMANY,MACHINERY
+4,4,Customer#004,FRANCE,HOUSEHOLD

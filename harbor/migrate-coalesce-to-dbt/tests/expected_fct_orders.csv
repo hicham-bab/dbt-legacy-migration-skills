@@ -1,0 +1,6 @@
+o_orderkey,dim_customer_key,o_orderstatus,o_totalprice
+5001,1,F,150.00
+5002,1,O,50.00
+5003,2,F,200.00
+5004,3,F,300.00
+5005,4,P,80.00
