@@ -123,19 +123,20 @@ Once installed, ask the agent to migrate a project and point it at the source ar
 The skill runs the 8-step workflow, asks which cloud you're targeting, and produces the dbt
 models, tests, docs, a parity check, a cost comparison, and a coverage report.
 
-**Grant approval up front.** A migration is a multi-step run (it writes models and runs `dbt`), so
-approve it once at the start rather than at every command. Start the Wizard with a
-workspace-scoped sandbox and on-request approvals:
+**Set the approval posture up front.** A migration is a multi-step run (it writes models and runs
+`dbt`), so decide once at the start instead of confirming every edit. To run **without a prompt at
+each step**, use a workspace-scoped sandbox with approvals off:
 
 ```bash
-dbt-wizard --sandbox workspace-write --ask-for-approval on-request
+dbt-wizard --sandbox workspace-write --ask-for-approval never
 ```
 
-That lets the Wizard write files and run `dbt` inside your project without prompting each time,
-while still escalating anything risky or outside the workspace (in the interactive TUI you can pick
-the same posture from the approval prompt at the start). Use a fully unattended posture
-(`--ask-for-approval never`, or `--dangerously-bypass-approvals-and-sandbox` for an externally
-sandboxed/CI run) only in a throwaway environment you trust end to end.
+`workspace-write` confines writes to your project; `never` means the Wizard applies edits and runs
+`dbt` without asking (a command that would need to leave the sandbox just fails instead of
+prompting). The default policy, `on-request`, is what makes the Wizard ask "Would you like to make
+the following edits?" at each step; if you stay in that mode, press `a` ("don't ask again for these
+files") to stop the prompts for the current files. `--dangerously-bypass-approvals-and-sandbox`
+removes the sandbox entirely and is for externally sandboxed / CI runs only.
 
 ## Scope & caveats
 
