@@ -3,9 +3,10 @@
 # Install (or update) the dbt legacy-migration skills into your agent's skills directory.
 #
 # Usage:
-#   ./install.sh                      # install into the dbt Wizard skills dir (~/.dbt/wizard/skills)
-#   ./install.sh --claude             # install into Claude Code's dir (~/.agents/skills)
-#   ./install.sh --dest /path/to/dir  # install into a specific skills directory
+#   ./install.sh                      # dbt Wizard CLI skills dir (~/.dbt/wizard/skills)
+#   ./install.sh --claude             # Claude Code skills dir (~/.claude/skills)
+#   ./install.sh --codex              # Codex CLI skills dir (~/.codex/skills)
+#   ./install.sh --dest /path/to/dir  # a specific dir (e.g. <dbt project>/.agents/skills for dbt platform Studio)
 #
 # Safe to re-run: it cleanly replaces just these six skill folders and touches nothing else.
 #
@@ -28,7 +29,8 @@ SKILLS=(
 DEST="$HOME/.dbt/wizard/skills"
 while [ $# -gt 0 ]; do
   case "$1" in
-    --claude) DEST="$HOME/.agents/skills"; shift ;;
+    --claude) DEST="$HOME/.claude/skills"; shift ;;
+    --codex)  DEST="$HOME/.codex/skills"; shift ;;
     --dest)   DEST="${2:?--dest needs a path}"; shift 2 ;;
     *) echo "unknown option: $1" >&2; exit 2 ;;
   esac

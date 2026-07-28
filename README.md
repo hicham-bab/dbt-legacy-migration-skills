@@ -90,8 +90,9 @@ npx skills add hicham-bab/dbt-legacy-migration-skills   # vercel-labs/skills
 
 ```bash
 git clone https://github.com/hicham-bab/dbt-legacy-migration-skills.git
-cd dbt-legacy-migration-skills && ./install.sh          # dbt Wizard (~/.dbt/wizard/skills)
-#                                  ./install.sh --claude # Claude Code (~/.agents/skills)
+cd dbt-legacy-migration-skills && ./install.sh          # dbt Wizard CLI (~/.dbt/wizard/skills)
+#                                  ./install.sh --claude # Claude Code   (~/.claude/skills)
+#                                  ./install.sh --codex  # Codex CLI     (~/.codex/skills)
 ```
 
 `install.sh` copies just the six skill folders (from `skills/`) into your skills directory and leaves
@@ -129,8 +130,10 @@ mkdir -p .agents/skills && cp -R /tmp/dbt-mig/skills/* .agents/skills/
 git add .agents/skills && git commit -m "Add dbt legacy-migration skills" && git push
 ```
 
-Then in Studio, pull the branch. (`/tmp/dbt-mig/install.sh --dest "$(pwd)/.agents/skills"` does the
-same copy if you prefer it, but it still runs on your machine, not in the platform.)
+Then in Studio, **pull the branch** using the built-in git controls (the git button / wayfinder bar
+handles branch/commit/push/pull; there is no shell). (`/tmp/dbt-mig/install.sh --dest
+"$(pwd)/.agents/skills"` does the same copy if you prefer it, but it still runs on your machine, not
+in the platform.)
 
 **Or in the Studio file explorer** - create `.agents/skills/<skill>/SKILL.md` (plus any `references/`
 files) for each skill by hand, pasting the contents from this repo. Fine for one skill, tedious for
@@ -145,6 +148,22 @@ Either way, then:
    gets them. A custom skill overrides a built-in one of the same name.
 
 Keep all six together so `legacy-to-dbt-migration-foundations` sits alongside the migration skills.
+
+### Using with Claude Code or Codex
+
+The same six skill folders work in other Agent-Skills-compatible CLIs; only the directory differs
+(each agent scans its own location, not `.agents/skills`):
+
+- **Claude Code** - `~/.claude/skills/` (all your projects) or `.claude/skills/` in a repo (that
+  project only). Run `./install.sh --claude`. Claude Code watches the folder, so a newly added skill
+  is picked up in the current session (restart only if `~/.claude/skills` did not exist when the
+  session started). Then just ask, e.g. "use migrating-talend-to-dbt to migrate ...".
+- **Codex CLI** - `~/.codex/skills/` (all your projects) or `.codex/skills/` in a repo. Run
+  `./install.sh --codex`. Invoke with `$migrating-talend-to-dbt`, or let it auto-activate from the
+  skill's description.
+
+All six install together (foundations must sit alongside the five migration skills), and re-running
+`install.sh` is safe to update.
 
 ## Usage
 
