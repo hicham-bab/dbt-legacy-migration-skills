@@ -33,12 +33,17 @@ names against the installed package** (`dbt_packages/datavault4dbt/macros`), not
 | Stable business key / master entity (customer, product, contract) | **Hub** | `hub` |
 | Relationship/association between hubs | **Link** (historized) | `link` |
 | Immutable event/transaction with inline attributes | **Non-historized link** | `nh_link` |
-| Descriptive attributes with history (SCD / Detect Changes / Update Strategy SCD2) | **Satellite** | `sat_v0` (+ `sat_v1` for load-end-date / PITs) |
+| Descriptive attributes with history (SCD / Detect Changes / Update Strategy SCD2) | **Satellite** (insert-only, hashdiff) | `sat_v0` (+ `sat_v1` for load-end-date / PITs) |
 | Multiple active values per key | Multi-active satellite | `ma_sat_v0` |
 | Code/lookup tables | Reference entities | `ref_hub` / `ref_sat` / `ref_table` |
 
 One business key → one hub. A key that only relates others belongs in a **link**, not a hub. Split
 satellites by source system and rate of change (e.g. PII separate from non-PII).
+
+History in a Data Vault lives in satellites (insert-only append, new row per change via hashdiff +
+`load_dts`), loaded by `datavault4dbt` - a different idiom from SCD2 snapshots. For how this compares
+to snapshots / incremental models on compute, lineage, and debugging (and when a snapshot should feed
+a satellite whose source only exposes current state), see [scd-history-strategies.md](scd-history-strategies.md).
 
 ## The staging-driven pattern
 

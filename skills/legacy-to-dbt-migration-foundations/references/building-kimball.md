@@ -25,7 +25,9 @@ see [dbt-packages.md](dbt-packages.md)). The legacy→dim/fact mapping is in
    `{{ dbt_utils.generate_surrogate_key([...]) }}`; facts carry the dimension **surrogate** key as
    the FK, never the natural key. Keep the natural key on the dim for lineage. Add an unknown/ghost
    member so fact FKs are never null.
-4. **History via snapshots** — Type-2 dims come from a dbt snapshot, not hand-rolled valid-from/to.
+4. **History for Type-2 dims** - default to the hybrid (a snapshot captures history, a `dim_` model
+   on `ref()` of it shapes valid-from/to + surrogate key). Snapshot vs incremental-merge model vs
+   hybrid is a compute/lineage/debugging tradeoff: see [scd-history-strategies.md](scd-history-strategies.md).
 5. Build bottom-up: sources → `stg_` (view) → `int_` (view/ephemeral) → `dim_`/`fct_` (dim=table,
    fact=incremental). Snapshots in `snapshots/`.
 

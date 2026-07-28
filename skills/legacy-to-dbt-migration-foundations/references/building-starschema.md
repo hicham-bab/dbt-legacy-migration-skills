@@ -9,8 +9,9 @@ use this for a focused mart or a quick BI-friendly migration. The legacy→dim/f
 
 1. **Declare the fact grain** ("one row per …"), same discipline as Kimball.
 2. **Build the dimensions the fact needs** — usually **Type 1** (overwrite) `dim_` tables. Add
-   Type-2 history (a snapshot → versioned dim, see building-kimball.md) only for a dimension the
-   business actually tracks over time.
+   Type-2 history only for a dimension the business actually tracks over time; pick the mechanism
+   (snapshot / incremental-merge / hybrid) via [scd-history-strategies.md](scd-history-strategies.md),
+   default hybrid (see building-kimball.md).
 3. **Build the fact** at the grain, referencing the dims. Surrogate keys are **optional** for a
    self-contained star (natural keys acceptable as FKs), but prefer them if the star may grow into a
    conformed model.

@@ -133,7 +133,11 @@ change.
 ## Snapshots for SCD2
 
 Any legacy pattern that preserves history (Informatica Update Strategy SCD2, effective/expiry
-dates + current flag, insert-new-expire-old) migrates to a **dbt snapshot**, not a model:
+dates + current flag, insert-new-expire-old) needs a history-capture pattern. A **dbt snapshot** is
+the default shown below, but snapshot vs incremental-merge model vs the hybrid (snapshot capture +
+model on top) is a real tradeoff on compute, lineage, and debugging that applies across every
+modeling approach. Decide with [scd-history-strategies.md](scd-history-strategies.md); the default
+for most migrations is the **hybrid** (thin snapshot, then a dimension model on `ref()` of it).
 
 Per the [snapshots docs](https://docs.getdbt.com/docs/build/snapshots), configure snapshots in
 **YAML** (the `{% snapshot %}` SQL block is legacy, v1.8 and earlier); files may live in the
@@ -154,5 +158,7 @@ snapshots:
       # check_cols: [customer_name, address, segment]
 ```
 
-Do not hand-build effective/expiry columns in a model — the snapshot manages `dbt_valid_from` /
-`dbt_valid_to` / current-row logic for you (v1.9+ adds `hard_deletes` and `dbt_valid_to_current`).
+When you use a snapshot, let it manage `dbt_valid_from` / `dbt_valid_to` / current-row logic
+(v1.9+ adds `hard_deletes` and `dbt_valid_to_current`) rather than hand-building those columns.
+Hand-build history in an incremental model only when [scd-history-strategies.md](scd-history-strategies.md)
+calls for it (large tables with a CDC predicate, Type-4 / custom effective-dating, unit-tested logic).
