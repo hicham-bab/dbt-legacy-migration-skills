@@ -110,6 +110,31 @@ cp -R skills/* ~/.dbt/wizard/skills/
 Install **all six together** - the five migration skills reference
 `legacy-to-dbt-migration-foundations` by relative path, so it must sit alongside them.
 
+### Using dbt Wizard on the dbt platform (Studio)
+
+Wizard **in the dbt platform** does not read `~/.dbt/wizard/skills`. It discovers **repo-level
+skills** from an `.agents/skills/` directory at your **dbt project root**, scanned at the start of
+each chat ([docs](https://docs.getdbt.com/docs/dbt-ai/wizard-platform-skills)). So there you commit
+the six skill folders into your dbt project rather than installing them on a machine:
+
+```bash
+# from your dbt project root
+git clone https://github.com/hicham-bab/dbt-legacy-migration-skills.git /tmp/dbt-mig
+/tmp/dbt-mig/install.sh --dest "$(pwd)/.agents/skills"   # or: mkdir -p .agents/skills && cp -R /tmp/dbt-mig/skills/* .agents/skills/
+git add .agents/skills && git commit -m "Add dbt legacy-migration skills"
+```
+
+You can also create the folders straight from the Studio file explorer. Then:
+
+1. **Start a new dbt Wizard chat** - skills load at session start, so mid-session edits are not
+   picked up until you open a new chat.
+2. Reference one by name, e.g. `Use migrating-informatica-to-dbt to migrate models/legacy/wf_orders.XML`.
+3. Commit `.agents/skills/` so the whole project team (and every Wizard session on the repo) gets
+   them. A custom skill overrides a built-in one of the same name.
+
+Same rule as above: keep all six together so `legacy-to-dbt-migration-foundations` sits alongside
+the migration skills.
+
 ## Usage
 
 Once installed, ask the agent to migrate a project and point it at the source artifacts, e.g.:
