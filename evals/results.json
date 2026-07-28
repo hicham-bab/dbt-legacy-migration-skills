@@ -3,8 +3,8 @@
   "label": "evals",
   "message": "38/38 passing",
   "color": "brightgreen",
-  "generated_at": "2026-07-25 14:41 UTC",
-  "commit": "10edd02",
+  "generated_at": "2026-07-28 10:55 UTC",
+  "commit": "6ebd4b2",
   "summary": {
     "passed": 38,
     "total": 38,
