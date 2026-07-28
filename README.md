@@ -90,8 +90,9 @@ npx skills add hicham-bab/dbt-legacy-migration-skills   # vercel-labs/skills
 
 ```bash
 git clone https://github.com/hicham-bab/dbt-legacy-migration-skills.git
-cd dbt-legacy-migration-skills && ./install.sh          # dbt Wizard (~/.dbt/wizard/skills)
-#                                  ./install.sh --claude # Claude Code (~/.agents/skills)
+cd dbt-legacy-migration-skills && ./install.sh          # dbt Wizard CLI (~/.dbt/wizard/skills)
+#                                  ./install.sh --claude # Claude Code   (~/.claude/skills)
+#                                  ./install.sh --codex  # Codex CLI     (~/.codex/skills)
 ```
 
 `install.sh` copies just the six skill folders (from `skills/`) into your skills directory and leaves
@@ -114,26 +115,55 @@ Install **all six together** - the five migration skills reference
 
 Wizard **in the dbt platform** does not read `~/.dbt/wizard/skills`. It discovers **repo-level
 skills** from an `.agents/skills/` directory at your **dbt project root**, scanned at the start of
-each chat ([docs](https://docs.getdbt.com/docs/dbt-ai/wizard-platform-skills)). So there you commit
-the six skill folders into your dbt project rather than installing them on a machine:
+each chat ([docs](https://docs.getdbt.com/docs/dbt-ai/wizard-platform-skills)). Studio is a browser
+IDE with no general shell, so you do **not** run `install.sh` (or any of the commands above) inside
+the platform. Instead, get the six skill folders into your project repo's `.agents/skills/` one of
+two ways.
+
+**Via git (recommended)** - in a local checkout of *your dbt project* (on your machine, outside
+Studio), add the skills and push:
 
 ```bash
-# from your dbt project root
+# run in a local clone of YOUR dbt project, not in Studio
 git clone https://github.com/hicham-bab/dbt-legacy-migration-skills.git /tmp/dbt-mig
-/tmp/dbt-mig/install.sh --dest "$(pwd)/.agents/skills"   # or: mkdir -p .agents/skills && cp -R /tmp/dbt-mig/skills/* .agents/skills/
-git add .agents/skills && git commit -m "Add dbt legacy-migration skills"
+mkdir -p .agents/skills && cp -R /tmp/dbt-mig/skills/* .agents/skills/
+git add .agents/skills && git commit -m "Add dbt legacy-migration skills" && git push
 ```
 
-You can also create the folders straight from the Studio file explorer. Then:
+Then in Studio, **pull the branch** using the built-in git controls (the git button / wayfinder bar
+handles branch/commit/push/pull; there is no shell). (`/tmp/dbt-mig/install.sh --dest
+"$(pwd)/.agents/skills"` does the same copy if you prefer it, but it still runs on your machine, not
+in the platform.)
+
+**Or in the Studio file explorer** - create `.agents/skills/<skill>/SKILL.md` (plus any `references/`
+files) for each skill by hand, pasting the contents from this repo. Fine for one skill, tedious for
+all six.
+
+Either way, then:
 
 1. **Start a new dbt Wizard chat** - skills load at session start, so mid-session edits are not
    picked up until you open a new chat.
 2. Reference one by name, e.g. `Use migrating-informatica-to-dbt to migrate models/legacy/wf_orders.XML`.
-3. Commit `.agents/skills/` so the whole project team (and every Wizard session on the repo) gets
-   them. A custom skill overrides a built-in one of the same name.
+3. Keep `.agents/skills/` committed so the whole project team (and every Wizard session on the repo)
+   gets them. A custom skill overrides a built-in one of the same name.
 
-Same rule as above: keep all six together so `legacy-to-dbt-migration-foundations` sits alongside
-the migration skills.
+Keep all six together so `legacy-to-dbt-migration-foundations` sits alongside the migration skills.
+
+### Using with Claude Code or Codex
+
+The same six skill folders work in other Agent-Skills-compatible CLIs; only the directory differs
+(each agent scans its own location, not `.agents/skills`):
+
+- **Claude Code** - `~/.claude/skills/` (all your projects) or `.claude/skills/` in a repo (that
+  project only). Run `./install.sh --claude`. Claude Code watches the folder, so a newly added skill
+  is picked up in the current session (restart only if `~/.claude/skills` did not exist when the
+  session started). Then just ask, e.g. "use migrating-talend-to-dbt to migrate ...".
+- **Codex CLI** - `~/.codex/skills/` (all your projects) or `.codex/skills/` in a repo. Run
+  `./install.sh --codex`. Invoke with `$migrating-talend-to-dbt`, or let it auto-activate from the
+  skill's description.
+
+All six install together (foundations must sit alongside the five migration skills), and re-running
+`install.sh` is safe to update.
 
 ## Usage
 
