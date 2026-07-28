@@ -165,6 +165,21 @@ The same six skill folders work in other Agent-Skills-compatible CLIs; only the 
 All six install together (foundations must sit alongside the five migration skills), and re-running
 `install.sh` is safe to update.
 
+### Iterating on the skills (frequent edits / beta)
+
+If you are actively changing the skills, **symlink instead of copy** so your working clone is the
+live source and you never re-install on each edit:
+
+```bash
+./install.sh --link            # symlinks into ~/.dbt/wizard/skills; combine with --claude / --codex / --dest
+```
+
+Then edits in `skills/` are live: **dbt Wizard and Codex** pick them up when you **start a new
+session**; **Claude Code** re-reads changed skills within the session (no restart). `--link` needs a
+local clone (it points the symlinks at your checkout). Run a plain `./install.sh` again to switch
+back to a real copy. For the **dbt platform (Studio)** there's no symlink, iterate by committing to
+`.agents/skills/` and starting a new chat.
+
 ## Usage
 
 Once installed, ask the agent to migrate a project and point it at the source artifacts, e.g.:
