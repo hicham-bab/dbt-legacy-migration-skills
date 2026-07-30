@@ -48,8 +48,8 @@ Mechanical function swaps are safe. Structural rewrites (recursive queries, `KEE
 
 ## Choosing target syntax
 
-- Emit SQL for the **connected target adapter** detected in Step 0, not the source dialect — the
-  migrated dbt project runs on the target. Confirm every function is valid for that adapter by
+- Emit SQL for the **connected target adapter** detected in Step 0, not the source dialect (the
+  migrated dbt project runs on the target). Confirm every function is valid for that adapter by
   compiling against it (e.g. `qualify` is unsupported on some warehouses like Redshift); the
   connected-adapter compile is authoritative. See
   [warehouse-conformance.md](../../legacy-to-dbt-migration-foundations/references/warehouse-conformance.md).
