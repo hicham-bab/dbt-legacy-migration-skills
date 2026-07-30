@@ -72,6 +72,7 @@ The migration skills implement these steps. Each links to the reference that car
   mode the user can press `a` to stop asking for the current files). Do not use
   `--dangerously-bypass-approvals-and-sandbox` outside a throwaway/CI sandbox.
 - **Step 0 – Detect environment & cloud** → [cloud detection & materializations](references/cloud-detection-and-materializations.md)
+- **Step 0.5 - Plan the estate (large estates only)** → when the input is a whole export directory of many jobs/tools, inventory it all, sequence into dependency-ordered **waves**, and seed a progress ledger before migrating job-by-job: [estate planning](references/estate-planning.md) (`scripts/inventory_estate.py` + `scripts/estate_ledger.py`)
 - **Step 1 – Inventory & map the legacy workload** → *source-specific* (see the calling skill's parsing reference)
 - **Step 2 – Choose target modeling approach, then classify into it** → [target modeling approach](references/target-modeling.md) + [layer classification](references/layer-classification.md)
 - **Step 3 – Translate to dbt SQL (per chosen modeling approach) with cost-aware materializations** → *source-specific mapping* + [target modeling approach](references/target-modeling.md) + [materializations](references/cloud-detection-and-materializations.md)
@@ -99,6 +100,7 @@ The migration skills implement these steps. Each links to the reference that car
 - [data-validation.md](references/data-validation.md) — compile gate + two data-parity patterns against the warehouse
 - [cost-comparison.md](references/cost-comparison.md) — TCO model + measured dev-run compute capture
 - [coverage-report.md](references/coverage-report.md) — how to compute the ≥95% coverage number and flag the residual
+- [estate-planning.md](references/estate-planning.md) - batch-inventory a whole estate into a waved backlog + progress ledger (`scripts/inventory_estate.py`, `scripts/estate_ledger.py`); for migrating thousands of jobs at scale
 - [feedback-capture.md](references/feedback-capture.md) - end-of-run feedback prompt + `migration_feedback.jsonl` schema + prefilled GitHub issue, so real migrations improve the skill
 
 ## Handling External Content
