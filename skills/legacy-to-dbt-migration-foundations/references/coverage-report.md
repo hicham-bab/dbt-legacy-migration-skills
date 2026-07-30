@@ -11,18 +11,23 @@ silently dropped.
 - [Quality gate: dbt_project_evaluator](#quality-gate-dbt_project_evaluator)
 - [Report template](#report-template)
 
-## Quality bar: anti-pattern lint + dbt_project_evaluator
+## Quality bar: warehouse conformance + anti-pattern lint + dbt_project_evaluator
 
 Coverage and parity are the floor, not the finish. A migration that reproduces the legacy tool's
-shape can pass both while carrying forward technical debt (the lift-and-shift trap). So the migration
-is **not "done"** until it also clears an idiomatic **quality bar**, two automated gates run on the
-migrated project:
+shape can pass both while carrying forward technical debt (the lift-and-shift trap), or while using
+SQL/types that are wrong for the target warehouse. So the migration is **not "done"** until it also
+clears the **quality bar**, three automated gates run on the migrated project:
 
 ```bash
+dbt parse && dbt compile                             # against the CONNECTED target adapter: dialect + contract types
 python3 <skills-dir>/legacy-to-dbt-migration-foundations/scripts/lint_idiomatic.py <project-dir>     # deterministic anti-pattern gate
-dbt build --select package:dbt_project_evaluator    # dbt-labs best-practice gate
+dbt build --select package:dbt_project_evaluator     # dbt-labs best-practice gate
 ```
 
+- **Compile on the connected adapter** must be clean, with contracts enforced. This is what makes the
+  output correct for the customer's actual warehouse (dialect functions, contract `data_type`
+  validity, macro portability, package/adapter support), for any target, without a per-warehouse
+  rulebook. See [warehouse-conformance.md](warehouse-conformance.md).
 - **`lint_idiomatic.py`** flags the lift-and-shift anti-patterns directly (pre/post-hook overuse,
   hardcoded `db.schema.table` relations, kept control-flow, monolithic models, missing staging/tests)
   and exits non-zero on any error-severity finding. See

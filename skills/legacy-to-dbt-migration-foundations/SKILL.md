@@ -71,13 +71,13 @@ The migration skills implement these steps. Each links to the reference that car
   sandbox fails rather than prompting. The default `on-request` policy prompts at each step (in that
   mode the user can press `a` to stop asking for the current files). Do not use
   `--dangerously-bypass-approvals-and-sandbox` outside a throwaway/CI sandbox.
-- **Step 0 – Detect environment & cloud** → [cloud detection & materializations](references/cloud-detection-and-materializations.md)
+- **Step 0 - Detect environment & cloud** → [cloud detection & materializations](references/cloud-detection-and-materializations.md); note the **connected target adapter** (the project's active dbt platform connection / `profiles.yml`) - it is the source of truth for dialect and contract types, see [warehouse conformance](references/warehouse-conformance.md)
 - **Step 0.5 - Plan the estate (large estates only)** → when the input is a whole export directory of many jobs/tools, inventory it all, sequence into dependency-ordered **waves**, and seed a progress ledger before migrating job-by-job: [estate planning](references/estate-planning.md) (`scripts/inventory_estate.py` + `scripts/estate_ledger.py`)
 - **Step 1 – Inventory & map the legacy workload** → *source-specific* (see the calling skill's parsing reference)
 - **Step 2 – Choose target modeling approach, then classify into it** → [target modeling approach](references/target-modeling.md) + [layer classification](references/layer-classification.md)
 - **Step 3 – Translate to dbt SQL (per chosen modeling approach) with cost-aware materializations** → *source-specific mapping* + [target modeling approach](references/target-modeling.md) + [materializations](references/cloud-detection-and-materializations.md)
 - **Step 4 – Apply best practices: tests, docs, contracts, snapshots** → [dbt best practices](references/dbt-best-practices.md)
-- **Step 5 – Validate: compile gate, then data parity** → [data validation](references/data-validation.md)
+- **Step 5 - Validate: compile gate, then data parity** → [data validation](references/data-validation.md); the compile gate must run against the **connected target adapter** with contracts enforced (Fusion is authoritative for that warehouse's dialect + types), see [warehouse conformance](references/warehouse-conformance.md)
 - **Step 6 – Cost comparison: measured, apples-to-apples** → [cost comparison](references/cost-comparison.md)
 - **Step 7 - Coverage report (confirm ≥95%, flag residual) + quality bar** → [coverage report](references/coverage-report.md); the migration is done only when it also clears the idiomatic **quality bar** (`<skills-dir>/legacy-to-dbt-migration-foundations/scripts/lint_idiomatic.py` + `dbt_project_evaluator`), see [anti-patterns.md](references/anti-patterns.md)
 - **Step 8 – Document in migration_changes.md** → template in the calling skill
@@ -88,6 +88,7 @@ The migration skills implement these steps. Each links to the reference that car
 - [dbt-concepts-explained.md](references/dbt-concepts-explained.md) — **plain-language primer** for migrators new to dbt (models, materializations incl. incremental, snapshots/SCD, tests, contracts, Fusion) — explain concepts from here as they come up
 - [dbt-packages.md](references/dbt-packages.md) — **packages vs macros**: ask the migrator, then either install only-what's-needed from **hub.getdbt.com** (Fusion-pinned) or generate self-contained macros; the need→package/macro map
 - [cloud-detection-and-materializations.md](references/cloud-detection-and-materializations.md) — questions to ask up front; per-platform cost-aware materialization guidance
+- [warehouse-conformance.md](references/warehouse-conformance.md) - respect the customer's **connected** target warehouse by compiling against that adapter (Fusion) with contracts enforced; catches dialect / contract data_type / macro / package issues for any target without a per-warehouse rulebook
 - [target-modeling.md](references/target-modeling.md) — ask the migrator which paradigm (layered / Data Vault / Kimball / star) and map the workload into it
 - [building-datavault.md](references/building-datavault.md) — generate a Data Vault with the datavault4dbt package (distilled from Scalefree, Apache-2.0)
 - [building-kimball.md](references/building-kimball.md) — generate conformed dimensions + facts (SCD2 via snapshots, surrogate keys)

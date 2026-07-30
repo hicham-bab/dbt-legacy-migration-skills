@@ -103,10 +103,17 @@ models:
       contract: {enforced: true}
     columns:
       - name: sales_key
-        data_type: string
+        data_type: string       # ILLUSTRATIVE ONLY - use the connected adapter's type name
       - name: net_amount
-        data_type: decimal(18,2)   # translate legacy NUMBER(18,2) / VARCHAR2 etc. to platform types
+        data_type: decimal(18,2) # e.g. number(18,2) on Snowflake, numeric on BigQuery/Redshift
 ```
+
+> **The `data_type` values above are illustrative (Databricks/BigQuery-flavored), not portable.**
+> `string` vs `varchar` vs `number` vs `int64` differ by warehouse, and an enforced contract's
+> preflight **fails** on a type the target does not accept. Use the customer's **connected adapter's**
+> type names and let `dbt compile` confirm them - the connected-adapter compile is the source of
+> truth, not this example. See [warehouse-conformance.md](warehouse-conformance.md) for the per-adapter
+> orientation table and why compiling on the real adapter is the conformance gate.
 
 Per the [model-contracts docs](https://docs.getdbt.com/docs/mesh/govern/model-contracts): with
 `contract: {enforced: true}` the contract **must list every column's `name` and `data_type`** (all
