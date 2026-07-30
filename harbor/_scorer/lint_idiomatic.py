@@ -33,7 +33,7 @@ JINJA = re.compile(r"\{\{.*?\}\}", re.S)
 BLOCK_COMMENT = re.compile(r"/\*.*?\*/", re.S)
 LINE_COMMENT = re.compile(r"--[^\n]*")
 HARDCODED = re.compile(r"\b(from|join)\s+([A-Za-z_]\w*(?:\.[A-Za-z_]\w*)+)", re.I)
-HOOK = re.compile(r"pre[_-]hook|post[_-]hook", re.I)
+HOOK = re.compile(r"(?:pre|post)[_-]hook\s*[:=]", re.I)  # config assignment, not prose mentions
 CONTROL = re.compile(r"\b(cursor|while|loop|fetch|execute\s+immediate|\bexec\b|call\s+\w+\s*\()\b", re.I)
 
 

@@ -1,0 +1,4 @@
+customer_id,lifetime_value,order_count,ltv_segment
+1,175.00,3,high
+2,200.00,1,high
+3,30.00,1,low

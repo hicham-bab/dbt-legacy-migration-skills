@@ -33,6 +33,13 @@
           "detail": "tests 100% \u00b7 docs 100% \u00b7 layering yes"
         },
         {
+          "name": "lint",
+          "score": 1.0,
+          "weight": 1.0,
+          "ran": true,
+          "detail": "0 error(s), 0 warning(s)"
+        },
+        {
           "name": "judge",
           "score": 0.0,
           "weight": 1.0,
@@ -73,6 +80,13 @@
           "weight": 1.0,
           "ran": true,
           "detail": "tests 100% \u00b7 docs 100% \u00b7 layering yes"
+        },
+        {
+          "name": "lint",
+          "score": 1.0,
+          "weight": 1.0,
+          "ran": true,
+          "detail": "0 error(s), 0 warning(s)"
         },
         {
           "name": "judge",
@@ -117,6 +131,13 @@
           "detail": "tests 100% \u00b7 docs 100% \u00b7 layering yes"
         },
         {
+          "name": "lint",
+          "score": 1.0,
+          "weight": 1.0,
+          "ran": true,
+          "detail": "0 error(s), 0 warning(s)"
+        },
+        {
           "name": "judge",
           "score": 0.0,
           "weight": 1.0,
@@ -159,6 +180,13 @@
           "detail": "tests 100% \u00b7 docs 100% \u00b7 layering yes"
         },
         {
+          "name": "lint",
+          "score": 1.0,
+          "weight": 1.0,
+          "ran": true,
+          "detail": "0 error(s), 0 warning(s)"
+        },
+        {
           "name": "judge",
           "score": 0.0,
           "weight": 1.0,
@@ -199,6 +227,13 @@
           "weight": 1.0,
           "ran": true,
           "detail": "tests 100% \u00b7 docs 100% \u00b7 layering yes"
+        },
+        {
+          "name": "lint",
+          "score": 1.0,
+          "weight": 1.0,
+          "ran": true,
+          "detail": "0 error(s), 0 warning(s)"
         },
         {
           "name": "judge",

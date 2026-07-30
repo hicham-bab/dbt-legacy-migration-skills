@@ -4,7 +4,7 @@ A migration that "gives the same results" is not done. Reproducing the legacy to
 (the lift-and-shift) usually produces dbt that technically runs but throws away the reasons dbt works:
 lineage, testability, incrementality, and reviewability. This catalog names the common anti-patterns,
 the idiomatic alternative, and why. It is both migration guidance and enablement content for the
-mindset shift, and it backs the automated quality bar (`scripts/lint_idiomatic.py`, see below).
+mindset shift, and it backs the automated quality bar (`<skills-dir>/legacy-to-dbt-migration-foundations/scripts/lint_idiomatic.py`, see below).
 
 | Anti-pattern | Why it is a problem | Idiomatic dbt instead |
 |---|---|---|
@@ -22,7 +22,7 @@ Idiomatic quality is a **required gate**, not a suggestion. After building the m
 both and resolve findings (or record a justified exception):
 
 ```bash
-python3 scripts/lint_idiomatic.py <project-dir>        # deterministic anti-pattern gate (this catalog)
+python3 <skills-dir>/legacy-to-dbt-migration-foundations/scripts/lint_idiomatic.py <project-dir>        # deterministic anti-pattern gate (this catalog)
 dbt build --select package:dbt_project_evaluator       # dbt-labs best-practice gate
 ```
 

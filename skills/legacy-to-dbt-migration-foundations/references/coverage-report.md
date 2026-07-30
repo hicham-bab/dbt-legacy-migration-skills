@@ -19,7 +19,7 @@ is **not "done"** until it also clears an idiomatic **quality bar**, two automat
 migrated project:
 
 ```bash
-python3 scripts/lint_idiomatic.py <project-dir>     # deterministic anti-pattern gate
+python3 <skills-dir>/legacy-to-dbt-migration-foundations/scripts/lint_idiomatic.py <project-dir>     # deterministic anti-pattern gate
 dbt build --select package:dbt_project_evaluator    # dbt-labs best-practice gate
 ```
 

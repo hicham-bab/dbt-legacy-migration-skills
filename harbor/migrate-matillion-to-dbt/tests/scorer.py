@@ -365,6 +365,30 @@ def score_judge(project: Path, legacy_text: str, rubric: list[dict]) -> Dimensio
     return Dimension("judge", sum(vals) / len(vals) if vals else 0.0, weight, detail=detail)
 
 
+# --- dimension: idiomatic lint (the Phase A quality bar, inside the eval) --
+
+
+def score_lint(project: Path) -> Dimension:
+    """Run the anti-pattern linter (scripts/lint_idiomatic.py, synced next to this file).
+
+    Errors (hardcoded relations, retained control-flow) zero the score; warnings (hooks,
+    monoliths, missing layering/tests) soften it. Central to the remediation task, where the
+    whole point is lint errors going to zero while parity holds.
+    """
+    weight = 1.0
+    lint = os.environ.get("HARBOR_LINT") or str(Path(__file__).with_name("lint_idiomatic.py"))
+    if not Path(lint).exists():
+        return Dimension("lint", 0.0, weight, detail="skipped (lint_idiomatic.py not found)", ran=False)
+    try:
+        out = subprocess.run(["python3", lint, str(project), "--json"], capture_output=True, text=True)
+        s = json.loads(out.stdout)["summary"]
+    except Exception as e:
+        return Dimension("lint", 0.0, weight, detail=f"lint error: {e!r}", ran=False)
+    errors, warns = s.get("errors", 0), s.get("warnings", 0)
+    score = 0.0 if errors else (1.0 if warns == 0 else 0.6)
+    return Dimension("lint", score, weight, detail=f"{errors} error(s), {warns} warning(s)")
+
+
 # --- orchestration --------------------------------------------------------
 
 
@@ -392,24 +416,30 @@ def score_task(spec: dict) -> Scorecard:
         card.add(Dimension("parity", 0.0, 3.0, "build failed"))
         card.add(Dimension("coverage", 0.0, 1.5, "build failed"))
         card.add(Dimension("structural", 0.0, 1.0, "build failed"))
+        card.add(Dimension("lint", 0.0, 1.0, "build failed"))
         card.add(Dimension("judge", 0.0, 1.0, "build failed", ran=False))
         return card
 
     card.add(score_parity(project, spec["marts"]))
     card.add(score_coverage(project, spec))
     card.add(score_structural(project))
+    card.add(score_lint(project))
     card.add(score_judge(project, _read_legacy(spec.get("legacy_file")),
                          spec.get("judge_rubric", [])))
     return card
 
 
-def reward(card: Scorecard, coverage_threshold: float = 0.95) -> int:
+def reward(card: Scorecard, require_lint: bool = False) -> int:
     """Harbor 1/0 gate = correctness: build passed AND every mart matches row-for-row.
 
     Coverage/structural/judge are quality dimensions in the weighted score, not part of the
     binary gate - an ETL component collapses into fewer dbt models, so a models/units ratio is a
-    directional signal, not a pass/fail line. `coverage_threshold` is accepted for signature
-    stability but no longer gates the reward.
+    directional signal, not a pass/fail line. Tasks that opt in with `require_lint` (the
+    remediation task) additionally require the idiomatic linter to pass with zero errors.
     """
     b, p = card.get("build"), card.get("parity")
-    return int(bool(b and b.score == 1.0 and p and p.score == 1.0))
+    ok = bool(b and b.score == 1.0 and p and p.score == 1.0)
+    if require_lint:
+        lint = card.get("lint")
+        ok = ok and bool(lint and lint.ran and lint.score == 1.0)
+    return int(ok)

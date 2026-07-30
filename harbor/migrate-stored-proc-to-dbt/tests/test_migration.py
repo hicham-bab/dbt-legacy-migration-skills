@@ -35,10 +35,14 @@ def test_scorecard():
     card = scorer.score_task(_resolved_spec())
     card.write(LOGS)
     print("\n" + card.to_markdown())
-    r = scorer.reward(card, SPEC.get("coverage_threshold", 0.95))
+    require_lint = SPEC.get("require_lint", False)
+    r = scorer.reward(card, require_lint=require_lint)
     (LOGS).mkdir(parents=True, exist_ok=True)
     (LOGS / "reward.txt").write_text(str(r) + "\n")
     b, p = card.get("build"), card.get("parity")
     assert b and b.score == 1.0, f"build gate failed: {b.detail if b else 'n/a'}"
     assert p and p.score == 1.0, f"parity gate failed: {p.detail if p else 'n/a'}"
+    if require_lint:
+        lint = card.get("lint")
+        assert lint and lint.score == 1.0, f"lint gate failed: {lint.detail if lint else 'n/a'}"
     assert r == 1, "reward gate not met (see scorecard)"

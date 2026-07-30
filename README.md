@@ -22,7 +22,8 @@ skills are plain `SKILL.md` folders and work in any agent that supports the skil
 | [`migrating-stored-procedures-to-dbt`](skills/migrating-stored-procedures-to-dbt) | SQL stored procedures (Snowflake, BigQuery, Databricks, T-SQL, PL/SQL) |
 | [`migrating-matillion-to-dbt`](skills/migrating-matillion-to-dbt) | Matillion pipelines/jobs - DPC YAML (`.tran.yaml`/`.orch.yaml`), Matillion ETL JSON (export + git per-job forms), CDC/streaming, shared jobs |
 | [`migrating-coalesce-to-dbt`](skills/migrating-coalesce-to-dbt) | Coalesce.io projects (Git-committed YAML nodes) - Source/Stage/Dimension(SCD1/2)/Fact/View nodes → models, snapshots, sources |
-| [`legacy-to-dbt-migration-foundations`](skills/legacy-to-dbt-migration-foundations) | *Shared reference library* - not invoked directly; the five migration skills link to it |
+| [`remediating-lift-and-shift-to-dbt`](skills/remediating-lift-and-shift-to-dbt) | An already-migrated but non-idiomatic dbt project (hook/monolith/hardcoded lift-and-shift) → refactored to idiomatic dbt with parity preserved |
+| [`legacy-to-dbt-migration-foundations`](skills/legacy-to-dbt-migration-foundations) | *Shared reference library* - not invoked directly; the migration and remediation skills link to it |
 
 ## How they fit together
 
@@ -86,7 +87,7 @@ npx skills add hicham-bab/dbt-legacy-migration-skills   # vercel-labs/skills
 # or:  gh skill install hicham-bab/dbt-legacy-migration-skills
 ```
 
-**Or the bundled one-liner** (installs/updates all six skills):
+**Or the bundled one-liner** (installs/updates all seven skills):
 
 ```bash
 git clone https://github.com/hicham-bab/dbt-legacy-migration-skills.git
@@ -95,7 +96,7 @@ cd dbt-legacy-migration-skills && ./install.sh          # dbt Wizard CLI (~/.dbt
 #                                  ./install.sh --codex  # Codex CLI     (~/.codex/skills)
 ```
 
-`install.sh` copies just the six skill folders (from `skills/`) into your skills directory and leaves
+`install.sh` copies just the seven skill folders (from `skills/`) into your skills directory and leaves
 everything else untouched. If you run it outside a clone it fetches the skills from GitHub for you.
 **It's safe to re-run to update**; it cleanly replaces only these folders. (Use `--dest <path>` for a
 custom location.) After it finishes, **restart the agent** so it reloads the skill list.
@@ -108,7 +109,7 @@ cp -R skills/* ~/.dbt/wizard/skills/
 
 </details>
 
-Install **all six together** - the five migration skills reference
+Install **all seven together** - the five migration skills reference
 `legacy-to-dbt-migration-foundations` by relative path, so it must sit alongside them.
 
 ### Using dbt Wizard on the dbt platform (Studio)
@@ -117,7 +118,7 @@ Wizard **in the dbt platform** does not read `~/.dbt/wizard/skills`. It discover
 skills** from an `.agents/skills/` directory at your **dbt project root**, scanned at the start of
 each chat ([docs](https://docs.getdbt.com/docs/dbt-ai/wizard-platform-skills)). Studio is a browser
 IDE with no general shell, so you do **not** run `install.sh` (or any of the commands above) inside
-the platform. Instead, get the six skill folders into your project repo's `.agents/skills/` one of
+the platform. Instead, get the seven skill folders into your project repo's `.agents/skills/` one of
 two ways.
 
 **Via git (recommended)** - in a local checkout of *your dbt project* (on your machine, outside
@@ -137,7 +138,7 @@ in the platform.)
 
 **Or in the Studio file explorer** - create `.agents/skills/<skill>/SKILL.md` (plus any `references/`
 files) for each skill by hand, pasting the contents from this repo. Fine for one skill, tedious for
-all six.
+all seven.
 
 Either way, then:
 
@@ -147,11 +148,11 @@ Either way, then:
 3. Keep `.agents/skills/` committed so the whole project team (and every Wizard session on the repo)
    gets them. A custom skill overrides a built-in one of the same name.
 
-Keep all six together so `legacy-to-dbt-migration-foundations` sits alongside the migration skills.
+Keep all seven together so `legacy-to-dbt-migration-foundations` sits alongside the migration skills.
 
 ### Using with Claude Code or Codex
 
-The same six skill folders work in other Agent-Skills-compatible CLIs; only the directory differs
+The same seven skill folders work in other Agent-Skills-compatible CLIs; only the directory differs
 (each agent scans its own location, not `.agents/skills`):
 
 - **Claude Code** - `~/.claude/skills/` (all your projects) or `.claude/skills/` in a repo (that
@@ -162,7 +163,7 @@ The same six skill folders work in other Agent-Skills-compatible CLIs; only the 
   `./install.sh --codex`. Invoke with `$migrating-talend-to-dbt`, or let it auto-activate from the
   skill's description.
 
-All six install together (foundations must sit alongside the five migration skills), and re-running
+All seven install together (foundations must sit alongside the five migration skills), and re-running
 `install.sh` is safe to update.
 
 ### Iterating on the skills (frequent edits / beta)
