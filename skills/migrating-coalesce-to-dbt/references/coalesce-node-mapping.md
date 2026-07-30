@@ -75,7 +75,12 @@ record-start/end) are provided by the snapshot's `dbt_valid_from`/`dbt_valid_to`
 - Most nodes use the **built-in** node types → the standard dbt materializations cover them; you
   rarely need a custom materialization. A genuinely **custom node type (UDN)** with bespoke
   create/run templates → reproduce its logic as a dbt macro or a custom materialization, or flag it.
-- `operation.config.preSQL` / `postSQL` → dbt `pre_hook` / `post_hook`.
+- `operation.config.preSQL` / `postSQL`: **do not reflexively map to `pre_hook` / `post_hook`.** First
+  decide where the SQL belongs: transformation logic goes in the model (a CTE), assertions become a
+  test, reusable SQL becomes a macro, history becomes a snapshot. Map to a `pre_hook`/`post_hook`
+  **only** for genuine side-effects that have no model form (grants, cache/warmups, external calls).
+  Porting every preSQL/postSQL straight to a hook is a classic lift-and-shift anti-pattern, see
+  [anti-patterns.md](../../legacy-to-dbt-migration-foundations/references/anti-patterns.md).
 - **Jobs** → a dbt job / selection; **subgraphs** → model groups.
 
 ## Worked example

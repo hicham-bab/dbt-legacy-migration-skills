@@ -11,15 +11,28 @@ silently dropped.
 - [Quality gate: dbt_project_evaluator](#quality-gate-dbt_project_evaluator)
 - [Report template](#report-template)
 
-## Quality gate: dbt_project_evaluator
+## Quality bar: anti-pattern lint + dbt_project_evaluator
 
-Alongside the coverage number, run **`dbt_project_evaluator`** (dbt-labs) as an automated
-best-practice gate on the migrated project — it flags undocumented/untested models, direct
-source references, model fanout, staging↔source 1:1 violations, and naming/structure issues.
-Install it, then `dbt build --select package:dbt_project_evaluator`; treat its failures as
-follow-ups (or exempt with justification via its seed). See
-[dbt-packages.md](dbt-packages.md). A migration isn't "done" just at ≥95% coverage — it should also
-pass (or have documented exceptions to) the evaluator.
+Coverage and parity are the floor, not the finish. A migration that reproduces the legacy tool's
+shape can pass both while carrying forward technical debt (the lift-and-shift trap). So the migration
+is **not "done"** until it also clears an idiomatic **quality bar**, two automated gates run on the
+migrated project:
+
+```bash
+python3 scripts/lint_idiomatic.py <project-dir>     # deterministic anti-pattern gate
+dbt build --select package:dbt_project_evaluator    # dbt-labs best-practice gate
+```
+
+- **`lint_idiomatic.py`** flags the lift-and-shift anti-patterns directly (pre/post-hook overuse,
+  hardcoded `db.schema.table` relations, kept control-flow, monolithic models, missing staging/tests)
+  and exits non-zero on any error-severity finding. See
+  [anti-patterns.md](anti-patterns.md) for what each means and the idiomatic fix.
+- **`dbt_project_evaluator`** (dbt-labs) flags undocumented/untested models, direct source references,
+  model fanout, staging<->source 1:1 violations, and naming/structure issues. See [dbt-packages.md](dbt-packages.md).
+
+Resolve findings, or record a justified exception (evaluator seed / a note in `migration_changes.md`).
+A migration is "done" only when it passes the quality bar, not merely at >=95% coverage with matching
+results.
 
 ## How to compute coverage
 
