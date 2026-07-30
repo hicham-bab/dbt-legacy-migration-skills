@@ -78,7 +78,7 @@ The migration skills implement these steps. Each links to the reference that car
 - **Step 4 – Apply best practices: tests, docs, contracts, snapshots** → [dbt best practices](references/dbt-best-practices.md)
 - **Step 5 – Validate: compile gate, then data parity** → [data validation](references/data-validation.md)
 - **Step 6 – Cost comparison: measured, apples-to-apples** → [cost comparison](references/cost-comparison.md)
-- **Step 7 - Coverage report (confirm ≥95%, flag residual) + quality bar** → [coverage report](references/coverage-report.md); the migration is done only when it also clears the idiomatic **quality bar** (`scripts/lint_idiomatic.py` + `dbt_project_evaluator`), see [anti-patterns.md](references/anti-patterns.md)
+- **Step 7 - Coverage report (confirm ≥95%, flag residual) + quality bar** → [coverage report](references/coverage-report.md); the migration is done only when it also clears the idiomatic **quality bar** (`<skills-dir>/legacy-to-dbt-migration-foundations/scripts/lint_idiomatic.py` + `dbt_project_evaluator`), see [anti-patterns.md](references/anti-patterns.md)
 - **Step 8 – Document in migration_changes.md** → template in the calling skill
 - **Wrap-up - Capture feedback (optional)** → [feedback capture](references/feedback-capture.md) (ask a few short questions, record `migration_feedback.jsonl`, offer a prefilled GitHub issue with consent)
 
@@ -93,7 +93,7 @@ The migration skills implement these steps. Each links to the reference that car
 - [building-starschema.md](references/building-starschema.md) — generate a single lightweight star
 - [layer-classification.md](references/layer-classification.md) — source → staging → intermediate → mart mapping with confidence scoring and Mesh detection
 - [dbt-best-practices.md](references/dbt-best-practices.md) — Fusion-conformant SQL, tests, docs, contracts, snapshots
-- [anti-patterns.md](references/anti-patterns.md) - lift-and-shift anti-patterns (hook overuse, monoliths, hardcoded refs, kept control-flow) + the enforced quality bar (`scripts/lint_idiomatic.py` + `dbt_project_evaluator`); doubles as mindset-shift enablement
+- [anti-patterns.md](references/anti-patterns.md) - lift-and-shift anti-patterns (hook overuse, monoliths, hardcoded refs, kept control-flow) + the enforced quality bar (`<skills-dir>/legacy-to-dbt-migration-foundations/scripts/lint_idiomatic.py` + `dbt_project_evaluator`); doubles as mindset-shift enablement
 - [scd-history-strategies.md](references/scd-history-strategies.md) - cross-cutting history/SCD decision: snapshot vs incremental-merge vs hybrid (vs DV satellite), scored on compute/lineage/debugging, with pick-this-when
 - [dbt-features-for-migration.md](references/dbt-features-for-migration.md) — **unit tests** (pin the logic), **exposures** (preserve downstream lineage), **source freshness** (rule out stale inputs), docs-grounded
 - [data-validation.md](references/data-validation.md) — compile gate + two data-parity patterns against the warehouse

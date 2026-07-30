@@ -54,14 +54,15 @@ def run_task(task: Path) -> scorer.Scorecard:
 
 
 def main() -> int:
-    tasks = sorted(HARBOR.glob("migrate-*"))
+    tasks = sorted(list(HARBOR.glob("migrate-*")) + list(HARBOR.glob("remediate-*")))
     cards = []
     for task in tasks:
         if not (task / "tests" / "spec.json").exists():
             continue
         print(f"### {task.name}")
         card = run_task(task)
-        r = scorer.reward(card)
+        require_lint = json.loads((task / "tests" / "spec.json").read_text()).get("require_lint", False)
+        r = scorer.reward(card, require_lint=require_lint)
         cards.append((card, r))
         print(card.to_markdown())
         print(f"reward: {r}\n")

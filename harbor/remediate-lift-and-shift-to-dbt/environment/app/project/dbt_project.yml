@@ -1,0 +1,6 @@
+name: remediate_demo
+version: 1.0.0
+profile: remediate_demo
+require-dbt-version: [">=1.9.0"]
+model-paths: ["models"]
+seed-paths: ["seeds"]

@@ -17,12 +17,15 @@ migrated project on five dimensions and writes a weighted `SCORECARD.md` + `scor
 | **parity** | 3.0 | every mart matches the held-out expected output **row-for-row** | queries the built warehouse, compares cells (numeric tolerance) |
 | **coverage** | 1.5 | the required models are all present | `expected_models` from `spec.json` (falls back to the skill's inventory `coverage_denominator`) |
 | **structural** | 1.0 | idiomatic dbt: test coverage, docs, staging→marts layering | reads `target/manifest.json` |
+| **lint** | 1.0 | anti-pattern gate: hooks, hardcoded relations, retained control-flow, monoliths, missing layering/tests | `legacy-to-dbt-migration-foundations/scripts/lint_idiomatic.py` |
 | **judge** | 1.0 | SCD correctness, decomposition, docs & test *meaningfulness* | LLM-as-judge - default via the dbt **Wizard** (dbt-managed inference, no raw key), or `ANTHROPIC_API_KEY`; skipped if neither |
 
 The **reward** (Harbor's 1/0) is the correctness gate: **build passed AND every mart matches
-row-for-row**. Coverage/structural/judge are quality signals in the weighted score, not the binary
-gate - an ETL component often collapses into fewer dbt models, so a models/units ratio is directional,
-not pass/fail.
+row-for-row**. Coverage/structural/lint/judge are quality signals in the weighted score, not the
+binary gate - an ETL component often collapses into fewer dbt models, so a models/units ratio is
+directional, not pass/fail. A task can opt in with `require_lint: true` in its `spec.json` to also
+gate the reward on the lint dimension passing (zero findings); the **remediation** task uses this, so
+a "do nothing" answer that keeps the lift-and-shift passes parity but fails the reward.
 
 ## Tasks
 
@@ -38,6 +41,7 @@ the legacy tool.
 | [`migrate-informatica-to-dbt`](migrate-informatica-to-dbt) | **Informatica** PowerCenter mapping (Filter → Aggregator → Expression band) | `mart_fct_customer_orders` |
 | [`migrate-matillion-to-dbt`](migrate-matillion-to-dbt) | **Matillion** DPC pipeline (calculator, filter, join, **rank**, aggregate) | `mart_fct_orders`, `mart_agg_customer_sales` |
 | [`migrate-coalesce-to-dbt`](migrate-coalesce-to-dbt) | **Coalesce** node graph (Source→Stage→Dim→Fact) incl. a **Type 2 SCD** dimension → dbt snapshot | `mart_dim_customer`, `mart_fct_orders` |
+| [`remediate-lift-and-shift-to-dbt`](remediate-lift-and-shift-to-dbt) | **Remediation**: refactor a lift-and-shift project (post_hook, monolith, no staging) to idiomatic dbt, parity preserved (`require_lint`) | `customer_ltv` |
 
 ## Run it
 

@@ -10,11 +10,11 @@ import sys
 HERE = Path(__file__).resolve().parent
 HARBOR = HERE.parent
 drift = []
-for task in sorted(HARBOR.glob("migrate-*")):
+for task in sorted(list(HARBOR.glob("migrate-*")) + list(HARBOR.glob("remediate-*"))):
     tests = task / "tests"
     if not tests.is_dir():
         continue
-    for fn in ("scorer.py", "test_migration.py"):
+    for fn in ("scorer.py", "test_migration.py", "lint_idiomatic.py"):
         canonical, copy = HERE / fn, tests / fn
         if not copy.exists():
             drift.append(f"missing: {copy.relative_to(HARBOR)}")

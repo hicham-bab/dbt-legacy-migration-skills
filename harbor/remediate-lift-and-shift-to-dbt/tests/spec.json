@@ -1,0 +1,21 @@
+{
+  "task": "remediate-lift-and-shift-to-dbt",
+  "profile": "remediate_demo",
+  "require_lint": true,
+  "expected_models": ["stg_orders", "customer_ltv"],
+  "marts": [
+    {
+      "name": "customer_ltv",
+      "key_cols": ["customer_id"],
+      "compare_cols": ["lifetime_value", "order_count", "ltv_segment"],
+      "numeric_cols": ["lifetime_value", "order_count"],
+      "expected": "expected_customer_ltv.csv"
+    }
+  ],
+  "judge_rubric": [
+    {"name": "idiomatic", "description": "Is the result idiomatic dbt: a staging model over the raw seed, the mart reading it via ref(), no pre/post-hooks, and tests plus descriptions present?"},
+    {"name": "hook_removed", "description": "Was the post_hook DELETE removed and its data-quality intent expressed as a test rather than a hook?"},
+    {"name": "decomposition", "description": "Is the monolith decomposed into staging -> mart wired with ref(), not one model reading the raw seed directly?"},
+    {"name": "parity_preserved", "description": "Does the refactor keep the same output grain and logic (per-customer, completed-only, SUM/COUNT, >=150 threshold) rather than changing results?"}
+  ]
+}

@@ -5,9 +5,16 @@
 set -euo pipefail
 here="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 harbor="$(dirname "$here")"
-for task in "$harbor"/migrate-*; do
+repo="$(dirname "$harbor")"
+
+# The linter's canonical home is scripts/lint_idiomatic.py; keep a copy next to scorer.py so the
+# scorer's lint dimension finds it both locally (run_all) and in each task container.
+cp "$repo/skills/legacy-to-dbt-migration-foundations/scripts/lint_idiomatic.py" "$here/lint_idiomatic.py"
+
+for task in "$harbor"/{migrate,remediate}-*; do
   [ -d "$task/tests" ] || continue
   cp "$here/scorer.py" "$task/tests/scorer.py"
   cp "$here/test_migration.py" "$task/tests/test_migration.py"
+  cp "$here/lint_idiomatic.py" "$task/tests/lint_idiomatic.py"
   echo "synced -> $task/tests/"
 done
