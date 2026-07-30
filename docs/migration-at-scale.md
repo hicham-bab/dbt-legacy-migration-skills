@@ -71,6 +71,27 @@ On the pressure-test we will measure and publish:
 If these numbers hold on a real estate, "dependable accelerator" is earned. If they do not, we learn
 exactly where the nuance breaks before overpromising.
 
+### Running the pressure-test (the instrument is built; the estate is the input)
+
+The measurement apparatus exists and is validated; the pressure-test is now a matter of pointing it
+at a real estate. The procedure:
+
+1. **Plan the estate** - `scripts/inventory_estate.py <estate-dir>` produces the waved backlog + ledger
+   (see [estate-planning.md](../skills/legacy-to-dbt-migration-foundations/references/estate-planning.md)).
+2. **Run the agent per job**, wave by wave. Each job is migrated by the **dbt Wizard** (not the oracle)
+   and scored by the harbor scorer, which writes a per-job scorecard.
+3. **Aggregate the dependability metrics** - `harbor/_scorer/estate_report.py --runs <scorecards-dir>`
+   (or `--scorecard <run_all output>`) computes auto-to-parity %, human-fix %, quality-bar pass %, and
+   the per-wave breakdown into `estate_dependability.md`.
+
+The report carries an explicit caveat: **the numbers only mean "accelerator" when the jobs were solved
+by the agent, not by the oracle reference solutions** (which pass by construction). Validation runs on
+a synthetic estate and on the built oracle tasks confirm the instrument; they are not accelerator claims.
+
+**Status:** the instrument (`inventory_estate.py`, the harbor scorer, `estate_report.py`) is complete
+and validated. The Waste Management pressure-test is blocked only on a **sanitized slice of the WM
+Matillion estate** to use as the input; once that lands, this same pipeline produces the real numbers.
+
 ## Not autopilot: enablement pairing
 
 The tool is an accelerator with guardrails and a human in the loop, not a replacement for judgment.
