@@ -52,6 +52,33 @@ Because the target is the customer's connected adapter, prefer **packages** (`db
 (packages_mode = self_contained_macros), keep it adapter-portable and compile it against the target.
 See [dbt-packages.md](dbt-packages.md).
 
+## Per-adapter callouts (from real migrations)
+
+Things the compile gate will catch, but that are worth knowing up front:
+
+**Databricks**
+- **Alias the `{{ this }}` subquery in incremental watermark filters.** Without an alias, Databricks
+  can incorrectly correlate the subquery with the outer table alias and fail with
+  `INVALID_WHERE_CONDITION: aggregate functions in WHERE clause`. Always alias it and default the max:
+  ```sql
+  {% if is_incremental() %}
+  where source_table.commit_timestamp > (
+      select coalesce(max(watermark.commit_timestamp), timestamp('1900-01-01'))
+      from {{ this }} as watermark
+  )
+  {% endif %}
+  ```
+  This should be the standard incremental watermark pattern in any Databricks dbt project.
+- `QUALIFY` is available (Spark 3+); `dateadd` / `add_months` work; **`TIMESTAMP` literals need
+  `timestamp('...')`** (or `cast(... as timestamp)`), not a bare `'2020-01-01'::timestamp`.
+- **`row_number()` tiebreaking is non-deterministic** - always add a deterministic secondary sort key
+  in the `order by` (matters for CDC dedup and SCD surrogate keys, see
+  [cdc-deduplication.md](cdc-deduplication.md)).
+
+**Redshift**
+- `QUALIFY` is historically unsupported - the compile will flag it; rewrite as a subquery with
+  `row_number()` filtered in an outer `where`.
+
 ## Note on the eval
 
 The harbor eval proves the migration's **logic** on DuckDB (free, reproducible). **Warehouse
