@@ -10,6 +10,7 @@ silently dropped.
 - [What counts as the residual](#what-counts-as-the-residual)
 - [Quality gate: dbt_project_evaluator](#quality-gate-dbt_project_evaluator)
 - [Report template](#report-template)
+- [Worked example](#worked-example)
 
 ## Quality bar: warehouse conformance + anti-pattern lint + dbt_project_evaluator
 
@@ -127,3 +128,10 @@ Append to `migration_changes.md` (or write `coverage_report.md`):
 |-------------|-----------------------|--------------------|
 | <unit>      | dynamic SQL           | manual rewrite     |
 ```
+
+## Worked example
+
+See [coverage-report-example.md](coverage-report-example.md) for a filled-in, anonymised report over
+14 models: the PASS / WARN / FAIL / BLOCKED statuses, dual-metric (recall + precision) scoring, the
+CDC-dedup and `{{ this }}` incremental fixes it drove, build-time before/after, and the analysis-file
+layout, the Step 5 / Step 7 patterns applied end to end.

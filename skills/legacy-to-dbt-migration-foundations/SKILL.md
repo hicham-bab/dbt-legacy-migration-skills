@@ -102,6 +102,7 @@ The migration skills implement these steps. Each links to the reference that car
 - [cdc-deduplication.md](references/cdc-deduplication.md) - dedup raw CDC sources (QUALIFY row_number, not SELECT DISTINCT) when the target platform is fed by CDC; prevents join fan-out (a precision failure in Step 5)
 - [cost-comparison.md](references/cost-comparison.md) — TCO model + measured dev-run compute capture
 - [coverage-report.md](references/coverage-report.md) — how to compute the ≥95% coverage number and flag the residual
+- [coverage-report-example.md](references/coverage-report-example.md) - a filled-in, anonymised worked example of the Step 5/Step 7 outputs (14 models, dual-metric scoring, BLOCKED status, CDC + `{{ this }}` fixes)
 - [estate-planning.md](references/estate-planning.md) - batch-inventory a whole estate into a waved backlog + progress ledger (`scripts/inventory_estate.py`, `scripts/estate_ledger.py`); for migrating thousands of jobs at scale
 - [feedback-capture.md](references/feedback-capture.md) - end-of-run feedback prompt + `migration_feedback.jsonl` schema + prefilled GitHub issue, so real migrations improve the skill
 
