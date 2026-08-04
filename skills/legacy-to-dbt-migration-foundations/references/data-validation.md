@@ -168,6 +168,22 @@ reads the result. The installed macro signature varies by version; expect
 > diff (see [cdc-deduplication.md](cdc-deduplication.md)). `SELECT DISTINCT` does **not** collapse rows
 > that differ in any column.
 
+### Exclude CDC-internal and audit columns from the diff
+
+Some columns exist on only one side and will always show ~0% match: CDC-internal columns
+(`commit_timestamp`, `max_commit_timestamp`, `_fivetran_synced`, `dms_*`) and dbt audit columns
+(`dbt_updated_at`, `dbt_valid_from`/`dbt_valid_to`). These are expected, not regressions. Pass them to
+`exclude_columns=[...]` so they do not dominate the mismatch counts.
+
+### What a failing metric points at
+
+Diagnose by **which** of the two metrics failed - it maps straight to a class of bug:
+
+| Failed metric | Meaning | Common root causes | Fix |
+|---|---|---|---|
+| **precision** low (extra rows in dbt) | fan-out | a raw CDC join without dedup; a `left join` where the model is event-scoped and needs `inner`; a 1:many join the legacy collapsed with `SELECT DISTINCT` | QUALIFY-dedup the CDC source ([cdc-deduplication.md](cdc-deduplication.md)); fix the join type; enforce grain |
+| **recall** low (missing rows in dbt) | under-coverage | a value dropped from a `where ... in (...)` list (e.g. a missing brand); an over-restrictive dynamic-date filter vs a static snapshot; a source/datashare not provisioned | complete the filter; treat dynamic-date as Category 1 timing; if the source is absent mark **BLOCKED**, not FAIL |
+
 ## Pattern A: row-for-row parity (fallback)
 
 Use only when audit_helper can't be installed. Full-outer-join the dbt dev model to the legacy prod
@@ -237,6 +253,9 @@ model and re-run). Never leave a difference unexplained.
 **Category 2 — platform / representation (usually accept, document):**
 - Numeric **precision & rounding** (e.g. `SUM()` scale differs across platforms → cast to a fixed
   `decimal(p,s)`).
+- **Type/format representation**: a column stored as `timestamp` on one side but `varchar` on the
+  other reads as 0% match even when the values agree; cast **both** sides to a common type before
+  comparing.
 - **Floating-point** noise (compare with `round()` / a tolerance).
 - **NULL handling & ordering**, **collation / case sensitivity**, **timestamp / timezone** defaults,
   **date parsing / formatting** differences between the legacy engine and the target warehouse.

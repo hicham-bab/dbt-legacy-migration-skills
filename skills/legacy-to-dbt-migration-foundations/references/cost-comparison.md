@@ -60,6 +60,22 @@ analysis reproducible by emitting the exact measurement queries and raw numbers.
 6. Emit the [visible artifact](#the-visible-reproducible-cost-artifact) — queries + raw numbers +
    comparison — so anyone can re-run and audit it.
 
+## Build time is part of the cost story
+
+A lift-and-shift usually **over-materializes** (every legacy step becomes a full `table` rebuild), so
+the migrated project is often far slower and more expensive to build than it needs to be. Report
+build time as an outcome alongside compute cost, and drive it down:
+
+- Measure `dbt build` wall-time as a **baseline**, then after fixes: CDC dedup (removes the fan-out
+  that inflates heavy intermediate models), then converting the **heaviest `table` models to
+  `incremental`** once their grain / unique key is confirmed. A single large intermediate can dominate
+  the whole build.
+- Report the trajectory (baseline -> after dedup -> after incremental) plus an estimated **daily
+  incremental** run (only new/changed rows) - the number that matters in production.
+- Start with `incremental` only where the build is genuinely slow (see
+  [cloud-detection-and-materializations.md](cloud-detection-and-materializations.md)); a periodic
+  `--full-refresh` is still needed.
+
 ## Per-platform measurement queries
 
 > Column/object names verified against vendor docs (July 2026). Confirm the **dollar rate** for
