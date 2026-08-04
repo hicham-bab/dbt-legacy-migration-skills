@@ -93,6 +93,81 @@ dbt MCP `execute_sql`). Every non-identical row is a difference to **explain** (
 automatically a bug. Use the classify output (added/removed/modified counts + differing columns) to
 drive the explanation.
 
+## Two-stage parity at scale: PK coverage, then column values
+
+On a large or CDC-sourced migration, do **not** jump straight to a full column diff. When the two
+sides have different row populations, the missing rows dominate every column's mismatch count and you
+waste compute. Split Step 5 into two gates, and score **two** metrics, not one.
+
+**Stage 1 - PK coverage (cheap, no column hashing).** Compare primary keys only:
+
+```sql
+{{ audit_helper.compare_and_classify_query_results(
+    a_query = "select pk_col from <ref to dbt model>  where <date_filter>",
+    b_query = "select pk_col from <source to legacy>   where <date_filter>",
+    primary_key_columns = ['pk_col'],
+    columns             = ['pk_col']    -- PK only; no content comparison
+) }}
+```
+
+From the matched / added / removed counts, compute **both**:
+
+- **recall** = `matched / (matched + only_in_legacy)` - are we missing legacy rows (under-coverage)?
+- **precision** = `matched / (matched + only_in_dbt)` - are we producing extra rows (fan-out)?
+
+Proceed to the column diff only when **recall >= 95%**. A model with 100% recall but low precision has
+a fan-out bug that a recall-only check would wrongly call PASS, so both must pass (see the dual-metric
+scoring in [coverage-report.md](coverage-report.md)).
+
+### Find the comparison window programmatically (static snapshots)
+
+Legacy prod is materialized at time T1; dbt dev rebuilds at T2 (maybe months later). A rolling window
+then shows phantom diffs. Establish the real overlap first:
+
+```sql
+select 'dbt'    as src, max(loss_date) from {{ ref('fct_my_model') }}
+union all
+select 'legacy' as src, max(loss_date) from {{ source('legacy_prod', 'fct_my_model') }}
+```
+
+Use `min(dbt_max, legacy_max)` as `date_to`, go back a fixed N days for `date_from`, and **pin these as
+static dates** in the analysis (not `current_date()`, since both sides are static snapshots). A model
+with a dynamic filter like `closed_date >= date_add(current_date(), -7)` will always look regressed
+against a static snapshot; classify that as **Category 1 (timing/environment)**, not a bug.
+
+### Run the column diff via view models (not analyses)
+
+`compare_all_columns` needs real Relations it can introspect (**ephemeral models fail** -
+`get_filtered_columns_in_relation` needs a warehouse relation), and it has no date-filter argument. So
+apply the window in small **view** models and point the macro at them:
+
+```sql
+-- models/comparison/col_diff_a__my_model.sql   {{ config(materialized='view') }}
+select * from {{ ref('my_model') }}
+where date_col >= cast('2026-05-24' as date) and date_col < cast('2026-07-23' as date)
+
+-- models/comparison/col_diff_b__my_model.sql   {{ config(materialized='view') }}
+select * from {{ source('legacy_prod', 'my_model') }}
+where date_col >= cast('2026-05-24' as date) and date_col < cast('2026-07-23' as date)
+
+-- models/comparison/col_diff__my_model.sql     {{ config(materialized='view') }}
+{{ audit_helper.compare_all_columns(
+     a_relation = ref('col_diff_a__my_model'),
+     b_relation = ref('col_diff_b__my_model'),
+     primary_key = 'claim_id', summarize = true) }}
+```
+
+`dbt run --select path:models/comparison/` builds them all; `dbt show --select col_diff__my_model`
+reads the result. The installed macro signature varies by version; expect
+`compare_all_columns(a_relation, b_relation, primary_key, exclude_columns=[], summarize=true)` where
+**`primary_key` is a SQL expression string, not a list**. Composite PK:
+`primary_key = "cast(claim_id as string) || '|||' || cast(month_end_date as string)"`.
+
+> **Enforce grain before comparing.** If a model has known 1:many joins that the legacy system hid
+> with `SELECT DISTINCT`, dedup to the true grain with `qualify row_number() over (...) = 1` before the
+> diff (see [cdc-deduplication.md](cdc-deduplication.md)). `SELECT DISTINCT` does **not** collapse rows
+> that differ in any column.
+
 ## Pattern A: row-for-row parity (fallback)
 
 Use only when audit_helper can't be installed. Full-outer-join the dbt dev model to the legacy prod

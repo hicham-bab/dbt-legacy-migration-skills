@@ -56,6 +56,24 @@ A unit counts as covered only when both are true:
 A unit translated but with unresolved data mismatches is **not** covered — it is residual until
 the mismatch is explained (legitimate platform difference) or fixed.
 
+The 95% bar is not arbitrary: it forces the hard long tail (ambiguous logic, missing infrastructure)
+to be **explicitly triaged** as an accepted difference or a blocker, rather than silently dropped.
+
+### Score two metrics: recall and precision (not one)
+
+"Parity-validated" means **both** metrics from the PK-coverage pass (see
+[data-validation.md](data-validation.md)) are >= 95%:
+
+| Metric | Formula | Detects |
+|---|---|---|
+| `recall` | `matched / (matched + only_in_legacy)` | missing rows in dbt (under-coverage) |
+| `precision` | `matched / (matched + only_in_dbt)` | extra rows in dbt (fan-out / filter gap) |
+
+A model passes **only when both >= 95%**. Recall alone is a trap: a model at recall 100% / precision
+1.4% has a catastrophic fan-out (e.g. the wrong join producing every row instead of the matched
+subset) that recall-only scoring would call PASS. Sort the report by `least(recall, precision)` so the
+worst models surface first.
+
 ## What counts as the residual
 
 The <5% you are allowed to leave for human review — always list it explicitly with a reason:
@@ -69,6 +87,26 @@ The <5% you are allowed to leave for human review — always list it explicitly 
 
 If the residual exceeds 5%, do not claim success — report the actual number and the blocking
 categories, and recommend next steps.
+
+## BLOCKED - infrastructure dependency (not a code issue)
+
+Some models cannot reach parity until an **infrastructure** dependency is resolved (a datashare not
+provisioned, a source system not yet available in the target). Calling these FAIL misrepresents the
+migration to stakeholders. Record them **separately**, exclude them from the denominator, and surface
+the specific ask:
+
+| Model | Legacy coverage | Blocker | Ask |
+|---|---|---|---|
+| `rpt_risk_in_force` | 3% | source datashare absent | provision it in the target environment |
+| `rpt_claims_tsi` | 1% | only snapshot data available | provision the production datashare |
+
+```
+coverage % = PASS / (total - BLOCKED) × 100
+```
+
+BLOCKED is distinct from residual: residual is in-scope work still being explained or fixed; BLOCKED
+is out of your hands until the infrastructure lands. Never fold BLOCKED into FAIL, and never hide it in
+the coverage number.
 
 ## Report template
 
