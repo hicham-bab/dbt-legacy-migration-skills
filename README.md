@@ -22,12 +22,13 @@ skills are plain `SKILL.md` folders and work in any agent that supports the skil
 | [`migrating-stored-procedures-to-dbt`](skills/migrating-stored-procedures-to-dbt) | SQL stored procedures (Snowflake, BigQuery, Databricks, T-SQL, PL/SQL) |
 | [`migrating-matillion-to-dbt`](skills/migrating-matillion-to-dbt) | Matillion pipelines/jobs - DPC YAML (`.tran.yaml`/`.orch.yaml`), Matillion ETL JSON (export + git per-job forms), CDC/streaming, shared jobs |
 | [`migrating-coalesce-to-dbt`](skills/migrating-coalesce-to-dbt) | Coalesce.io projects (Git-committed YAML nodes) - Source/Stage/Dimension(SCD1/2)/Fact/View nodes → models, snapshots, sources |
+| [`migrating-datastage-to-dbt`](skills/migrating-datastage-to-dbt) | IBM InfoSphere DataStage parallel jobs (`.dsx` export) - Join/Filter/Transformer/Aggregator/Sort/Lookup/Merge/Funnel/Surrogate Key/Change Capture-Apply stages → models, snapshots, sources |
 | [`remediating-lift-and-shift-to-dbt`](skills/remediating-lift-and-shift-to-dbt) | An already-migrated but non-idiomatic dbt project (hook/monolith/hardcoded lift-and-shift) → refactored to idiomatic dbt with parity preserved |
 | [`legacy-to-dbt-migration-foundations`](skills/legacy-to-dbt-migration-foundations) | *Shared reference library* - not invoked directly; the migration and remediation skills link to it |
 
 ## How they fit together
 
-The five migration skills share the same 8-step workflow and defer the common steps to
+The six migration skills share the same 8-step workflow and defer the common steps to
 `legacy-to-dbt-migration-foundations`:
 
 - **Step 0** - Detect environment & cloud (Snowflake / Databricks / BigQuery / Redshift; Fusion vs Core)
@@ -62,7 +63,7 @@ then generates the dbt models accordingly:
 - **Star schema (pragmatic)** - facts + dimensions for a focused subject area.
 
 The generation for each paradigm lives in the **shared foundations skill's references** - not as
-separate skills - so the install is just the five migration skills + foundations:
+separate skills - so the install is just the six migration skills + foundations:
 `skills/legacy-to-dbt-migration-foundations/references/target-modeling.md` (legacy→paradigm mapping +
 performance), `building-datavault.md`, `building-kimball.md`, `building-starschema.md`.
 
@@ -87,7 +88,7 @@ npx skills add hicham-bab/dbt-legacy-migration-skills   # vercel-labs/skills
 # or:  gh skill install hicham-bab/dbt-legacy-migration-skills
 ```
 
-**Or the bundled one-liner** (installs/updates all seven skills):
+**Or the bundled one-liner** (installs/updates all eight skills):
 
 ```bash
 git clone https://github.com/hicham-bab/dbt-legacy-migration-skills.git
@@ -96,7 +97,7 @@ cd dbt-legacy-migration-skills && ./install.sh          # dbt Wizard CLI (~/.dbt
 #                                  ./install.sh --codex  # Codex CLI     (~/.codex/skills)
 ```
 
-`install.sh` copies just the seven skill folders (from `skills/`) into your skills directory and leaves
+`install.sh` copies just the eight skill folders (from `skills/`) into your skills directory and leaves
 everything else untouched. If you run it outside a clone it fetches the skills from GitHub for you.
 **It's safe to re-run to update**; it cleanly replaces only these folders. (Use `--dest <path>` for a
 custom location.) After it finishes, **restart the agent** so it reloads the skill list.

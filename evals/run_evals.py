@@ -64,6 +64,21 @@ try:
 except Exception as e:
     check("informatica: parser ran", False, repr(e))
 
+# --- DataStage -------------------------------------------------------------
+try:
+    inv = run_json("skills/migrating-datastage-to-dbt/scripts/inventory_datastage.py",
+                   FIX / "datastage" / "orders_enrich.dsx")
+    s = inv["summary"]
+    check("datastage: 1 ETL job", s["etl_job_count"] == 1, s["etl_job_count"])
+    check("datastage: coverage denom = 1", s["coverage_denominator"] == 1, s["coverage_denominator"])
+    check("datastage: 5 stages (2 source, 1 transform, 2 target)", s["total_stages"] == 5, s["total_stages"])
+    check("datastage: no residual/unknown stage types", s["residual_stage_types"] == [], s["residual_stage_types"])
+    job = inv["jobs"][0]
+    check("datastage: reject-link edge captured (2-output Transformer)",
+          any(e["link"] == "RejectLink" for e in job["edges"]), job["edges"])
+except Exception as e:
+    check("datastage: parser ran", False, repr(e))
+
 # --- Matillion METL JSON (stdlib, always) --------------------------------
 try:
     inv = run_json("skills/migrating-matillion-to-dbt/scripts/inventory_matillion.py", FIX / "matillion" / "load.orch.export.json")

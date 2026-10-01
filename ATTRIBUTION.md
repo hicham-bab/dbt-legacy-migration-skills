@@ -35,4 +35,22 @@ The Matillion end-to-end eval fixture
 (`harbor/migrate-matillion-to-dbt/environment/app/legacy/build_sales_marts.tran.yaml`) is authored
 by the repo owner, grounded in the Matillion Data Productivity Cloud `.tran.yaml` export format.
 
+## DataStage parser + eval fixture (.dsx format)
+
+The `migrating-datastage-to-dbt` parser (`inventory_datastage.py`) and the eval fixture
+(`evals/fixtures/datastage/orders_enrich.dsx`) are **authored, not copied**. The DSX text format
+(`BEGIN/END HEADER`, `DSJOB`, `DSRECORD`, `DSSUBRECORD`; `CContainerView`'s pipe-delimited
+`StageList`/`StageTypeIDs`/`StageNames`; per-stage `InputPins`/`OutputPins`; per-pin `Partner`
+links) was verified against real exported `.dsx` files found in two public repos, neither of which
+carries a license file, so **none of their files are redistributed** here:
+
+- https://github.com/fernandokarnagi/ibm-datastage-javaintegration-sample (public; no license file -
+  a genuine IBM InfoSphere DataStage 8.7 export, used to confirm the base grammar and the
+  custom/debug/I-O stage shapes)
+- https://github.com/isobina/DataStageJobs (public; no license file - a broader set of jobs used to
+  exercise additional stage-type coverage: Join, Filter, Aggregate, Sort, Remove Duplicates,
+  Lookup, Merge, Funnel, Pivot, Surrogate Key, Change Capture/CDC. This set's own provenance as a
+  captured production export is unconfirmed - treat its exact stage-type spellings as a second,
+  lower-confidence source alongside IBM's documentation, not as verified-production ground truth)
+
 This repository is licensed Apache-2.0 (see [LICENSE](LICENSE)).
