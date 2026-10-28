@@ -1,0 +1,160 @@
+# migration_manifest.yml -- the single input contract for a legacy-to-dbt migration.
+#
+# Copy this to the project root, fill it WITH THE MIGRATOR, and keep it in version
+# control. It replaces the older flat `migration_decisions.yml`, which covered only
+# 3 of the 7 Step-0 questions and none of the artifact, access, or reference-fact
+# inputs. Those unenforced inputs are the ones that actually halt migrations.
+#
+# Validate with either path:
+#   * scripts/preflight_decisions.py --file migration_manifest.yml     (local checkout)
+#   * the Step-0 checklist in ../SKILL.md                              (no-Python path)
+#
+# Rules:
+#   * `null` is a legitimate, meaningful answer. It means "asked, and the answer is
+#     no / unavailable". Leaving a key ABSENT is different and fails validation.
+#   * A `false` or `null` in the `access` block is a FEASIBILITY constraint, not a
+#     detail. It changes which later steps can run at all. See the notes inline.
+#   * Do not let the agent author this file unattended. See `provenance`.
+
+schema_version: 1
+
+# ---------------------------------------------------------------------------
+# provenance -- who answered, and which keys they actually attested to.
+#
+# This does not make fabrication impossible. It makes it AUDITABLE: a reviewer can
+# see which values claim a human answer. An agent that fills this in for itself is
+# making a checkable false statement rather than an invisible guess.
+# ---------------------------------------------------------------------------
+provenance:
+  answered_by: null                # email or name of the migrator who answered
+  answered_at: null                # ISO 8601, e.g. 2026-09-08T14:22:00Z
+  method: interactive              # interactive | supplied_file
+  attested_keys: []                # list the decision keys the human explicitly confirmed
+
+# ---------------------------------------------------------------------------
+# decisions -- Step 0 and Step 2. All seven original questions, not three.
+# Every one of these reshapes later steps. Recommend a default with a one-line
+# why, then let the migrator choose. Never silently default.
+# ---------------------------------------------------------------------------
+decisions:
+  # --- the three that were already gated ---
+  target_architecture: null        # kimball | datavault | star | layered
+  data_warehouse: null             # snowflake | databricks | bigquery | redshift
+  packages_mode: null              # external_hub | self_contained_macros
+
+  # --- the four that were asked in prose but never enforced ---
+  landing_spot: null               # REQUIRED path. Build here, never in a temp dir.
+  landing_mode: null               # new_standalone | fold_into_existing
+  existing_project_path: null       # REQUIRED if landing_mode == fold_into_existing
+  dbt_runtime: null                # fusion | core  (drives real-time compile + SQL bans)
+
+  # --- decisions that were never asked but are structurally required ---
+  mesh_split: false                # true only after explicit confirmation
+  naming_convention: null          # dimensional (fct_/dim_) | dbt_entity_names
+  snapshot_strategy: null          # timestamp | check   (prefer timestamp if a
+                                   #   reliable updated_at exists)
+  contract_boundary: null          # public_marts | all_marts | none
+  residual_disposition: null       # rewrite | retire | keep_in_legacy | human_backlog
+  orchestration_target: null       # dbt_platform_job | airflow | dagster |
+                                   #   step_functions | undecided
+  parity_scope: null               # all_marts | tiered | sampled
+  parity_tier_rule: null           # REQUIRED if parity_scope is tiered or sampled
+
+# ---------------------------------------------------------------------------
+# inputs -- artifacts the migrator supplies. The export alone is not enough.
+# ---------------------------------------------------------------------------
+inputs:
+  legacy_export_path: null         # REQUIRED: file or directory
+  export_format: null              # e.g. metl_json | dpc_yaml | mixed | powercenter_xml
+  legacy_target_ddl_path: null     # nullable; absent degrades contracts and typing
+  schedule_definitions_path: null  # nullable; needed for Step 6 frequency + handoff
+  shared_job_bundles_path: null    # nullable; reusable sub-jobs migrate once as macros
+
+  # Source-parameter tokens (Matillion ${EV_*}/${JV_*}, Informatica $$PARAM, etc.)
+  # split into TWO classes, because they need different treatment. A legacy export
+  # frequently carries neither the names nor the values of these, so they cannot be
+  # derived and must be supplied.
+  #
+  # Class 1 -- schema/database bindings. These resolve to a real object.
+  variable_bindings: {}
+    # EV_STG_SCHEMA:  ANALYTICS.STAGING
+    # EV_SRC_DATABASE: RAW_DB
+
+  # Class 2 -- orchestration runtime values. These do NOT map to a binding. Each
+  # needs an explicit disposition: dbt_var | invocation_id | scheduler_run_id | drop.
+  # Dropping one silently breaks downstream audit lineage -- say so out loud.
+  runtime_token_dispositions: {}
+    # JV_PROCESS_ID: scheduler_run_id
+    # JV_STARTED_AT: invocation_id
+    # JV_BATCH_LABEL: dbt_var
+
+  grid_variables_path: null        # nullable; iterator fan-out values
+
+# ---------------------------------------------------------------------------
+# access -- connections and permissions. Previously unaddressed entirely, and the
+# reason failures surfaced at Step 5 instead of Step 0.
+#
+# NOTE the standing security rule: never read, echo, or log credentials. This block
+# records CAPABILITY and IDENTIFIERS only -- never secrets. No passwords, no keys,
+# no tokens. If a value here looks like a credential, it is in the wrong place.
+# ---------------------------------------------------------------------------
+access:
+  dev_target:                      # a dev schema the migration may build into
+    database: null
+    schema: null
+  warehouse_catalog_readable: null # needed for codegen generate_source and for
+                                   #   enumerating Multi-Table Input matches
+
+  # Step 5 feasibility. If legacy_prod_readable is false, data parity -- the stated
+  # definition of done -- is UNACHIEVABLE. Do not proceed silently: re-scope the
+  # engagement explicitly and record it.
+  legacy_prod_readable: null       # true | false
+  legacy_prod_tables: []           # per-output parity targets. The inventory
+                                   #   artifact's `parity_targets` gives the legacy
+                                   #   component + target table; map each to the real
+                                   #   fully-qualified production relation here.
+    # - component: TBL_OUT_EXAMPLE
+    #   legacy_table: PROD.MARTS.EXAMPLE
+    #   write_mode: append          # append targets need run-window-scoped comparison
+
+  # Step 6 feasibility. If either is false, Step 6 produces the labelled TCO
+  # estimate only. That is an honest outcome; a fabricated measured number is not.
+  metering_views_readable: null    # account_usage / JOBS_BY_PROJECT / system.billing
+  can_isolate_warehouse: null      # dedicated warehouse + cache disabled
+  can_rerun_legacy_job: null       # authority to re-run the legacy job >=3 times
+
+# ---------------------------------------------------------------------------
+# reference_facts -- legacy metadata the agent cannot derive.
+# ---------------------------------------------------------------------------
+reference_facts:
+  legacy_run_metrics_path: null    # runtime, frequency, licence tier, infra
+  source_freeze_window:            # without this, every parity diff is uninterpretable
+    start: null
+    end: null
+  legacy_prod_last_built: null     # freshness gaps are the most common false "difference"
+  downstream_consumers: []         # REQUIRED before cutover; cannot be derived from
+                                   #   the export. Record as dbt exposures too.
+    # - name: exec_revenue_dashboard
+    #   kind: dashboard
+    #   owner: null
+
+# ---------------------------------------------------------------------------
+# compliance -- constraints on HOW the migration may handle the data. Not
+# derivable from any export, and not optional: getting this wrong is the one
+# class of migration error that cannot be fixed after the fact.
+# ---------------------------------------------------------------------------
+compliance:
+  pii_columns: []                  # source columns carrying personal or regulated
+                                   #   data, by name. The agent must never echo
+                                   #   their values into logs, docs, or test fixtures.
+    # - SSN
+    # - NATIONAL_ID
+  pii_policy: null                 # e.g. "mask in non-prod; never log or echo;
+                                   #   see the engagement DPA". null means asked
+                                   #   and confirmed not applicable -- not skipped.
+
+  # Customer logic that parity must preserve exactly. Record anything a reader of
+  # the SQL alone would mistake for a bug and "clean up". Silent correction of one
+  # of these is indistinguishable from a migration defect.
+  business_rules: []
+    # - "negative amounts are retained, not zeroed -- they represent reversals"
