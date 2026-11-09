@@ -81,6 +81,11 @@ harbor run -p harbor/migrate-matillion-to-dbt \
   --agent harbor.agents.installed.dbt_wizard:DbtWizardAgent \
   --build-arg INSTALL_WIZARD=true
 
+# To test a branch before it is merged, point the image's skills clone at it (default: main):
+harbor run -p harbor/migrate-matillion-to-dbt \
+  --agent harbor.agents.installed.dbt_wizard:DbtWizardAgent \
+  --build-arg INSTALL_WIZARD=true --build-arg SKILLS_REF=my-branch
+
 # 5) When done, remove the staged credentials:
 bash harbor/_scorer/stage_wizard_auth.sh --clean
 ```

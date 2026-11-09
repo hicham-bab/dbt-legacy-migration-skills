@@ -12,7 +12,9 @@ ENV DO_NOT_TRACK=1 \
 
 # Preload the migration skills for both agent conventions: /skills (claude-code) and
 # ~/.dbt/wizard/skills (the dbt Wizard). The remediation skill ships alongside the migration skills.
-RUN git clone --depth 1 https://github.com/hicham-bab/dbt-legacy-migration-skills.git /tmp/skills \
+# SKILLS_REF picks the branch or tag to test (default main), e.g. --build-arg SKILLS_REF=my-branch.
+ARG SKILLS_REF=main
+RUN git clone --depth 1 --branch "$SKILLS_REF" https://github.com/hicham-bab/dbt-legacy-migration-skills.git /tmp/skills \
     && mkdir -p /skills /root/.dbt/wizard/skills \
     && cp -R /tmp/skills/skills/. /skills/ \
     && cp -R /tmp/skills/skills/. /root/.dbt/wizard/skills/ \

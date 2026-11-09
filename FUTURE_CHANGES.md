@@ -4,15 +4,16 @@ Tracked follow-up work for the dbt legacy-migration skills, in priority order.
 
 ## Immediate next step: merge, then smoke-test one Harbor task
 
-The Harbor task containers clone the skills from GitHub `main`
-(`harbor/*/environment/Dockerfile`), so nothing on a feature branch is exercised by a Harbor run
-until it is merged.
+The Harbor task containers clone the skills from GitHub `main` by default
+(`harbor/*/environment/Dockerfile`). Pass `--build-arg SKILLS_REF=<branch>` to test a pushed
+branch before it is merged.
 
 1. **Review the diff** of the reconciliation branch, in particular `README.md`, the foundations
    `SKILL.md`, and the reviewer-applied edits (the `building-starschema.md` SCD predicate, the skill
    list in `cloud-detection-and-materializations.md`, and the Matillion Step 0 heading).
 2. **Open the PR to `main`** and merge it. Keep the workflow port below as a separate follow-up PR.
-3. **After the merge, run one Harbor task with a real agent** (Matillion first). Confirm the agent:
+3. **Run one Harbor task with a real agent** (Matillion first) — after the merge, or before it with
+   `--build-arg SKILLS_REF=<branch>` (see `harbor/README.md`). Confirm the agent:
    - reads `/app/migration_manifest.yml` and runs the preflight gate,
    - gets past the `legacy_prod_readable: false` warning instead of stopping to ask (the task
      instruction pre-answers it: the verifier's row-for-row check is the run's parity), and
