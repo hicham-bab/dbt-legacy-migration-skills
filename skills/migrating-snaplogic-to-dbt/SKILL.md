@@ -230,6 +230,14 @@ scaffolding to Step 3**, once the dbt project
 exists and a warehouse connection is configured — **codegen** `generate_source` needs both
 (foundations → dbt-packages.md). At Step 1 just list the distinct source tables the SQL reads.
 
+> **CHECKPOINT (confirm scope).** Before classifying or building anything, show the migrator the
+> inventory summary: the **coverage denominator** (count of migratable warehouse-SQL snaps, after the
+> by-rule exclusions), what was **excluded by rule** (disabled snaps, checks, backups, DDL, blocked
+> `CALL`s), what is **out of scope** (Snaplex streaming, ingestion, bridges/control/logging), and the
+> **write-target chains** you plan to collapse into one model each. Ask them to confirm this is the
+> workload — this is the cheap moment to catch a missed pipeline or a wrongly excluded snap, before
+> dozens of files exist. Wait for confirmation, then proceed.
+
 ### Step 2 — Choose target modeling approach, then classify into it
 
 The modeling approach was already chosen and recorded at the blocking gate above
@@ -271,6 +279,13 @@ real logic bugs. Collapsing a MERGE chain makes this step mandatory, not optiona
 proof the collapse preserved semantics. See foundations →
 [data-validation.md](../legacy-to-dbt-migration-foundations/references/data-validation.md). Prefer
 **audit_helper** classify macros over a hand-written diff (foundations → dbt-packages.md).
+
+> **CHECKPOINT (parity sign-off).** Do not declare the migration complete on your own judgment.
+> Present the parity result per mart — including each collapsed write-target chain — and **every
+> difference classified as accepted (legitimate environment/platform difference, with the reason)
+> vs to-fix (real bug)**, and get the migrator's **explicit sign-off** — deciding "acceptable
+> difference vs bug" is their call, not yours. Record the sign-off (who accepted which differences
+> and why) in `migration_changes.md`.
 
 ### Step 6 — Cost comparison: measured, apples-to-apples
 
