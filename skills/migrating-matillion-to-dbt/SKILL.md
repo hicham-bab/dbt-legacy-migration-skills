@@ -62,12 +62,12 @@ link into its references for the common work. **Assume the migrator may be new t
 
 ## Decision gate — ASK before you build (blocking)
 
-**This gate is a conversation, not a script.** Python is unavailable in some target
-environments — notably the dbt platform, which is what `compatibility: dbt Fusion` means — so the
-gate is satisfied by **asking the migrator and recording the answers**. A validator script exists
-as an optional convenience for local checkouts; it is not the gate.
+**This gate is a conversation, checked by a script.** It is satisfied by **asking the migrator
+and recording the answers**, then validating the manifest with `preflight_decisions.py` (the
+primary path). Only on the dbt platform — which is what `compatibility: dbt Fusion` means, and
+where Python cannot run — is the manifest checked by hand instead.
 
-**Do this (no Python required):**
+**Do this:**
 
 1. Copy `legacy-to-dbt-migration-foundations/templates/migration_manifest.yml` to the project root.
    If a completed `migration_manifest.yml` was supplied with the work (`provenance.method:
@@ -78,8 +78,9 @@ as an optional convenience for local checkouts; it is not the gate.
    answer, still **ASK and confirm** — surface each as a question, never as a decision you already
    made. Getting these wrong means redoing dozens of files.
 3. Write their answers into the manifest, including `provenance.answered_by` and `answered_at`.
-4. **Do not create any dbt models, project files, or macros until every item below is answered.**
-   `null` is a valid answer meaning "asked, and the answer is no". A *blank* is not an answer.
+4. **Validate the manifest** (see below) and **do not create any dbt models, project files, or
+   macros until it passes.** `null` is a valid answer meaning "asked, and the answer is no". A
+   *blank* is not an answer.
 
 **Decisions** — the three that set the shape of everything downstream:
 - **target_modeling** — kimball | datavault | star | layered
@@ -110,16 +111,22 @@ resolve a single real object:
   one of `dbt_var` | `invocation_id` | `scheduler_run_id` | `drop`. **Dropping one silently breaks
   downstream audit lineage** — make it an explicit decision, never a default.
 
-**Optional fast path (local checkouts with Python only):**
+**Validate the manifest with the preflight script (primary path):**
 
 ```bash
 python3 <skills-dir>/legacy-to-dbt-migration-foundations/scripts/preflight_decisions.py \
         decisions --file migration_manifest.yml
 ```
 
-It prints the exact unanswered questions and exits non-zero until the manifest is complete.
-**It validates; it does not substitute for asking.** A manifest the agent filled in for itself
-passes the script and fails the engagement.
+It prints the exact unanswered questions and exits non-zero until the manifest is complete;
+**re-run until it exits 0.** It validates; it does not substitute for asking. A manifest the agent
+filled in for itself passes the script and fails the engagement.
+
+**Alternate path — dbt platform only, where Python cannot run** (see foundations → "Choosing the
+path": a failing gate is never a reason to switch). Check the manifest by hand instead: every key in the lists above is present (`null` counts; a blank does not), each enum value
+is one of the listed options, `existing_project_path` is set if `landing_mode` is
+`fold_into_existing`, and all three access answers are `true` or `false`. Use this path only where
+the script cannot run, never as a shortcut past it.
 
 **As you build, explain your reasoning in plain language — the migrator may be new to dbt.** For
 each model, state in one line *why* that materialization (view / table / incremental) and, for the
@@ -161,11 +168,24 @@ warehouse is usually the same one you'll point dbt at. See `legacy-to-dbt-migrat
 
 ### Step 1 — Inventory & map the pipelines
 
-The deliverable is `migration/01_inventory.json` plus a readable `inventory.md`. **Produce it by
-reading the export yourself (default) or with the script (optional fast path).** Both must yield
-the same artifact; the artifact is the contract.
+The deliverable is `migration/01_inventory.json` plus a readable `inventory.md`. **Produce it
+with the inventory script (primary path).** Read the export by hand only on the dbt platform, where
+Python cannot run. Both must yield the same artifact; the artifact is the contract.
 
-**Default path — reasoning-based, no Python.** Use
+**Primary path — the inventory script:**
+
+```bash
+python3 <skills-dir>/migrating-matillion-to-dbt/scripts/inventory_matillion.py \
+        <file-or-dir> --out migration/01_inventory.json --strict
+```
+
+`--strict` exits non-zero if anything landed in `unknown`. DPC YAML needs `pyyaml`; METL JSON is
+stdlib. `scripts/test_inventory_matillion.py` locks in the denominator behaviour. Then check the
+artifact with `preflight_decisions.py inventory --inventory migration/01_inventory.json`.
+
+**Alternate path — dbt platform only, where Python cannot run: reasoning-based** (see foundations →
+"Choosing the path"; a `--strict` failure is a gate result, not a reason to switch). Follow the same
+rules the script applies, so the artifact comes out identical. Use
 [parsing-matillion-pipelines.md](references/parsing-matillion-pipelines.md) for field meanings and
 [matillion-component-mapping.md](references/matillion-component-mapping.md) for the id map, then:
 
@@ -196,15 +216,6 @@ the same artifact; the artifact is the contract.
    `parity_targets[]`, `control_flow_edges[]`, `unknown_components[]`, and a `summary` carrying
    `coverage_denominator`. Step 7 recomputes coverage from this file — it must not be retyped.
 
-**Optional fast path (local checkouts with Python only):**
-
-```bash
-python3 <skills-dir>/migrating-matillion-to-dbt/scripts/inventory_matillion.py \
-        <file-or-dir> --out migration/01_inventory.json --strict
-```
-
-`--strict` exits non-zero if anything landed in `unknown`. DPC YAML needs `pyyaml`; METL JSON is
-stdlib. `scripts/test_inventory_matillion.py` locks in the denominator behaviour.
 
 Then scaffold `_sources.yml` with **codegen** `generate_source` (foundations → dbt-packages.md),
 **and add a `legacy_prod` source block** for the parity targets — Step 5 references

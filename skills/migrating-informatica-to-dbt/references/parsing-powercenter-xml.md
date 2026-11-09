@@ -2,9 +2,10 @@
 
 How to walk an Informatica PowerCenter repository export and produce the workload inventory that
 Step 1 requires. The element/attribute names below are **verified** against a real PowerCenter
-10.5 XML export. You read the XML directly with Read/Grep; no Python is required — the
-element-walking parser at [`../scripts/inventory_informatica.py`](../scripts/inventory_informatica.py)
-is a useful structural template for the traversal.
+10.5 XML export. Run the parser at
+[`../scripts/inventory_informatica.py`](../scripts/inventory_informatica.py) wherever Python is
+available (the primary path). On the dbt platform, where Python can't run, read the XML directly
+with Read/Grep using this reference; the parser is a structural template for the traversal.
 
 ## Contents
 

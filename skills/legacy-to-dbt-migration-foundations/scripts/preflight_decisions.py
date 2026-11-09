@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
 """Migration gates for a legacy->dbt migration (stdlib only, pyyaml optional).
 
-OPTIONAL FAST PATH. These gates are a convenience for local checkouts. Every gate
-has a documented no-Python equivalent in ../SKILL.md, because the skill's declared
-target (the dbt platform) cannot install or run Python. The ARTIFACT and the PASS
-CRITERIA are the contract; this script is one way to check them.
+PRIMARY PATH. Run these gates wherever Python is available. Each gate also has a
+documented by-hand equivalent in the calling skill, for the dbt platform only, where
+Python cannot be installed or run. The ARTIFACT and the PASS CRITERIA are the
+contract; this script is the primary way to check them.
 
 Gates:
   decisions   Step 0 -> Step 1. Validate migration_manifest.yml (or the older flat
@@ -163,8 +163,8 @@ def load_yaml(path: Path) -> dict:
 def load_json(path: Path, label: str) -> dict:
     if not path or not path.exists():
         fail(f"missing artifact: {label} at {path}",
-             ["Run the Step that produces it, or produce it by hand via the "
-              "no-Python procedure in ../SKILL.md."])
+             ["Run the Step that produces it (its script is the primary path; the "
+              "by-hand procedure in the calling skill is for the dbt platform only)."])
     return json.loads(path.read_text())
 
 

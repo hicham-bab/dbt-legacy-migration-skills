@@ -59,11 +59,18 @@ above plus the three things that historically halted migrations and were never a
    makes it auditable. An agent that fills the manifest in for itself is making a checkable false
    statement instead of an invisible guess.
 
-**Do not gate on Python.** Some target environments — including the dbt platform, which is what
-`compatibility: dbt Fusion` means — cannot install or run it. `scripts/preflight_decisions.py`
-validates the manifest and recomputes the Step-5 and Step-7 gates as an **optional convenience for
-local checkouts**. Each of its gates has a documented no-Python equivalent in the calling skill.
-The artifact and the pass criteria are the contract; the script is one way to check them.
+**Run the scripts wherever Python is available — they are the primary path.**
+`scripts/preflight_decisions.py` validates the manifest and recomputes the Step-1, Step-5 and
+Step-7 gates, and each source skill's inventory script produces the Step-1 inventory. The dbt
+platform — which is what `compatibility: dbt Fusion` means — cannot install or run Python, so each
+gate also has a documented by-hand equivalent in the calling skill. Use the by-hand path **only**
+there. Either way, the artifact and the pass criteria are the contract.
+
+**Choosing the path.** Always try the script first. Switch to the by-hand path only when the script
+cannot be *executed*: there is no shell or command tool, or `python3` is not found. A non-zero exit,
+or an error such as a missing artifact, is a **gate result** — fix the cause and re-run; do not
+switch paths. Say which path you used and why, and record it in `migration_changes.md`. The
+migrator can still direct either path explicitly.
 
 **Teach as you migrate — assume the migrator may be new to dbt.** The person may know their legacy
 tool well but not dbt. Whenever you introduce a dbt concept — a model, `ref()`/`source()`, a

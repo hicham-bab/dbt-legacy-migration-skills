@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 """Inventory a Matillion workload for a dbt migration (stdlib only, except pyyaml for DPC).
 
-OPTIONAL FAST PATH. This script is a convenience, not a required step. The skill's Step 1
-documents a reasoning-based inventory procedure that produces the same artifact without
-Python, for environments (notably the dbt platform) where Python cannot be installed.
+PRIMARY PATH. Run this script to produce the Step-1 inventory wherever Python is available.
+The skill's Step 1 also documents a reasoning-based procedure that produces the same artifact
+by hand, for the dbt platform only, where Python cannot be installed.
 See migrating-matillion-to-dbt/SKILL.md Step 1 and references/parsing-matillion-pipelines.md.
 
 Handles:
@@ -423,8 +423,8 @@ def main(argv):
 
     if inv["yaml_pyyaml_missing"]:
         print("NOTE: a DPC .yaml pipeline was skipped because `pyyaml` is not installed.\n"
-              "      Run `pip install pyyaml` and re-run, or inventory that pipeline by hand\n"
-              "      using parsing-matillion-pipelines.md (no-Python path).", file=sys.stderr)
+              "      Run `pip install pyyaml` and re-run. (Inventory by hand with\n"
+              "      parsing-matillion-pipelines.md only on the dbt platform.)", file=sys.stderr)
 
     payload = {k: v for k, v in inv.items() if k != "yaml_pyyaml_missing"}
     if out_path:

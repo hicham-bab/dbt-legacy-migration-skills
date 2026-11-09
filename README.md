@@ -27,16 +27,15 @@ fix to the shared workflow reaches every source.
 `templates/migration_manifest.yml` in the foundations skill is the single input contract.
 It supersedes the older flat `migration_decisions.yml`, which covered three of the seven
 Step-0 questions and none of the artifact, access, or compliance inputs — the ones that
-actually halt migrations. Validate it either way:
+actually halt migrations. Validate it with the preflight script:
 
 ```
 python3 skills/legacy-to-dbt-migration-foundations/scripts/preflight_decisions.py \
     decisions --file migration_manifest.yml
 ```
 
-or follow the Step-0 checklist in the foundations `SKILL.md`, which needs no Python. The
-no-Python path exists because these skills often run on the dbt platform, where Python
-isn't available.
+The script (and each skill's inventory script) is the primary path. Each skill's gate also
+describes a by-hand check, for use **only** on the dbt platform, where Python can't run.
 
 ## Install
 

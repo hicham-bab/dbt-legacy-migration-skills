@@ -5,9 +5,9 @@
 # 3 of the 7 Step-0 questions and none of the artifact, access, or reference-fact
 # inputs. Those unenforced inputs are the ones that actually halt migrations.
 #
-# Validate with either path:
-#   * scripts/preflight_decisions.py --file migration_manifest.yml     (local checkout)
-#   * the Step-0 checklist in ../SKILL.md                              (no-Python path)
+# Validate with:
+#   * scripts/preflight_decisions.py decisions --file migration_manifest.yml   (primary path)
+#   * by hand, per the calling skill's decision gate      (dbt platform only, where Python can't run)
 #
 # Rules:
 #   * `null` is a legitimate, meaningful answer. It means "asked, and the answer is

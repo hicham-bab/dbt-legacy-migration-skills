@@ -63,9 +63,10 @@ link into its references. **Assume the migrator may be new to dbt** — explain 
 
 ## Decision gate — ASK before you build (blocking)
 
-**This gate is the Step-0 input manifest — fill it before Step 1.** It works with or without Python.
+**This gate is the Step-0 input manifest — fill it before Step 1, then validate it with the
+preflight script.** Check it by hand only on the dbt platform, where Python cannot run.
 
-**Do this (no Python required):**
+**Do this:**
 
 1. Copy `legacy-to-dbt-migration-foundations/templates/migration_manifest.yml` to the project root.
    If a completed `migration_manifest.yml` was supplied with the work (`provenance.method:
@@ -76,8 +77,9 @@ link into its references. **Assume the migrator may be new to dbt** — explain 
    like Kimball), still **ASK and confirm** — surface each as a question, never as a decision you
    already made. Getting these wrong means redoing dozens of files.
 3. Write their answers into the manifest, including `provenance.answered_by` and `answered_at`.
-4. **Do not create any dbt models, project files, or macros until every item below is answered.**
-   `null` is a valid answer meaning "asked, and the answer is no". A *blank* is not an answer.
+4. **Validate the manifest** (see below) and **do not create any dbt models, project files, or
+   macros until it passes.** `null` is a valid answer meaning "asked, and the answer is no". A
+   *blank* is not an answer.
 
 **Decisions** — the three that set the shape of everything downstream:
 - **target_modeling** — kimball | datavault | star | layered
@@ -107,16 +109,22 @@ Step 3:
   `dbt_var` | `invocation_id` | `scheduler_run_id` | `drop`. **Dropping one silently breaks
   downstream audit lineage** — make it an explicit decision, never a default.
 
-**Optional fast path (local checkouts with Python only):**
+**Validate the manifest with the preflight script (primary path):**
 
 ```bash
 python3 <skills-dir>/legacy-to-dbt-migration-foundations/scripts/preflight_decisions.py \
         decisions --file migration_manifest.yml
 ```
 
-It prints the exact unanswered questions and exits non-zero until the manifest is complete.
-**It validates; it does not substitute for asking.** A manifest the agent filled in for itself
-passes the script and fails the engagement.
+It prints the exact unanswered questions and exits non-zero until the manifest is complete;
+**re-run until it exits 0.** It validates; it does not substitute for asking. A manifest the agent
+filled in for itself passes the script and fails the engagement.
+
+**Alternate path — dbt platform only, where Python cannot run** (see foundations → "Choosing the
+path": a failing gate is never a reason to switch). Check the manifest by hand instead: every key in the lists above is present (`null` counts; a blank does not), each enum value
+is one of the listed options, `existing_project_path` is set if `landing_mode` is
+`fold_into_existing`, and all three access answers are `true` or `false`. Use this path only where
+the script cannot run, never as a shortcut past it.
 
 **As you build, explain your reasoning in plain language — the migrator may be new to dbt.** For
 each model, state in one line *why* that materialization (view / table / incremental) and, for the

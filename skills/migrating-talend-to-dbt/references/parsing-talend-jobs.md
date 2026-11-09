@@ -2,8 +2,9 @@
 
 How to read a Talend job export and produce the workload inventory. The element/attribute names
 below are **verified** against real Talend `.item` exports and against the parser at
-[`../scripts/inventory_talend.py`](../scripts/inventory_talend.py). You read the XML directly
-with Read/Grep; no Python required.
+[`../scripts/inventory_talend.py`](../scripts/inventory_talend.py). Run that parser wherever Python
+is available (the primary path). On the dbt platform, where Python can't run, read the XML
+directly with Read/Grep using this reference.
 
 ## Contents
 
