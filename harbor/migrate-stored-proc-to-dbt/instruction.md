@@ -16,9 +16,12 @@ verifier will compare your `mart_customer_ltv` against it row-for-row.
 
 ## What to do
 
-1. Follow the skill's workflow. A `migration_decisions.yml` is already provided at `/app` recording
-   the decisions for this run (modeling approach: layered; warehouse: duckdb; packages: external_hub)
-   so you can proceed non-interactively - read it and honor it.
+1. Follow the skill's workflow. A `migration_manifest.yml` (the Step-0 input manifest) is already
+   provided at `/app` recording the decisions for this run (modeling approach: layered; warehouse:
+   duckdb; packages: external_hub) so you can proceed non-interactively - read it and honor it.
+   It records `legacy_prod_readable: false` because the production outputs are held out: the
+   verifier's row-for-row check is this run's definition of done for parity, so the gate's
+   re-scope warning is expected and already answered.
 2. Build the dbt project **in `/app/project`** (a dbt-duckdb project). Load the two raw CSVs as dbt
    **seeds**, add a staging model, and produce a mart **`mart_customer_ltv`** that reproduces the
    procedure's logic (grain: one row per customer; completed orders only; `lifetime_value`,

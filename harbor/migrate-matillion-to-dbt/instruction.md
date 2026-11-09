@@ -29,8 +29,12 @@ the verifier compares your marts against them row-for-row.
 
 ## What to do
 
-1. Follow the skill's workflow. A `migration_decisions.yml` is already provided at `/app` (modeling:
-   layered; warehouse: duckdb; packages: external_hub) so you can proceed non-interactively.
+1. Follow the skill's workflow. A `migration_manifest.yml` (the Step-0 input manifest) is already
+   provided at `/app` (modeling: layered; warehouse: duckdb; packages: external_hub) so you can
+   proceed non-interactively.
+   It records `legacy_prod_readable: false` because the production outputs are held out: the
+   verifier's row-for-row check is this run's definition of done for parity, so the gate's
+   re-scope warning is expected and already answered.
 2. Build the dbt project **in `/app/project`** (a dbt-duckdb project). Load the two raw CSVs as dbt
    **seeds**, add staging models, and produce two marts:
    - **`mart_fct_orders`** - one row per completed order, with columns `order_id`, `customer_id`,

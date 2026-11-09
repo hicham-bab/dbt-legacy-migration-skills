@@ -35,7 +35,7 @@ project is idiomatic (clears the quality bar) **and** returns exactly what it re
 
 - **Step 0 - Detect the project and warehouse.** Locate the dbt project, profile, and target platform
   (see [cloud-detection-and-materializations.md](../legacy-to-dbt-migration-foundations/references/cloud-detection-and-materializations.md)).
-  A `migration_decisions.yml` may record the run's decisions.
+  A `migration_manifest.yml` (the Step-0 input manifest) may record the run's decisions.
 - **Step 1 - Inventory the anti-patterns.** Run the linter to enumerate what to fix:
   `python3 <skills-dir>/legacy-to-dbt-migration-foundations/scripts/lint_idiomatic.py <project-dir>`
   and `dbt build --select package:dbt_project_evaluator`. Map each finding to its fix using

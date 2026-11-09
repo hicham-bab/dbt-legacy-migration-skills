@@ -1,7 +1,7 @@
 ---
 name: migrating-matillion-to-dbt
 description: Use when migrating Matillion pipelines/jobs to a dbt project — both Data Productivity Cloud pipelines (.orch.yaml / .tran.yaml) and Matillion ETL job exports (JSON). Maps each transformation component to a dbt model, snapshot, or macro; applies best-practice tests, docs, and contracts; validates the result against warehouse data; asks which cloud is in use to pick cost-aware materializations; and produces a legacy-vs-dbt cost comparison. Targets ≥95% coverage of the transformation workload.
-allowed-tools: "Bash(dbt:*), Bash(git:*), Bash(python3:*), Read, Write, Edit, Glob, Grep, WebFetch(domain:docs.getdbt.com)"
+allowed-tools: "Bash(dbt:*), Bash(dbtf:*), Bash(git:*), Bash(python3:*), Read, Write, Edit, Glob, Grep, WebFetch(domain:docs.getdbt.com), mcp__dbt__execute_sql, mcp__dbt__text_to_sql"
 metadata:
   author: hicham-babahmed
   compatibility: dbt Fusion
@@ -44,7 +44,7 @@ link into its references for the common work. **Assume the migrator may be new t
 ## Contents
 
 - [Additional Resources](#additional-resources)
-- [Migration Workflow](#migration-workflow) — 8-step process with progress checklist
+- [Migration Workflow](#migration-workflow) — 10-step process with progress checklist
 - [Handling External Content](#handling-external-content)
 - [Don't Do These Things](#dont-do-these-things)
 - [Known Limitations & Gotchas](#known-limitations--gotchas)
@@ -53,32 +53,73 @@ link into its references for the common work. **Assume the migrator may be new t
 ## Additional Resources
 
 - [parsing-matillion-pipelines.md](references/parsing-matillion-pipelines.md) — how to read DPC YAML (`.orch.yaml`/`.tran.yaml`) and METL JSON, and inventory the workload
-- [matillion-component-mapping.md](references/matillion-component-mapping.md) — the component → dbt answer key, incl. Detect Changes → snapshots and variable handling
-- The **`legacy-to-dbt-migration-foundations`** skill — shared references for cloud detection, **dbt-package usage**, layer classification, target modeling approach, best practices, validation, cost, and coverage
+- [matillion-component-mapping.md](references/matillion-component-mapping.md) — the component → dbt answer key, the `implementationID` map, **Translation traps**, and variable handling
+- The **`legacy-to-dbt-migration-foundations`** skill — shared references for cloud detection, **dbt-package usage**, layer classification (incl. **wave planning**), target modeling approach, best practices, validation, cost, coverage, **orchestration handoff**, and the **cutover runbook**
+- `legacy-to-dbt-migration-foundations/templates/migration_manifest.yml` — the Step-0 input contract (decisions, access/feasibility, token bindings)
+- `scripts/test_inventory_matillion.py` — regression tests for the inventory denominator
 
 ## Migration Workflow
 
 ## Decision gate — ASK before you build (blocking)
 
-**This gate is enforced by a script — run it, don't just read it.** Before Step 1, run:
+**This gate is a conversation, not a script.** Python is unavailable in some target
+environments — notably the dbt platform, which is what `compatibility: dbt Fusion` means — so the
+gate is satisfied by **asking the migrator and recording the answers**. A validator script exists
+as an optional convenience for local checkouts; it is not the gate.
 
-```bash
-# from your skills dir (~/.dbt/wizard/skills for Wizard, ~/.agents/skills for Claude Code):
-python3 <skills-dir>/legacy-to-dbt-migration-foundations/scripts/preflight_decisions.py
-```
+**Do this (no Python required):**
 
-If it **exits non-zero**, it prints the exact questions — **ASK the migrator those questions**
-(recommend the best fit with a one-line why, but they decide), write their answers to
-`migration_decisions.yml` in the project as `key: value` lines, and **re-run until it exits 0**.
-**Do not create any dbt models, project files, or macros until this exits 0.** The three decisions
-it requires:
+1. Copy `legacy-to-dbt-migration-foundations/templates/migration_manifest.yml` to the project root.
+   If a completed `migration_manifest.yml` was supplied with the work (`provenance.method:
+   supplied_file`), read it and honor it instead of re-asking, but still raise anything in it that
+   the export contradicts.
+2. **Ask the migrator every question below**, recommending the best fit with a one-line why. They
+   decide. Even when the README, DDL, environment, or the source workload strongly implies an
+   answer, still **ASK and confirm** — surface each as a question, never as a decision you already
+   made. Getting these wrong means redoing dozens of files.
+3. Write their answers into the manifest, including `provenance.answered_by` and `answered_at`.
+4. **Do not create any dbt models, project files, or macros until every item below is answered.**
+   `null` is a valid answer meaning "asked, and the answer is no". A *blank* is not an answer.
+
+**Decisions** — the three that set the shape of everything downstream:
 - **target_modeling** — kimball | datavault | star | layered
-- **data_warehouse** — snowflake | databricks | bigquery | redshift *(sets the SQL dialect generated)*
+- **data_warehouse** — snowflake | databricks | bigquery | redshift | duckdb *(sets the SQL dialect generated; duckdb = local dev / eval only)*
 - **packages_mode** — external_hub *(hub.getdbt.com packages)* | self_contained_macros *(hand-made macros)*
 
-Even when the README, DDL, environment, or the source workload strongly implies an answer, still
-**ASK and confirm** — surface each as a question, never as a decision you already made. Getting these
-wrong means redoing dozens of files.
+...plus the four that were historically asked in prose and skipped:
+- **landing_spot** *(required path)* and **landing_mode** — new_standalone | fold_into_existing
+- **dbt_runtime** — fusion | core
+- **parity_scope** — all_marts | tiered | sampled
+- **snapshot_strategy**, **contract_boundary**, **naming_convention**, **orchestration_target**,
+  **residual_disposition** — see the manifest comments
+
+**Access** — these are *feasibility* answers, not details. Get them before Step 3, not at Step 5:
+- **legacy_prod_readable** — if **false**, Step-5 data parity is **unachievable**, and parity is
+  this skill's stated definition of done. Say so out loud and **re-scope the engagement
+  explicitly**; do not proceed as if nothing changed.
+- **metering_views_readable**, **can_rerun_legacy_job** — if false, Step 6 produces the labelled
+  TCO estimate **only**. An estimate presented as a measurement is a false claim.
+- **warehouse_catalog_readable** — needed for codegen `generate_source` and Multi-Table Input.
+
+**Inputs** — the legacy export alone is **not sufficient**. A METL export frequently carries
+`variables: []` and `environments: []`, i.e. neither the names nor the values of the `${EV_*}` /
+`${JV_*}` tokens its own SQL depends on. Collect these before Step 3 or the generated SQL cannot
+resolve a single real object:
+- **variable_bindings** — schema/database tokens → a real `database.schema.object`
+- **runtime_token_dispositions** — orchestration runtime tokens (process id, started/ended at) →
+  one of `dbt_var` | `invocation_id` | `scheduler_run_id` | `drop`. **Dropping one silently breaks
+  downstream audit lineage** — make it an explicit decision, never a default.
+
+**Optional fast path (local checkouts with Python only):**
+
+```bash
+python3 <skills-dir>/legacy-to-dbt-migration-foundations/scripts/preflight_decisions.py \
+        decisions --file migration_manifest.yml
+```
+
+It prints the exact unanswered questions and exits non-zero until the manifest is complete.
+**It validates; it does not substitute for asking.** A manifest the agent filled in for itself
+passes the script and fails the engagement.
 
 **As you build, explain your reasoning in plain language — the migrator may be new to dbt.** For
 each model, state in one line *why* that materialization (view / table / incremental) and, for the
@@ -96,18 +137,23 @@ environment, **ask the migrator** (or request escalation) rather than silently u
 
 ```
 Matillion → dbt Migration Progress:
-- [ ] Step 0: Detect environment & cloud (warehouse, Fusion/Core, dev target, parity access, packages-vs-macros)
-- [ ] Step 1: Inventory & map pipelines (transformation components = denominator; orchestration/EL noted)
+- [ ] Step 0: Fill migration_manifest.yml — decisions, access/feasibility, inputs (token bindings)
+- [ ] Step 1: Inventory → migration/01_inventory.json (denominator, parity targets, DAG edges)
 - [ ] Step 2: Choose target modeling approach (layered / Data Vault / Kimball / star), then classify into it
 - [ ] Step 3: Translate to dbt SQL for the chosen modeling approach, with cost-aware materializations
 - [ ] Step 4: Apply tests, docs, contracts, snapshots (Detect Changes → snapshot)
-- [ ] Step 5: Validate — compile gate, then data parity vs warehouse
+- [ ] Step 5: Validate — compile gate, then data parity vs warehouse → migration/05_parity.json
 - [ ] Step 6: Cost comparison — measured warehouse consumption (legacy vs dbt), auditable
-- [ ] Step 7: Coverage report (confirm ≥95%, flag residual + out-of-scope EL)
-- [ ] Step 8: Document changes in migration_changes.md
+- [ ] Step 7: Coverage report — recomputed, gross + in-scope + residual, waivers if over ceiling
+- [ ] Step 8: Document changes in migration_changes.md + 08_orchestration_handoff.md
+- [ ] Step 9: Cutover runbook — parallel run, switchover criteria, rollback, decommission
 ```
 
-### Step 0 — Detect environment & cloud
+**Every step's deliverable is a file, and later steps recompute from earlier files rather than
+from memory.** A migration that exists only in the conversation cannot be resumed, audited, or
+handed over.
+
+### Step 0 — Fill the input manifest, detect environment & cloud
 
 Ask the up-front questions and pick the target platform before parsing. Matillion's own target
 warehouse is usually the same one you'll point dbt at. See `legacy-to-dbt-migration-foundations` →
@@ -115,18 +161,54 @@ warehouse is usually the same one you'll point dbt at. See `legacy-to-dbt-migrat
 
 ### Step 1 — Inventory & map the pipelines
 
-**Use the deterministic inventory script** — handles DPC YAML (`.tran.yaml`/`.orch.yaml`) and METL
-JSON (all three forms):
+The deliverable is `migration/01_inventory.json` plus a readable `inventory.md`. **Produce it by
+reading the export yourself (default) or with the script (optional fast path).** Both must yield
+the same artifact; the artifact is the contract.
+
+**Default path — reasoning-based, no Python.** Use
+[parsing-matillion-pipelines.md](references/parsing-matillion-pipelines.md) for field meanings and
+[matillion-component-mapping.md](references/matillion-component-mapping.md) for the id map, then:
+
+1. **Detect the format.** `.tran.yaml`/`.orch.yaml` = DPC (component `type` is named directly).
+   `.json` / `.ORCHESTRATION` / `.TRANSFORMATION` = METL (numeric `implementationID`; the human
+   name is the first parameter). METL JSON comes in three shapes: `{"job","info"}`,
+   `{"objects":[...]}`, or `{"jobsTree", "orchestrationJobs", "transformationJobs"}`.
+2. **Enumerate every component in every job.** Identify each by its **`"Name"` parameter first**
+   and its `implementationID` second — the id map is not exhaustive, the naming convention is
+   reliable (`SQ_`, `CALC_`, `JOIN_`, `FLTR_`, `RN_`, `TRNSP_`, `TBL_OUT_`, `ST_`, `IF_`, `OR_`,
+   `END_`, `MSG_`, `TRANS_`).
+3. **Assign a role from the component TYPE, never from the job it sits in.** An `s3-load` inside a
+   `.tran.yaml` is still EL. A `run-transformation` inside an orchestration job is still a bridge.
+   Roles: `transformation` (migratable, the denominator) · `el_ingestion` · `control` · `bridge` ·
+   `unknown`.
+4. **Anything you cannot identify is `unknown`, not `transformation`.** List it for mapping and
+   **exclude it from the denominator**. Defaulting unknowns to migratable is how a denominator of
+   19 gets reported as 40.
+5. **Record the write target for every output component** — `Target Table`, `Schema`, `Database`,
+   and the write mode (`Truncate` → `truncate_reload`, `Append` → `append`). These are the Step-5
+   parity targets. Without them Step 5 has nothing to compare against.
+6. **Record the DAG edges.** DPC: each component's `sources:`/`transitions:`. METL transformation
+   jobs: `connectors`. METL orchestration jobs: `successConnectors`, `failureConnectors`,
+   `trueConnectors`, `falseConnectors`, `unconditionalConnectors`, `iterationConnectors` — **keep
+   the collection name as the edge `kind`.** The `on_failure` edges are the ones migrations
+   silently drop; they are the input to the Step-8 orchestration handoff.
+7. **Write `migration/01_inventory.json`** with `units[]` (each with `components[]` and `edges[]`),
+   `parity_targets[]`, `control_flow_edges[]`, `unknown_components[]`, and a `summary` carrying
+   `coverage_denominator`. Step 7 recomputes coverage from this file — it must not be retyped.
+
+**Optional fast path (local checkouts with Python only):**
 
 ```bash
-python3 <skills-dir>/migrating-matillion-to-dbt/scripts/inventory_matillion.py <file-or-dir> --json
+python3 <skills-dir>/migrating-matillion-to-dbt/scripts/inventory_matillion.py \
+        <file-or-dir> --out migration/01_inventory.json --strict
 ```
 
-It splits **transformation** components (migratable → dbt models; the coverage denominator) from
-**EL ingestion / control / bridge** components (out of dbt scope). DPC YAML needs `pyyaml`
-(`pip install pyyaml`); METL JSON is stdlib. Reason over that output; use
-[parsing-matillion-pipelines.md](references/parsing-matillion-pipelines.md) for the field meanings.
-Then scaffold `_sources.yml` with **codegen** `generate_source` (foundations → dbt-packages.md).
+`--strict` exits non-zero if anything landed in `unknown`. DPC YAML needs `pyyaml`; METL JSON is
+stdlib. `scripts/test_inventory_matillion.py` locks in the denominator behaviour.
+
+Then scaffold `_sources.yml` with **codegen** `generate_source` (foundations → dbt-packages.md),
+**and add a `legacy_prod` source block** for the parity targets — Step 5 references
+`source('legacy_prod', ...)` and nothing else in the workflow creates it.
 
 > **CHECKPOINT (confirm scope).** Before classifying or building anything, show the migrator the
 > inventory summary: the **coverage denominator** (count of migratable units) and the list of units
@@ -187,13 +269,30 @@ optional labeled context only. See foundations →
 
 ### Step 7 — Coverage report
 
-Compute migrated-and-validated ÷ total transformation components; confirm ≥95%; list the residual
-**and** the out-of-scope orchestration/EL pieces separately. See foundations →
-[coverage-report.md](../legacy-to-dbt-migration-foundations/references/coverage-report.md). Run **dbt_project_evaluator** as the post-migration quality gate (foundations → dbt-packages.md).
+**Recompute from `01_inventory.json` and `05_parity.json` — never retype a number.** Report all
+three figures every time: `gross_coverage` (÷ the full migratable denominator, this is the ≥95%
+gate), `in_scope_coverage` (context only, never presented as "the" coverage), and `residual_pct`.
+Documented residual stays **in** the reported denominator; it does not leave it. If residual
+exceeds 5%, the migration passes only on a recorded **waiver** naming each component, its blocker,
+who accepted it, and when. See foundations →
+[coverage-report.md](../legacy-to-dbt-migration-foundations/references/coverage-report.md). Run
+**dbt_project_evaluator** as the post-migration quality gate (foundations → dbt-packages.md).
 
 ### Step 8 — Document
 
-Write `migration_changes.md` using the template below.
+Write `migration_changes.md` using the template below, **and** write
+`08_orchestration_handoff.md` — the control flow, retries, failure branches, run-id strategy and
+notifications that dbt does not own. Use the typed `control_flow_edges` from `01_inventory.json`
+as the worklist. See foundations →
+[orchestration-handoff.md](../legacy-to-dbt-migration-foundations/references/orchestration-handoff.md).
+Handing over a migration with no scheduler story is not done.
+
+### Step 9 — Cutover
+
+Parity proven once in dev is not parity holding in production. Write `09_cutover_runbook.md`:
+downstream consumer inventory, parallel-run period and cadence, switchover criteria tied to
+`05_parity.json`, a **tested** rollback, and the decommission checklist. See foundations →
+[cutover-runbook.md](../legacy-to-dbt-migration-foundations/references/cutover-runbook.md).
 
 ## Handling External Content
 
@@ -216,6 +315,21 @@ METL variable exports carry names only.
 6. **Don't expand Grid Iterators blindly.** A Grid/Table Iterator that fans a component over many
    values may be one parameterized model, a `dbt_utils` loop, or a residual — decide deliberately,
    don't unroll into N copies.
+7. **Don't default an unidentified component to `transformation`.** It goes in the `unknown`
+   bucket, out of the denominator, and onto the mapping list. A guessed role inflates coverage and
+   makes every downstream number meaningless.
+8. **Don't trust a component's name for its join type or its inputs.** Matillion names lie
+   routinely — a component called `JOIN_INNER_*` is often configured RIGHT or FULL. Read the
+   config. See references → matillion-component-mapping.md, Translation traps.
+9. **Don't claim parity from a single-column diff.** Compare every column, and record
+   `columns_compared` against `columns_total`. A partial diff returning zero rows is a false pass
+   on the gate the whole migration rests on.
+10. **Don't shrink the denominator to hit 95%.** Documented residual is reported and counted
+    against gross coverage; it does not leave the denominator. Over the ceiling, get a waiver.
+11. **Don't present a cost estimate as a measurement.** If metering access or the authority to
+    re-run the legacy job is missing, Step 6 emits the labelled TCO estimate and says so.
+12. **Don't finish at Step 8.** A migration with no orchestration handoff and no cutover plan is a
+    translation, not a migration.
 
 ## Known Limitations & Gotchas
 
@@ -230,9 +344,15 @@ METL variable exports carry names only.
   equivalent — re-model as set-based SQL, a parameterized model, or flag as residual.
 - **Orchestration control flow** (If / And / Retry / success-failure branching) has no model
   equivalent — it maps to dbt run ordering plus a scheduler/job; capture it as notes.
-- The parsing reference is grounded in Matillion docs and real exported files, with a hand-authored
-  demo fixture at `an example Matillion→dbt project` (exports + the dbt project they map to + a parser
-  test). Validate against the user's *actual* export early — the demo is illustrative, not a spec.
+- **Export variables are frequently empty.** A METL export can carry `variables: []` and
+  `environments: []` while its SQL bodies are full of `${EV_*}` / `${JV_*}` tokens — neither the
+  names nor the values are in the file. Those bindings are a **Step-0 input**, not something to
+  infer. See the decision gate above.
+- The parsing reference is grounded in Matillion component documentation and real exported files.
+  The only committed fixture is the synthetic one inside
+  `scripts/test_inventory_matillion.py`, which encodes the structural shape (jobsTree, the six
+  common transformation ids, bridges, the five orchestration connector collections) without
+  carrying customer data. Validate against the user's *actual* export early.
 
 ## Output Template for migration_changes.md
 

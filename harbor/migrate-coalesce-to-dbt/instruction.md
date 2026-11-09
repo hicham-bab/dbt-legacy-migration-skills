@@ -28,8 +28,12 @@ lowercase in dbt/DuckDB.
 
 ## What to do
 
-1. Follow the skill's workflow. A `migration_decisions.yml` is provided at `/app` (modeling: star;
-   warehouse: duckdb; packages: external_hub) so you can proceed non-interactively.
+1. Follow the skill's workflow. A `migration_manifest.yml` (the Step-0 input manifest) is provided at
+   `/app` (modeling: star; warehouse: duckdb; packages: external_hub) so you can proceed
+   non-interactively.
+   It records `legacy_prod_readable: false` because the production outputs are held out: the
+   verifier's row-for-row check is this run's definition of done for parity, so the gate's
+   re-scope warning is expected and already answered.
 2. Build the dbt project **in `/app/project`** (a dbt-duckdb project). Load the three raw CSVs as
    **seeds**, add staging models (`stg_customer`, `stg_nation`, `stg_orders`), model the **Type 2
    dimension as a dbt snapshot** (change-tracking on `c_name`), and produce two marts:

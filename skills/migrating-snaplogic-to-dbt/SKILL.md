@@ -93,45 +93,80 @@ not just the mechanics.
 
 - [parsing-snaplogic-pipelines.md](references/parsing-snaplogic-pipelines.md) — how to read `.slp` JSON (`snap_map`, `link_map`, `property_map`), acquire exports, and inventory the workload
 - [snaplogic-snap-mapping.md](references/snaplogic-snap-mapping.md) — the Snap → dbt answer key, incl. ELT SCD2 → snapshots, the MERGE-chain collapse, and expression-language translation
-- The **`legacy-to-dbt-migration-foundations`** skill — shared references for cloud detection, **dbt-package usage**, layer classification, target architecture, best practices, validation, cost, and coverage
+- The **`legacy-to-dbt-migration-foundations`** skill — shared references for cloud detection, **dbt-package usage**, layer classification, target modeling approach, best practices, validation, cost, and coverage
 
 ## Migration Workflow
 
 ## Decision gate — ASK before you build (blocking)
 
-**This gate is enforced by a script — run it, don't just read it.** Before Step 1, run:
+**This gate is the Step-0 input manifest — fill it before Step 1.** It works with or without Python.
 
-```bash
-# from your skills dir (~/.dbt/wizard/skills for Wizard, ~/.agents/skills for Claude Code):
-python3 <skills-dir>/legacy-to-dbt-migration-foundations/scripts/preflight_decisions.py
-```
+**Do this (no Python required):**
 
-If it **exits non-zero**, it prints the exact questions — **ASK the migrator those questions**
-(recommend the best fit with a one-line why, but they decide), write their answers to
-`migration_decisions.yml` in the project as `key: value` lines, and **re-run until it exits 0**.
-**Do not create any dbt models, project files, or macros until this exits 0.** The three decisions
-it requires:
-- **target_architecture** — kimball | datavault | star | layered
-- **data_warehouse** — snowflake | databricks | bigquery | redshift *(sets the SQL dialect generated)*
+1. Copy `legacy-to-dbt-migration-foundations/templates/migration_manifest.yml` to the project root.
+   If a completed `migration_manifest.yml` was supplied with the work (`provenance.method:
+   supplied_file`), read it and honor it instead of re-asking, but still raise anything in it that
+   the export contradicts.
+2. **Ask the migrator every question below**, recommending the best fit with a one-line why. They
+   decide. Even when the pipeline's Snap accounts, `<DB> Execute` dialect, or project layout
+   strongly imply an answer, still **ASK and confirm** — surface each as a question, never as a
+   decision you already made. Getting these wrong means redoing dozens of files.
+3. Write their answers into the manifest, including `provenance.answered_by` and `answered_at`.
+4. **Do not create any dbt models, project files, or macros until every item below is answered.**
+   `null` is a valid answer meaning "asked, and the answer is no". A *blank* is not an answer.
+
+**Decisions** — the three that set the shape of everything downstream:
+- **target_modeling** — kimball | datavault | star | layered
+- **data_warehouse** — snowflake | databricks | bigquery | redshift | duckdb *(sets the SQL dialect generated; duckdb = local dev / eval only)*
 - **packages_mode** — external_hub *(hub.getdbt.com packages)* | self_contained_macros *(hand-made macros)*
 
-Even when the pipeline's Snap accounts, `<DB> Execute` dialect, or project layout strongly imply an
-answer, still **ASK and confirm** — surface each as a question, never as a decision you already
-made. Getting these wrong means redoing dozens of files.
+...plus the four that were historically asked in prose and skipped:
+- **landing_spot** *(required path)* and **landing_mode** — new_standalone | fold_into_existing
+- **dbt_runtime** — fusion | core
+- **parity_scope** — all_marts | tiered | sampled
+- **snapshot_strategy**, **contract_boundary**, **naming_convention**, **orchestration_target**,
+  **residual_disposition** — see the manifest comments
+
+**Access** — these are *feasibility* answers, not details. Get them before Step 3, not at Step 5:
+- **legacy_prod_readable** — if **false**, Step-5 data parity is **unachievable**, and parity is
+  this skill's stated definition of done. Say so out loud and **re-scope the engagement
+  explicitly**; do not proceed as if nothing changed.
+- **metering_views_readable**, **can_rerun_legacy_job** — if false, Step 6 produces the labelled
+  TCO estimate **only**. An estimate presented as a measurement is a false claim.
+- **warehouse_catalog_readable** — needed for codegen `generate_source`.
+
+**Inputs** — the legacy export alone is **not sufficient**. Pipeline parameters (referenced as
+`_name`) and account settings get their values at run time, not in the `.slp`. Collect these before
+Step 3:
+- **variable_bindings** — schema/database tokens → a real `database.schema.object`
+- **runtime_token_dispositions** — orchestration runtime tokens (run id, start/end time) → one of
+  `dbt_var` | `invocation_id` | `scheduler_run_id` | `drop`. **Dropping one silently breaks
+  downstream audit lineage** — make it an explicit decision, never a default.
+
+**Optional fast path (local checkouts with Python only):**
+
+```bash
+python3 <skills-dir>/legacy-to-dbt-migration-foundations/scripts/preflight_decisions.py \
+        decisions --file migration_manifest.yml
+```
+
+It prints the exact unanswered questions and exits non-zero until the manifest is complete.
+**It validates; it does not substitute for asking.** A manifest the agent filled in for itself
+passes the script and fails the engagement.
 
 **The gate checks that the answers are present, not that they are right — so cross-check
-`data_warehouse` yourself after Step 1.** A pre-existing `migration_decisions.yml` may be left
-over from a different migration. If the inventoried SQL dialect disagrees with the recorded
-warehouse (BigQuery backticks, `QUALIFY`, `DATE_ADD(x, INTERVAL ...)` against
+`data_warehouse` yourself after Step 1.** A pre-existing `migration_manifest.yml` (or an older
+`migration_decisions.yml`) may be left over from a different migration. If the inventoried SQL
+dialect disagrees with the recorded warehouse (BigQuery backticks, `QUALIFY`, `DATE_ADD(x, INTERVAL ...)` against
 `data_warehouse: snowflake`, say), **stop and raise it** — do not generate SQL for the recorded
 platform. This is the one case where you reopen a settled decision.
 
 **As you build, explain your reasoning in plain language — the migrator may be new to dbt.** For
 each model, state in one line *why* that materialization (view / table / incremental) and, for the
-project, *why* this architecture and *why* a snapshot vs a plain model. See the "Teach as you
+project, *why* this modeling approach and *why* a snapshot vs a plain model. See the "Teach as you
 migrate" principle and
 [dbt-concepts-explained.md](../legacy-to-dbt-migration-foundations/references/dbt-concepts-explained.md);
-capture the architecture overview + per-model materialization-and-why in `migration_changes.md`.
+capture the modeling approach overview + per-model materialization-and-why in `migration_changes.md`.
 
 **Build in the chosen landing spot — not a temp folder.** Create the dbt project directly in the
 location the migrator picked and build/iterate there. Do **not** build in a scratch/`/tmp` directory
@@ -144,8 +179,8 @@ environment, **ask the migrator** (or request escalation) rather than silently u
 SnapLogic → dbt Migration Progress:
 - [ ] Step 0: Detect environment & cloud (warehouse, Fusion/Core, dev target, parity access, packages-vs-macros)
 - [ ] Step 1: Inventory & classify Snaps by regime -> snaplogic/inventory.{md,json}; cross-check dialect vs data_warehouse
-- [ ] Step 2: Choose target architecture (layered / Data Vault / Kimball / star), then classify into it
-- [ ] Step 3: Translate to dbt SQL for the chosen architecture, with cost-aware materializations
+- [ ] Step 2: Choose target modeling approach (layered / Data Vault / Kimball / star), then classify into it
+- [ ] Step 3: Translate to dbt SQL for the chosen modeling approach, with cost-aware materializations
 - [ ] Step 4: Apply tests, docs, contracts, snapshots (ELT SCD2 / hand-built SCD2 → snapshot)
 - [ ] Step 5: Validate — compile gate, then data parity vs warehouse
 - [ ] Step 6: Cost comparison — measured warehouse consumption (legacy vs dbt), auditable
@@ -187,27 +222,27 @@ scaffolding to Step 3**, once the dbt project
 exists and a warehouse connection is configured — **codegen** `generate_source` needs both
 (foundations → dbt-packages.md). At Step 1 just list the distinct source tables the SQL reads.
 
-### Step 2 — Choose target architecture, then classify into it
+### Step 2 — Choose target modeling approach, then classify into it
 
-The architecture was already chosen and recorded at the blocking gate above
-(`migration_decisions.yml` → `target_architecture`). **Do not re-ask it.** Read it from that file
+The modeling approach was already chosen and recorded at the blocking gate above
+(`migration_manifest.yml` → `decisions.target_modeling`). **Do not re-ask it.** Read it from that file
 and proceed; only return to the migrator if the inventory contradicts their choice (say, they
 picked Kimball but the workload has no dimensions), in which case surface the conflict and let
 them re-decide. See foundations →
-[target-architecture.md](../legacy-to-dbt-migration-foundations/references/target-architecture.md).
-Then classify each **write target** (not each Snap) into that architecture's structures (layered:
+[target-modeling.md](../legacy-to-dbt-migration-foundations/references/target-modeling.md).
+Then classify each **write target** (not each Snap) into that modeling approach's structures (layered:
 source / staging / intermediate / mart; Data Vault: hubs / links / satellites; dimensional: dims /
 facts), with a confidence score, and detect domain boundaries (SnapLogic project folders under
 `path_id`) for a possible Mesh split. See foundations →
 [layer-classification.md](../legacy-to-dbt-migration-foundations/references/layer-classification.md).
 
-### Step 3 — Translate to dbt SQL for the chosen architecture
+### Step 3 — Translate to dbt SQL for the chosen modeling approach
 
 Translate using [snaplogic-snap-mapping.md](references/snaplogic-snap-mapping.md). Work
 **target-table-first, not Snap-first**: group the Snaps by what they write, collapse each
 write-target chain into a single model whose CTEs carry the enrichments, and turn cross-pipeline
-table reads into `ref()`. Apply the chosen architecture's generation pattern (foundations →
-target-architecture.md): **layered** → CTE models; **Kimball / Star** → foundations
+table reads into `ref()`. Apply the chosen modeling approach's generation pattern (foundations →
+target-modeling.md): **layered** → CTE models; **Kimball / Star** → foundations
 building-kimball.md / building-starschema.md; **Data Vault** → foundations building-datavault.md.
 Pick materializations per the target cloud (foundations →
 cloud-detection-and-materializations.md). Emit Fusion-conformant SQL (`cast()`, `coalesce()`) —
@@ -345,7 +380,7 @@ are `account_ref` expressions naming an account, which are safe to record as a *
 - Excluded by rule: disabled [d], checks→tests [e], backups [f], DDL [g], blocked `CALL`s [h]
 - Out of scope: Snaplex streaming [x], ingestion [y], bridges/control/logging [z]
 
-## Architecture
+## Modeling approach
 - Chosen: [layered / Data Vault / Kimball / Star] — recommended because […]; **confirmed by the migrator**.
 - Layer/DAG overview: source → staging → … → mart, and how the write targets map onto it.
 

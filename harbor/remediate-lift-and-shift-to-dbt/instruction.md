@@ -23,7 +23,8 @@ output**:
 4. Add tests (unique/not_null on the grain, accepted_values on `ltv_segment`) and short descriptions.
 5. Keep results identical: `customer_ltv` must still return exactly the rows it returns today.
 
-A `migration_decisions.yml` at `/app` records the run decisions (layered; duckdb). The profile is
+A `migration_manifest.yml` (the Step-0 input manifest) at `/app` records the run decisions
+(layered; duckdb; fold into the existing project). The profile is
 `remediate_demo` (DuckDB, `path: dev.duckdb`). From `/app/project`, `dbt build` must succeed.
 
 ## Success

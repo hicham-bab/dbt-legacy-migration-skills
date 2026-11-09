@@ -12,6 +12,7 @@ full-outer-join diff and an aggregate + row-count baseline.
 - [The compile gate (free)](#the-compile-gate-free)
 - [Set up the comparison: legacy prod vs dbt dev](#set-up-the-comparison-legacy-prod-vs-dbt-dev)
 - [Preferred tool: audit_helper](#preferred-tool-audit_helper)
+- [Two-stage parity at scale: PK coverage, then column values](#two-stage-parity-at-scale-pk-coverage-then-column-values)
 - [Pattern A: row-for-row parity (fallback)](#pattern-a-row-for-row-parity-fallback)
 - [Pattern B: aggregate + row-count baseline (fallback)](#pattern-b-aggregate--row-count-baseline-fallback)
 - [Explaining the differences](#explaining-the-differences)
@@ -52,6 +53,37 @@ you compare — otherwise you'll misread an environment difference as a logic bu
 Beyond data parity, **unit tests** prove the migrated *logic* on fixed inputs (warehouse-light) —
 run them here too; see
 [dbt-features-for-migration.md](dbt-features-for-migration.md#unit-tests--pin-the-migrated-logic).
+
+**You do not have to guess the legacy prod table name.** Where the source tool's Step-1 inventory
+script emits it, the inventory artifact (`01_inventory.json`) carries a `parity_targets` list — one
+entry per output component, with fields `unit`, `component`, `target`, `schema`, `database` and
+`write_mode`. That list *is* the set of Step-5 comparison targets; work through it rather than
+rediscovering targets by reading pipelines again. Entries with a null `target` are a visible gap to
+resolve, not an absent one.
+
+- **`write_mode: append` changes the comparison.** An append target **accumulates across runs**, so
+  the legacy prod table holds the union of every historical run while the dbt model holds one
+  rebuild. A whole-table diff will not match, and the mismatch is an artifact of the write mode, not
+  a logic bug. Scope both sides to the **run window** (a load date, batch id, or run timestamp
+  column) before comparing.
+- **`write_mode: truncate_reload`** targets hold one run's output, so a whole-table diff is valid.
+
+**The `legacy_prod` source must exist.** Every `source('legacy_prod', ...)` reference in this file
+resolves only if a matching source block is declared in the dbt project, pointed at the legacy
+production database/schema. **Nothing else in the workflow creates it** — no step generates it as a
+side effect. Add it before the first parity run, using the `database`/`schema` values from
+`parity_targets`:
+
+```yaml
+sources:
+  - name: legacy_prod
+    database: PROD          # from parity_targets.database
+    schema: MARTS           # from parity_targets.schema
+    tables:
+      - name: fct_sales     # from parity_targets.target
+```
+
+Keep it read-only: declare it as a source and never build into it.
 
 Only after inputs are aligned does a remaining difference point to the *transformation logic*.
 
@@ -175,6 +207,10 @@ Some columns exist on only one side and will always show ~0% match: CDC-internal
 (`dbt_updated_at`, `dbt_valid_from`/`dbt_valid_to`). These are expected, not regressions. Pass them to
 `exclude_columns=[...]` so they do not dominate the mismatch counts.
 
+An exclusion is legitimate only when it is **named in the parity record** with its reason (CDC-internal,
+dbt audit, one-sided). Unnamed or unexplained exclusions are not allowed: they are how a 3-of-40-column
+diff gets reported as a pass. See the completeness assertion below.
+
 ### What a failing metric points at
 
 Diagnose by **which** of the two metrics failed - it maps straight to a class of bug:
@@ -186,36 +222,138 @@ Diagnose by **which** of the two metrics failed - it maps straight to a class of
 
 ## Pattern A: row-for-row parity (fallback)
 
-Use only when audit_helper can't be installed. Full-outer-join the dbt dev model to the legacy prod
-table on the grain; return **only mismatches**. Zero rows = perfect parity.
+Use only when audit_helper can't be installed.
+
+> **⚠ A single-column diff is not parity — it is a false pass.** Comparing one column (or a
+> hand-picked handful), getting zero rows back, and reporting "parity: pass" asserts nothing about
+> every other column in the model. Those columns can be entirely wrong and the query still returns
+> zero rows. Parity is the gate the whole methodology rests on, so Pattern A must compare **all**
+> columns of the model, every time.
+
+Two queries, run together: a **row-hash check** to find *which rows* differ, then a **per-column
+comparison** to find *which columns* differ in those rows. Both full-outer-join on the grain and
+return only mismatches; zero rows from **both** is parity.
+
+**A1 — row-hash fast check (which rows differ):**
 
 ```sql
--- analyses/validate_<entity>_migration.sql
+-- analyses/validate_<entity>_rows.sql
+{% set cols = adapter.get_columns_in_relation(ref('fct_sales'))
+              | map(attribute='name') | map('lower') | sort | list %}
+
 with dbt_dev as (
-    select * from {{ ref('fct_sales') }}                       -- built in dev
+    select
+        {{ cols | join(', ') }},
+        md5(concat_ws('|',
+            {% for c in cols %}coalesce(cast({{ c }} as varchar), '<NULL>')
+            {%- if not loop.last %}, {% endif %}{% endfor %}
+        )) as row_hash
+    from {{ ref('fct_sales') }}
 ),
 legacy_prod as (
-    select * from {{ source('legacy_prod', 'fct_sales') }}     -- the prod table the old tool writes
-),
-compare as (
     select
-        coalesce(d.sales_key, l.sales_key) as sales_key,
-        d.net_amount as dbt_net_amount,
-        l.net_amount as legacy_net_amount,
-        case
-            when d.sales_key is null then 'missing_in_dbt'      -- dbt dropped a row
-            when l.sales_key is null then 'missing_in_legacy'   -- dbt produced an extra row
-            when round(d.net_amount, 2) <> round(l.net_amount, 2) then 'value_mismatch'
-        end as diff_type
-    from dbt_dev d
-    full outer join legacy_prod l on d.sales_key = l.sales_key
+        {{ cols | join(', ') }},
+        md5(concat_ws('|',
+            {% for c in cols %}coalesce(cast({{ c }} as varchar), '<NULL>')
+            {%- if not loop.last %}, {% endif %}{% endfor %}
+        )) as row_hash
+    from {{ source('legacy_prod', 'fct_sales') }}
 )
-select * from compare
-where diff_type is not null
+select
+    coalesce(d.sales_key, l.sales_key) as sales_key,
+    case
+        when d.sales_key is null then 'missing_in_dbt'
+        when l.sales_key is null then 'missing_in_legacy'
+        else 'row_mismatch'
+    end as diff_type
+from dbt_dev d
+full outer join legacy_prod l on d.sales_key = l.sales_key
+where d.sales_key is null
+   or l.sales_key is null
+   or d.row_hash <> l.row_hash
 ```
 
-Use `round()` on decimals to absorb legitimate cross-platform floating-point noise. Every returned
-row is a difference to **explain** (next section), not automatically a bug.
+The hash is a *finder*, not proof — it tells you a row differs somewhere, not where. Three things
+make it spuriously mismatch:
+
+- **NULL handling must be identical on both sides.** `concat_ws` skips NULLs, so `(a, NULL, c)` and
+  `(a, c, NULL)` hash alike unless every value is `coalesce`d to a sentinel first. Use the same
+  sentinel (`'<NULL>'` above) on both sides.
+- **Column order must match.** Both sides are built from the same sorted `cols` list for exactly
+  this reason — never enumerate the two sides independently.
+- **Types must match.** `cast(... as varchar)` renders `1.50` and `1.5`, or two timestamp
+  precisions, as different strings. Normalise first (round decimals to a fixed scale, cast
+  timestamps to a common precision) or the hash reports differences that do not exist.
+
+Both sides are built from the **model's** column list, so a column the legacy table doesn't have
+makes the query fail to compile/run. That is a finding — a schema difference — not an obstacle:
+record it and reconcile the schemas before claiming parity.
+
+**A2 — per-column comparison (which columns differ):**
+
+```sql
+-- analyses/validate_<entity>_columns.sql
+{% set cols = adapter.get_columns_in_relation(ref('fct_sales'))
+              | map(attribute='name') | map('lower') | sort | list %}
+{% set key  = ['sales_key'] %}
+
+with joined as (
+    select
+        coalesce(d.sales_key, l.sales_key) as sales_key,
+        d.sales_key is null                as missing_in_dbt,
+        l.sales_key is null                as missing_in_legacy,
+        {% for c in cols %}
+        d.{{ c }} as dbt_{{ c }}, l.{{ c }} as legacy_{{ c }}
+        {%- if not loop.last %},{% endif %}
+        {% endfor %}
+    from {{ ref('fct_sales') }} d
+    full outer join {{ source('legacy_prod', 'fct_sales') }} l
+        on d.sales_key = l.sales_key
+),
+flagged as (
+    select
+        sales_key, missing_in_dbt, missing_in_legacy,
+        {% for c in cols if c not in key %}
+        -- NULL-safe: both NULL = match; one NULL = mismatch
+        case when (dbt_{{ c }} is null) <> (legacy_{{ c }} is null) then 1
+             when dbt_{{ c }} is null and legacy_{{ c }} is null    then 0
+             when dbt_{{ c }} <> legacy_{{ c }}                     then 1
+             else 0 end as mm_{{ c }}
+        {%- if not loop.last %},{% endif %}
+        {% endfor %}
+    from joined
+)
+select * from flagged
+where missing_in_dbt or missing_in_legacy
+   or ({% for c in cols if c not in key %}mm_{{ c }} = 1
+       {%- if not loop.last %} or {% endif %}{% endfor %})
+```
+
+Aggregate `sum(mm_<col>)` across `flagged` to get a mismatch count per column — that ranks which
+columns to investigate first.
+
+**The column list must be enumerated from the model's actual schema**, not hand-picked.
+`adapter.get_columns_in_relation()` above does that at compile time; without it you are asserting
+parity over whatever columns you happened to remember. **A parity claim that covers fewer columns
+than the model has is not a parity claim** — it is a claim about those columns only, and must be
+described that way.
+
+**Required completeness assertion.** Record per model:
+
+```
+columns_compared / columns_total
+```
+
+`columns_compared + len(excluded_columns) < columns_total` is a **FAIL**, not a pass — regardless of
+how few rows the diff returned. `excluded_columns` counts only columns listed by name, each with a
+reason (see "Exclude CDC-internal and audit columns" above). A model whose diff came back empty over
+3 of 40 columns, with nothing named as excluded, has not been validated. All three numbers go into the
+parity record alongside the result (see the last section); a result recorded without them is
+incomplete.
+
+Use `round()` on decimals (in both the hash and the per-column compare) to absorb legitimate
+cross-platform floating-point noise. Every returned row is a difference to **explain** (next
+section), not automatically a bug.
 
 ## Pattern B: aggregate + row-count baseline (fallback)
 
@@ -288,6 +426,9 @@ until only accepted differences remain.
 - Use the dbt MCP `get_model_health` / `get_model_performance` tools to confirm tests pass and read
   run stats (also feeds Step 6 cost).
 - **Record per model:** legacy prod vs dbt dev result — `parity: pass`, or the count of differences
-  bucketed as *accepted* (with reasons) vs *fixed* (with the bug). Only accepted differences may
+  bucketed as *accepted* (with reasons) vs *fixed* (with the bug) — **plus `columns_compared` /
+  `columns_total` and `excluded_columns` (each named, with its reason)**. A pass recorded without the
+  column counts is incomplete, and `columns_compared + len(excluded_columns) < columns_total` is a
+  fail (see Pattern A). Only accepted differences may
   remain; unexplained differences block the model and count against coverage in Step 7. Write this
   into the `migration_changes.md` parity section.

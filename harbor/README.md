@@ -100,9 +100,9 @@ Pass = reward `1` (written by the verifier to `/logs/verifier/reward.txt`); the 
 
 - **`task.toml`** - Harbor config; `environment.skills_dir = "/skills"` preloads the migration skills.
 - **`instruction.md`** - the prompt (migrate the artifact; build in `/app/project`; targets DuckDB; a
-  `migration_decisions.yml` is provided so the decision gate passes non-interactively).
+  `migration_manifest.yml` is provided so the decision gate passes non-interactively).
 - **`environment/`** - `Dockerfile` (python + dbt-duckdb + skills) and `app/` (raw CSVs, the legacy
-  artifact, the decisions file, an empty dbt project + profile).
+  artifact, the Step-0 manifest, an empty dbt project + profile).
 - **`solution/solve.sh`** - the oracle reference migration (exemplary: staging + marts + tests + docs).
 - **`tests/`** - `test.sh` (verifier entrypoint → reward file), `spec.json` (marts, keys, expected
   models, judge rubric), the held-out expected CSVs, and synced copies of `scorer.py` +

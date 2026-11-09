@@ -1,11 +1,10 @@
 # Parsing a PowerCenter XML export (Step 1)
 
 How to walk an Informatica PowerCenter repository export and produce the workload inventory that
-Step 1 requires. The element/attribute names below are **verified** against
-`a real PowerCenter 10.5 XML export`. You read the XML directly with
-Read/Grep; no Python is required. (The element-walking parser at
-`a reference XML-walking parser` is a useful structural template for
-the traversal.)
+Step 1 requires. The element/attribute names below are **verified** against a real PowerCenter
+10.5 XML export. You read the XML directly with Read/Grep; no Python is required — the
+element-walking parser at [`../scripts/inventory_informatica.py`](../scripts/inventory_informatica.py)
+is a useful structural template for the traversal.
 
 ## Contents
 
@@ -43,7 +42,7 @@ The transformation **definitions** (referenced by instances) carry the logic:
   derivation is in the `EXPRESSION` attribute (an output port `out_X` with
   `EXPRESSION="expr"`); ports with no expression are passthrough.
 - **`<TABLEATTRIBUTE NAME="..." VALUE="...">`** — the transformation's **properties**, and where
-  most non-Expression logic lives. Verified names in the fixture: `Filter Condition` (Filter),
+  most non-Expression logic lives. Verified attribute names: `Filter Condition` (Filter),
   `Lookup condition` and `Sql Query` (Lookup/Source Qualifier), `Group By` (Aggregator),
   `Update Strategy Expression` (e.g. `DD_INSERT`/`DD_UPDATE`), and Sequence props `Start Value` /
   `Increment By` / `Current Value`. Read TABLEATTRIBUTE first for Filter/Router/Lookup/Update
@@ -84,8 +83,7 @@ or echo connection credentials from them.
 4. Hand the inventory to Step 2 (classification) and the per-transformation logic to Step 3
    (translation via [powercenter-transformation-mapping.md](powercenter-transformation-mapping.md)).
 
-**Reference fixture:** `a real PowerCenter 10.5 XML export` is a
-complete, realistic example (10 sources, staging/dim/fact targets, a `mplt_LOOKUP_DIM_KEYS`
-mapplet, a `wklt_LOAD_DIMENSIONS` worklet, SCD2 dims, and a full workflow). Its companion
-`docs/WORKFLOW_DESIGN.md` walks each mapping, and `snowflake/04_edw_load_simulation.sql` shows the
-intended SQL output per `[m_...]` mapping — use it to check your translations.
+**How this reference was built:** it was developed against a complete, realistic PowerCenter 10.5
+export — ten sources, staging/dimension/fact targets, a lookup mapplet, a load worklet, SCD2
+dimensions, and a full workflow. Constructs outside that shape are documentation-grounded rather
+than export-verified; check those against the migrator's own export before relying on them.

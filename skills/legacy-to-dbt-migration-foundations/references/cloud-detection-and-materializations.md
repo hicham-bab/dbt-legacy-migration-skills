@@ -1,6 +1,7 @@
 # Cloud detection & cost-aware materializations (Step 0 + Step 3)
 
-Used by all three migration skills. This reference has two jobs: (1) the questions to ask before
+Used by all seven migration skills (Coalesce, DataStage, Informatica, Matillion, SnapLogic, Talend,
+stored procedures). This reference has two jobs: (1) the questions to ask before
 writing any dbt code, and (2) how to pick materializations that are correct **and cheap** on the
 target cloud.
 

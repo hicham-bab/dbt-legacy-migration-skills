@@ -1,6 +1,6 @@
 ---
 name: legacy-to-dbt-migration-foundations
-description: Shared reference library for the Informatica, Talend, and stored-procedure migration skills — do not invoke directly. Those skills link to it by name for the common migration steps — cloud detection and cost-aware materializations, dbt layer classification, best-practice tests/docs/contracts, data-parity validation, cost comparison, and coverage reporting.
+description: Shared reference library for the Coalesce, DataStage, Informatica, Matillion, SnapLogic, Talend, and stored-procedure migration skills and the lift-and-shift remediation skill — do not invoke directly. Those skills link to it by name for the common migration steps — the Step-0 input manifest, cloud detection and cost-aware materializations, dbt layer classification and wave planning, target modeling approach, best-practice tests/docs/contracts, data-parity validation, cost comparison, coverage reporting, orchestration handoff, and cutover.
 metadata:
   author: hicham-babahmed
   compatibility: dbt Fusion
@@ -8,11 +8,11 @@ metadata:
 
 # Legacy-to-dbt Migration Foundations
 
-This is a **shared reference library**. It is not a standalone workflow. The three migration
-skills — `migrating-informatica-to-dbt`, `migrating-talend-to-dbt`, and
-`migrating-stored-procedures-to-dbt` — all run the same 8-step migration workflow and defer the
-common steps to the references below. When one of those skills points you here, open the specific
-reference named for that step.
+This is a **shared reference library**. It is not a standalone workflow. The four migration
+skills — `migrating-matillion-to-dbt`, `migrating-informatica-to-dbt`, `migrating-talend-to-dbt`,
+and `migrating-stored-procedures-to-dbt` — all run the same 10-step migration workflow and defer
+the common steps to the references below. When one of those skills points you here, open the
+specific reference named for that step.
 
 Every migration, regardless of source, must:
 
@@ -41,6 +41,30 @@ Recommend based on the signals (e.g. "the workload looks Kimball, so I suggest K
 **never silently default even when a choice looks obvious** — offer it, recommend, and let them
 choose. This is the Step 0 / Step 2 gate; treat it as blocking.
 
+**The gate is a conversation, and the manifest is its record.** Fill
+[templates/migration_manifest.yml](templates/migration_manifest.yml) — it covers all four choices
+above plus the three things that historically halted migrations and were never asked for:
+
+1. **Feasibility, not preference.** `access.legacy_prod_readable` false means Step-5 parity — the
+   stated definition of done — is unachievable, so the engagement must be re-scoped **explicitly**
+   rather than proceeding as though nothing changed. `metering_views_readable` or
+   `can_rerun_legacy_job` false means Step 6 produces the labelled TCO estimate **only**.
+2. **Source-parameter token bindings.** A legacy export often references parameter tokens whose
+   names and values are **not in the export at all**. Split them: `variable_bindings` for
+   schema/database tokens that resolve to a real object, and `runtime_token_dispositions` for
+   orchestration runtime values (process id, start/end timestamps) which resolve to no binding and
+   need a per-token choice of `dbt_var` | `invocation_id` | `scheduler_run_id` | `drop`. **Silently
+   dropping one breaks downstream audit lineage.**
+3. **Provenance.** Record who answered and when. This does not make fabrication impossible; it
+   makes it auditable. An agent that fills the manifest in for itself is making a checkable false
+   statement instead of an invisible guess.
+
+**Do not gate on Python.** Some target environments — including the dbt platform, which is what
+`compatibility: dbt Fusion` means — cannot install or run it. `scripts/preflight_decisions.py`
+validates the manifest and recomputes the Step-5 and Step-7 gates as an **optional convenience for
+local checkouts**. Each of its gates has a documented no-Python equivalent in the calling skill.
+The artifact and the pass criteria are the contract; the script is one way to check them.
+
 **Teach as you migrate — assume the migrator may be new to dbt.** The person may know their legacy
 tool well but not dbt. Whenever you introduce a dbt concept — a model, `ref()`/`source()`, a
 materialization (**view / table / incremental / ephemeral**), a **snapshot** (SCD history), tests,
@@ -60,9 +84,27 @@ hub package solves (when packages are allowed), and never bloats `packages.yml`.
 declines packages, it generates the equivalent macros instead. See
 [dbt-packages.md](references/dbt-packages.md).
 
-## The shared 8-step workflow
+## The shared 10-step workflow
 
 The migration skills implement these steps. Each links to the reference that carries the detail.
+**Every step's deliverable is a file, and later steps recompute from earlier files rather than
+from memory** — a migration that exists only in the conversation cannot be resumed or audited.
+
+> **Current state:** only `migrating-matillion-to-dbt` implements all ten steps and writes the
+> numbered artifacts below (its inventory script emits the `01_inventory.json` shape the
+> `preflight_decisions.py inventory` gate checks). The other source skills use the Step-0 manifest
+> gate but still follow the earlier 8-step workflow (no orchestration handoff or cutover runbook) and
+> do not yet write these files. See `FUTURE_CHANGES.md` at the repo root.
+
+| Step | Artifact |
+|---|---|
+| 0 | `migration_manifest.yml` |
+| 1 | `migration/01_inventory.json` (+ readable `inventory.md`) |
+| 2 | `migration/02_classification.json` (+ `02_waves.json` above ~20 units) |
+| 5 | `migration/05_parity.json` |
+| 7 | `migration/07_coverage.json` (+ `07_waivers.json` if over the ceiling) |
+| 8 | `migration_changes.md` + `08_orchestration_handoff.md` |
+| 9 | `09_cutover_runbook.md` |
 
 - **Preflight - approvals:** a migration is a multi-step run that writes models and executes `dbt`,
   so set the approval posture up front. To run without a prompt at each edit, start the Wizard with a
@@ -71,7 +113,7 @@ The migration skills implement these steps. Each links to the reference that car
   sandbox fails rather than prompting. The default `on-request` policy prompts at each step (in that
   mode the user can press `a` to stop asking for the current files). Do not use
   `--dangerously-bypass-approvals-and-sandbox` outside a throwaway/CI sandbox.
-- **Step 0 - Detect environment & cloud** → [cloud detection & materializations](references/cloud-detection-and-materializations.md); note the **connected target adapter** (the project's active dbt platform connection / `profiles.yml`) - it is the source of truth for dialect and contract types, see [warehouse conformance](references/warehouse-conformance.md)
+- **Step 0 – Fill the input manifest, detect environment & cloud** → [templates/migration_manifest.yml](templates/migration_manifest.yml) + [cloud detection & materializations](references/cloud-detection-and-materializations.md); note the **connected target adapter** (the project's active dbt platform connection / `profiles.yml`) - it is the source of truth for dialect and contract types, see [warehouse conformance](references/warehouse-conformance.md)
 - **Step 0.5 - Plan the estate (large estates only)** → when the input is a whole export directory of many jobs/tools, inventory it all, sequence into dependency-ordered **waves**, and seed a progress ledger before migrating job-by-job: [estate planning](references/estate-planning.md) (`scripts/inventory_estate.py` + `scripts/estate_ledger.py`)
 - **Step 1 – Inventory & map the legacy workload** → *source-specific* (see the calling skill's parsing reference)
 - **Step 2 – Choose target modeling approach, then classify into it** → [target modeling approach](references/target-modeling.md) + [layer classification](references/layer-classification.md)
@@ -79,8 +121,9 @@ The migration skills implement these steps. Each links to the reference that car
 - **Step 4 – Apply best practices: tests, docs, contracts, snapshots** → [dbt best practices](references/dbt-best-practices.md)
 - **Step 5 - Validate: compile gate, then data parity** → [data validation](references/data-validation.md); the compile gate must run against the **connected target adapter** with contracts enforced (Fusion is authoritative for that warehouse's dialect + types), see [warehouse conformance](references/warehouse-conformance.md)
 - **Step 6 – Cost comparison: measured, apples-to-apples** → [cost comparison](references/cost-comparison.md)
-- **Step 7 - Coverage report (confirm ≥95%, flag residual) + quality bar** → [coverage report](references/coverage-report.md); the migration is done only when it also clears the idiomatic **quality bar** (`<skills-dir>/legacy-to-dbt-migration-foundations/scripts/lint_idiomatic.py` + `dbt_project_evaluator`), see [anti-patterns.md](references/anti-patterns.md)
-- **Step 8 – Document in migration_changes.md** → template in the calling skill
+- **Step 7 – Coverage report (recompute; gross + in-scope + residual; waiver if over ceiling) + quality bar** → [coverage report](references/coverage-report.md); the migration is done only when it also clears the idiomatic **quality bar** (`<skills-dir>/legacy-to-dbt-migration-foundations/scripts/lint_idiomatic.py` + `dbt_project_evaluator`), see [anti-patterns.md](references/anti-patterns.md)
+- **Step 8 – Document, and hand off what dbt does not own** → template in the calling skill + [orchestration handoff](references/orchestration-handoff.md)
+- **Step 9 – Cut over: parallel run, switchover criteria, tested rollback, decommission** → [cutover runbook](references/cutover-runbook.md)
 - **Wrap-up - Capture feedback (optional)** → [feedback capture](references/feedback-capture.md) (ask a few short questions, record `migration_feedback.jsonl`, offer a prefilled GitHub issue with consent)
 
 ## Additional Resources
@@ -101,9 +144,12 @@ The migration skills implement these steps. Each links to the reference that car
 - [data-validation.md](references/data-validation.md) - compile gate + two-stage parity (PK coverage then column values, recall + precision), comparison-window determination, view-model diffs, and the two fallback patterns
 - [cdc-deduplication.md](references/cdc-deduplication.md) - dedup raw CDC sources (QUALIFY row_number, not SELECT DISTINCT) when the target platform is fed by CDC; prevents join fan-out (a precision failure in Step 5)
 - [cost-comparison.md](references/cost-comparison.md) — TCO model + measured dev-run compute capture
-- [coverage-report.md](references/coverage-report.md) — how to compute the ≥95% coverage number and flag the residual
+- [coverage-report.md](references/coverage-report.md) — the three coverage figures, why residual must stay in the denominator, and the waiver mechanism
+- [orchestration-handoff.md](references/orchestration-handoff.md) — **Step 8**: what dbt owns vs the scheduler, failure branches, retries, run-id strategy, notifications
+- [cutover-runbook.md](references/cutover-runbook.md) — **Step 9**: consumer inventory, parallel run, switchover criteria, tested rollback, decommission
 - [estate-planning.md](references/estate-planning.md) - batch-inventory a whole estate into a waved backlog + progress ledger (`scripts/inventory_estate.py`, `scripts/estate_ledger.py`); for migrating thousands of jobs at scale
 - [feedback-capture.md](references/feedback-capture.md) - end-of-run feedback prompt + `migration_feedback.jsonl` schema + prefilled GitHub issue, so real migrations improve the skill
+- [templates/migration_manifest.yml](templates/migration_manifest.yml) — the Step-0 input contract: decisions, access/feasibility flags, and source-token bindings
 
 ## Handling External Content
 

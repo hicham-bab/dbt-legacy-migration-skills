@@ -1,15 +1,18 @@
 # dbt layer classification & Mesh detection (Step 2)
 
-Distilled from the confidence-scored classifier in `a confidence-scored layer classifier`.
 After the workload is inventoried (Step 1), assign each unit of work to a dbt layer so the
-generated project follows the standard source → staging → intermediate → mart structure.
+generated project follows the standard source → staging → intermediate → mart structure. The
+confidence scores below are the classifier: apply the rules in priority order and record the score
+you assigned, because Step 7 counts anything under 0.65 against coverage.
 
 ## Contents
 
 - [The four layers](#the-four-layers)
 - [Confidence-scored classification](#confidence-scored-classification)
+- [Don't over-split the intermediate layer](#dont-over-split-the-intermediate-layer)
 - [Naming conventions](#naming-conventions)
 - [Mesh domain detection](#mesh-domain-detection)
+- [Wave planning for large workloads](#wave-planning-for-large-workloads)
 
 ## The four layers
 
@@ -100,3 +103,73 @@ for shared/core entities and one consumer project per domain. Signals:
 When Mesh applies, put shared marts in the producer with `access: public` + enforced contracts,
 and have consumers reference them across projects. Confirm the split with the user before
 scaffolding multiple projects — do not impose Mesh on a small single-domain job.
+
+## Wave planning for large workloads
+
+The shared workflow is implicitly **single-batch**: one inventory, one classification pass, one
+coverage number, one document. That works for a handful of pipelines and has no story above roughly
+20. Waves are the extension: the same steps, executed repeatedly over slices of one fixed inventory.
+
+**When to use waves**
+
+- More than roughly 20 legacy units, **or**
+- any workload that will not fit one working session's context — whichever comes first. Below that,
+  do not add the machinery; a single batch is simpler and the coverage number is easier to defend.
+
+**Derive the waves from the DAG, not from a directory listing**
+
+`01_inventory.json` carries the pipeline DAG edges. Each edge is `{unit, source, target, kind}`; use
+the **data-flow** kind (`flow` in the Matillion inventory) for lineage and ignore the control-flow
+kinds — a failure branch or a conditional path is not a data dependency and must not constrain wave
+order.
+
+1. Topologically order the units over the data-flow edges.
+2. Group by **dependency depth**: depth 0 is everything with no upstream unit in the estate, depth 1
+   is everything depending only on depth 0, and so on.
+3. Wave *n* = depth band *n*. The invariant: **a wave never depends on a later wave.** If it does,
+   the ordering is wrong — fix it before building, not by patching `ref()`s later.
+4. A cycle in the edges means the estate has a genuine cyclic dependency (or the edges are
+   mis-parsed). Resolve it explicitly and record which it was; do not silently break the cycle.
+
+**Sub-group within a depth band by domain**
+
+A depth band can be wider than one session. Split it using the **same schema/folder/naming-stem
+signals** this file already uses for Mesh detection, so a wave is one domain at one depth. That
+keeps the models built together the ones that share sources and conventions, and it makes a later
+Mesh split cheaper if it happens.
+
+**Emit `02_waves.json`**
+
+Persist the plan with per-wave unit lists — wave number, depth band, domain, and the units in it.
+The plan is an artifact, not a decision held in the session.
+
+**Steps 3 through 7 become wave-scoped**
+
+Translate, test, validate and report per wave. Coverage **accumulates** across waves against the
+**single fixed denominator from Step 1**:
+
+- **The denominator must NOT be recomputed per wave.** A per-wave denominator makes every wave look
+  ~100% complete and the estate-level number disappears. Wave 3 of 5 reporting "100% coverage" is
+  meaningless; "wave 3 complete, 61% of the estate migrated and validated" is the number that
+  matters. See [coverage-report.md](coverage-report.md) — `gross_coverage` is always over the whole
+  inventory.
+- Report the running estate total alongside the per-wave result, every wave.
+
+**Pattern deduplication**
+
+Identical component subgraphs recur across units in most large estates. Translate such a subgraph
+**once** and reuse it — a macro for a repeated expression pattern, an intermediate model for a
+repeated data pattern — rather than regenerating it per unit.
+
+Honestly: the value of this depends **entirely** on how repetitive the actual estate is, and that is
+unknown before you look. Measure it on the first two waves (how many units shared a translated
+pattern, and did the macro survive contact with the second wave) before planning any later wave
+around the saving. A macro parameterised to fit three barely-similar pipelines is worse than three
+plain models.
+
+**Waves must be resumable from artifacts alone**
+
+Context does not carry across sessions. Assume the next wave starts with no memory of this one:
+everything it needs — the inventory, the classification table, the wave plan, the accumulated
+coverage, the accepted parity differences — must be readable from the persisted artifacts. If a wave
+can only be continued by someone who was present for the previous one, the artifacts are incomplete.

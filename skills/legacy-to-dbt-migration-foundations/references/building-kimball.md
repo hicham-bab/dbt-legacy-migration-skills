@@ -45,8 +45,11 @@ Type-2 pattern:
 snapshots:
   - name: customer_snapshot
     relation: ref('stg_customers')
-    # dbt recommends strategy: timestamp when a reliable updated_at exists; use check otherwise
-    config: {unique_key: customer_id, strategy: check, check_cols: [customer_name, segment, region]}
+    # PREFERRED: dbt recommends `timestamp` whenever the source has a trustworthy updated_at --
+    # it handles column add/drop more efficiently and tracks a single column.
+    config: {unique_key: customer_id, strategy: timestamp, updated_at: updated_at}
+    # FALLBACK, only when there is no reliable timestamp. Enumerate check_cols; never use 'all'.
+    # config: {unique_key: customer_id, strategy: check, check_cols: [customer_name, segment, region]}
 ```
 ```sql
 -- models/marts/dim_customer.sql (table)

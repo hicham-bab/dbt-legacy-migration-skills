@@ -12,7 +12,7 @@
 # --link combines with the target flags (e.g. ./install.sh --link --claude) and requires a local
 # clone (symlinks must point at a real checkout, not a temp fetch).
 #
-# Safe to re-run: it cleanly replaces just these eight skill folders and touches nothing else.
+# Safe to re-run: it cleanly replaces just these nine skill folders and touches nothing else.
 #
 # Note: the skills live under skills/ (the standard Agent Skills layout), so you can also install
 # them with any skills tool, e.g.:  npx skills add hicham-bab/dbt-legacy-migration-skills
@@ -26,6 +26,7 @@ SKILLS=(
   migrating-talend-to-dbt
   migrating-stored-procedures-to-dbt
   migrating-matillion-to-dbt
+  migrating-snaplogic-to-dbt
   migrating-coalesce-to-dbt
   migrating-datastage-to-dbt
   remediating-lift-and-shift-to-dbt

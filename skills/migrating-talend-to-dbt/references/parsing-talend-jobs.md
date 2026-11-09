@@ -1,9 +1,9 @@
 # Parsing Talend `.item` jobs (Step 1)
 
 How to read a Talend job export and produce the workload inventory. The element/attribute names
-below are **verified** against real `.item` fixtures at `real Talend `.item` exports`
-and against the working parser at `a reference XML-walking parser`.
-You read the XML directly with Read/Grep; no Python required.
+below are **verified** against real Talend `.item` exports and against the parser at
+[`../scripts/inventory_talend.py`](../scripts/inventory_talend.py). You read the XML directly
+with Read/Grep; no Python required.
 
 ## Contents
 
@@ -17,7 +17,7 @@ You read the XML directly with Read/Grep; no Python required.
 A Talend export has one `.item` file per job (the component graph, XML). The root element is
 `<talendfile:ProcessType name="...">`. Talend Studio projects also carry a sibling `.properties`
 metadata file per job and may externalize context groups under `contexts/`; context can **also**
-be inline as a `<context>` element inside the `.item` (as in the demo fixtures). Scan the tree for
+be inline as a `<context>` element inside the `.item`, which is common. Scan the tree for
 all `.item` files first — each is one job to inventory.
 
 ## XML structure
@@ -79,7 +79,8 @@ Verified elements and attributes:
 4. Hand the inventory to Step 2 (classification) and each component's logic to Step 3
    ([talend-component-mapping.md](talend-component-mapping.md)).
 
-> **Caveat:** the demo fixtures are simplified/hand-authored `.item` files. Real Talend Studio
+> **Caveat:** simplified or hand-authored `.item` files are easier to read than the real thing.
+> Real Talend Studio
 > exports are more verbose (namespaced, many more `elementParameter` entries, richer connection
 > attributes), but they use the same core elements — `node`/`elementParameter`/`metadata`/
 > `connection`/`nodeData` — and the parser already handles the common param aliases noted above.

@@ -26,17 +26,36 @@ from {{ ref('stg_customers') }}
 ```
 ```sql
 -- models/marts/fct_sales.sql — grain: one row per sales line
-select
-    {{ dbt_utils.generate_surrogate_key(['s.sale_id','s.line_number']) }} as sales_line_key,
-    c.customer_key, p.product_key,
-    {{ dbt_utils.generate_surrogate_key(['s.sale_date']) }} as date_key,
-    s.sale_id,                                             -- degenerate dimension
-    cast(s.quantity as integer) as quantity,
-    cast(s.amount as decimal(18,2)) as amount
-from {{ ref('stg_sales_lines') }} s
-left join {{ ref('dim_customer') }} c on s.customer_id = c.customer_id
-left join {{ ref('dim_product') }}  p on s.product_id  = p.product_id
+with sales_lines as (
+    select * from {{ ref('stg_sales_lines') }}
+),
+keyed as (
+    select
+        {{ dbt_utils.generate_surrogate_key(['s.sale_id','s.line_number']) }} as sales_line_key,
+        c.customer_key,
+        p.product_key,
+        {{ dbt_utils.generate_surrogate_key(['s.sale_date']) }} as date_key,
+        s.sale_id,                                             -- degenerate dimension
+        cast(s.quantity as integer)          as quantity,
+        cast(s.amount as decimal(18,2))      as amount
+    from sales_lines s
+    left join {{ ref('dim_customer') }} c on s.customer_id = c.customer_id
+    left join {{ ref('dim_product') }}  p on s.product_id  = p.product_id
+),
+final as (select * from keyed)
+select * from final
 ```
+
+Note the CTE structure: it is not decoration. It satisfies the structural rule in
+[dbt-best-practices.md](dbt-best-practices.md) (wrap logic in CTEs, name the final CTE `final`),
+and it is what makes a parity failure debuggable — you can select from any intermediate CTE to
+find the step where row counts diverge.
+
+**Type-2 dimension warning.** The dimensions above are Type 1, so a join on the natural key is
+safe. Against a **Type-2** dimension the same join **fans out** — one fact row multiplies by the
+number of historical versions. Join on the surrogate key resolved at the event time, using a
+point-in-time predicate (`and s.sale_date >= c.valid_from and s.sale_date < c.valid_to`).
+See [building-kimball.md](building-kimball.md).
 
 **Snowflake-schema variant:** normalizing a dimension (dim → sub-dim) trades a wider dim for extra
 joins. Prefer **denormalized** star dims for query performance; snowflake only a large, reused

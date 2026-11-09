@@ -38,8 +38,8 @@ provenance:
 # ---------------------------------------------------------------------------
 decisions:
   # --- the three that were already gated ---
-  target_architecture: null        # kimball | datavault | star | layered
-  data_warehouse: null             # snowflake | databricks | bigquery | redshift
+  target_modeling: null            # kimball | datavault | star | layered
+  data_warehouse: null             # snowflake | databricks | bigquery | redshift | duckdb (local dev/eval only)
   packages_mode: null              # external_hub | self_contained_macros
 
   # --- the four that were asked in prose but never enforced ---

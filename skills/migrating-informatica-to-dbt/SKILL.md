@@ -51,25 +51,59 @@ link into its references for the common work. **Assume the migrator may be new t
 
 ## Decision gate — ASK before you build (blocking)
 
-**This gate is enforced by a script — run it, don't just read it.** Before Step 1, run:
+**This gate is the Step-0 input manifest — fill it before Step 1.** It works with or without Python.
 
-```bash
-# from your skills dir (~/.dbt/wizard/skills for Wizard, ~/.agents/skills for Claude Code):
-python3 <skills-dir>/legacy-to-dbt-migration-foundations/scripts/preflight_decisions.py
-```
+**Do this (no Python required):**
 
-If it **exits non-zero**, it prints the exact questions — **ASK the migrator those questions**
-(recommend the best fit with a one-line why, but they decide), write their answers to
-`migration_decisions.yml` in the project as `key: value` lines, and **re-run until it exits 0**.
-**Do not create any dbt models, project files, or macros until this exits 0.** The three decisions
-it requires:
+1. Copy `legacy-to-dbt-migration-foundations/templates/migration_manifest.yml` to the project root.
+   If a completed `migration_manifest.yml` was supplied with the work (`provenance.method:
+   supplied_file`), read it and honor it instead of re-asking, but still raise anything in it that
+   the export contradicts.
+2. **Ask the migrator every question below**, recommending the best fit with a one-line why. They
+   decide. Even when the README, DDL, environment, or the source workload strongly implies an
+   answer, still **ASK and confirm** — surface each as a question, never as a decision you already
+   made. Getting these wrong means redoing dozens of files.
+3. Write their answers into the manifest, including `provenance.answered_by` and `answered_at`.
+4. **Do not create any dbt models, project files, or macros until every item below is answered.**
+   `null` is a valid answer meaning "asked, and the answer is no". A *blank* is not an answer.
+
+**Decisions** — the three that set the shape of everything downstream:
 - **target_modeling** — kimball | datavault | star | layered
-- **data_warehouse** — snowflake | databricks | bigquery | redshift *(sets the SQL dialect generated)*
+- **data_warehouse** — snowflake | databricks | bigquery | redshift | duckdb *(sets the SQL dialect generated; duckdb = local dev / eval only)*
 - **packages_mode** — external_hub *(hub.getdbt.com packages)* | self_contained_macros *(hand-made macros)*
 
-Even when the README, DDL, environment, or the source workload strongly implies an answer, still
-**ASK and confirm** — surface each as a question, never as a decision you already made. Getting these
-wrong means redoing dozens of files.
+...plus the four that were historically asked in prose and skipped:
+- **landing_spot** *(required path)* and **landing_mode** — new_standalone | fold_into_existing
+- **dbt_runtime** — fusion | core
+- **parity_scope** — all_marts | tiered | sampled
+- **snapshot_strategy**, **contract_boundary**, **naming_convention**, **orchestration_target**,
+  **residual_disposition** — see the manifest comments
+
+**Access** — these are *feasibility* answers, not details. Get them before Step 3, not at Step 5:
+- **legacy_prod_readable** — if **false**, Step-5 data parity is **unachievable**, and parity is
+  this skill's stated definition of done. Say so out loud and **re-scope the engagement
+  explicitly**; do not proceed as if nothing changed.
+- **metering_views_readable**, **can_rerun_legacy_job** — if false, Step 6 produces the labelled
+  TCO estimate **only**. An estimate presented as a measurement is a false claim.
+- **warehouse_catalog_readable** — needed for codegen `generate_source`.
+
+**Inputs** — the legacy export alone is **not sufficient**. PowerCenter `$$PARAM` / `$PM*` values
+usually live in parameter files, not the XML. Collect these before Step 3:
+- **variable_bindings** — schema/database tokens → a real `database.schema.object`
+- **runtime_token_dispositions** — orchestration runtime tokens (run id, start/end time) → one of
+  `dbt_var` | `invocation_id` | `scheduler_run_id` | `drop`. **Dropping one silently breaks
+  downstream audit lineage** — make it an explicit decision, never a default.
+
+**Optional fast path (local checkouts with Python only):**
+
+```bash
+python3 <skills-dir>/legacy-to-dbt-migration-foundations/scripts/preflight_decisions.py \
+        decisions --file migration_manifest.yml
+```
+
+It prints the exact unanswered questions and exits non-zero until the manifest is complete.
+**It validates; it does not substitute for asking.** A manifest the agent filled in for itself
+passes the script and fails the engagement.
 
 **As you build, explain your reasoning in plain language — the migrator may be new to dbt.** For
 each model, state in one line *why* that materialization (view / table / incremental) and, for the

@@ -1,9 +1,8 @@
 # Parsing Matillion pipelines/jobs (Step 1)
 
 Matillion workflows come in several forms across two product generations and multiple export
-mechanisms. This reference covers **all** of them. Structure below is grounded in Matillion docs
-and **real exported files** (DPC YAML and METL JSON verified from public repos; sample METL files
-live in `real Matillion ETL JSON exports`).
+mechanisms. This reference covers **all** of them. The structures below are grounded in Matillion
+component documentation and verified against real exported files, both DPC YAML and METL JSON.
 
 ## Contents
 
@@ -177,9 +176,13 @@ Regardless of form, the same split governs what maps to dbt:
 7. Hand the inventory to Step 2 (classification) and each component's parameters to Step 3
    ([matillion-component-mapping.md](matillion-component-mapping.md)).
 
-> **Reference fixtures:** `example Matillion exports` holds hand-authored DPC YAML plus
-> **real** METL JSON samples under `metl_samples/` (export form and a `.ORCHESTRATION` git-form
-> file), and `test_parse.py` walks both DPC YAML and METL JSON using this reference's algorithm.
+> **Reference fixture:** the only committed fixture is the synthetic one built inside
+> [`../scripts/test_inventory_matillion.py`](../scripts/test_inventory_matillion.py). It reproduces
+> the structural shape described above — a `jobsTree` export, the common transformation component
+> ids, `run-transformation` bridges, and all five orchestration connector collections — without
+> carrying customer data, and its 14 tests lock in the role-classification and denominator
+> behaviour. No sample export ships with this skill.
+>
 > Verify against the user's *actual* export early: if a component `type`/`implementationID` or
-> parameter key is unfamiliar, inventory it and route anything without a clear SQL mapping to the
-> residual for human review.
+> parameter key is unfamiliar, inventory it as `unknown` (never `transformation`) and route
+> anything without a clear SQL mapping to the residual for human review.

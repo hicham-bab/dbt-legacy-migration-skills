@@ -1,77 +1,42 @@
-# dbt legacy migration skills
+# dbt migration skills
 
 [![evals](https://github.com/hicham-bab/dbt-legacy-migration-skills/actions/workflows/evals.yml/badge.svg?branch=main)](https://github.com/hicham-bab/dbt-legacy-migration-skills/actions/workflows/evals.yml)
 [![eval checks](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/hicham-bab/dbt-legacy-migration-skills/main/evals/results.json)](evals/RESULTS.md)
 
-A set of agent skills that migrate legacy ETL/ELT workloads to dbt - mapping the original
-workload, translating it into dbt with best practices (tests, docs, contracts), validating the
-result against real warehouse data, choosing cost-aware materializations for the target cloud, and
-reporting a legacy-vs-dbt cost comparison. Each targets **≥95% coverage** of the migratable
-workload, with the residual explicitly flagged for human review.
+Agent skills for migrating legacy ETL workloads to dbt. One shared foundation plus a
+per-source skill that knows how to read that tool's export format.
 
-Built for the [dbt Wizard](https://docs.getdbt.com/docs/dbt-ai/about-dbt-wizard-cli) CLI; the
-skills are plain `SKILL.md` folders and work in any agent that supports the skill format
-(e.g. Claude Code).
-
-## Skills
-
-| Skill | Migrates |
-|-------|----------|
-| [`migrating-informatica-to-dbt`](skills/migrating-informatica-to-dbt) | Informatica PowerCenter workflows/mappings (XML repository export) |
-| [`migrating-talend-to-dbt`](skills/migrating-talend-to-dbt) | Talend ETL jobs (`.item` XML exports) |
-| [`migrating-stored-procedures-to-dbt`](skills/migrating-stored-procedures-to-dbt) | SQL stored procedures (Snowflake, BigQuery, Databricks, T-SQL, PL/SQL) |
-| [`migrating-matillion-to-dbt`](skills/migrating-matillion-to-dbt) | Matillion pipelines/jobs - DPC YAML (`.tran.yaml`/`.orch.yaml`), Matillion ETL JSON (export + git per-job forms), CDC/streaming, shared jobs |
-| [`migrating-coalesce-to-dbt`](skills/migrating-coalesce-to-dbt) | Coalesce.io projects (Git-committed YAML nodes) - Source/Stage/Dimension(SCD1/2)/Fact/View nodes → models, snapshots, sources |
-| [`migrating-datastage-to-dbt`](skills/migrating-datastage-to-dbt) | IBM InfoSphere DataStage parallel jobs (`.dsx` export) - Join/Filter/Transformer/Aggregator/Sort/Lookup/Merge/Funnel/Surrogate Key/Change Capture-Apply stages → models, snapshots, sources |
+| Skill | Covers |
+|---|---|
+| [`legacy-to-dbt-migration-foundations`](skills/legacy-to-dbt-migration-foundations) | The shared workflow — Step-0 input contract, layer classification, materializations, tests/docs, parity validation, coverage math, cost comparison, cutover. Not invoked directly. |
+| [`migrating-matillion-to-dbt`](skills/migrating-matillion-to-dbt) | Matillion DPC YAML and METL JSON exports |
+| [`migrating-snaplogic-to-dbt`](skills/migrating-snaplogic-to-dbt) | SnapLogic `.slp` pipeline exports |
+| [`migrating-informatica-to-dbt`](skills/migrating-informatica-to-dbt) | Informatica PowerCenter repository XML |
+| [`migrating-talend-to-dbt`](skills/migrating-talend-to-dbt) | Talend job `.item` exports |
+| [`migrating-stored-procedures-to-dbt`](skills/migrating-stored-procedures-to-dbt) | Warehouse stored procedures |
+| [`migrating-coalesce-to-dbt`](skills/migrating-coalesce-to-dbt) | Coalesce.io projects (Git-committed YAML nodes) |
+| [`migrating-datastage-to-dbt`](skills/migrating-datastage-to-dbt) | IBM InfoSphere DataStage parallel jobs (`.dsx` export) |
 | [`remediating-lift-and-shift-to-dbt`](skills/remediating-lift-and-shift-to-dbt) | An already-migrated but non-idiomatic dbt project (hook/monolith/hardcoded lift-and-shift) → refactored to idiomatic dbt with parity preserved |
-| [`legacy-to-dbt-migration-foundations`](skills/legacy-to-dbt-migration-foundations) | *Shared reference library* - not invoked directly; the migration and remediation skills link to it |
+| [`example-project-skill`](skills/example-project-skill) | Template for project-specific guidance |
 
-## How they fit together
+Each source skill links to the foundations skill by name rather than duplicating it, so a
+fix to the shared workflow reaches every source.
 
-The six migration skills share the same 8-step workflow and defer the common steps to
-`legacy-to-dbt-migration-foundations`:
+## The Step-0 gate
 
-- **Step 0** - Detect environment & cloud (Snowflake / Databricks / BigQuery / Redshift; Fusion vs Core)
-- **Step 1** - Inventory & map the legacy workload *(source-specific)*
-- **Step 2** - **Choose the target modeling approach** (see below), then classify the workload into it + detect Mesh
-- **Step 3** - Translate to dbt SQL for the chosen modeling approach, with cost-aware materializations *(source-specific answer key)*
-- **Step 4** - Apply best practices: tests (`arguments:` spec), docs, contracts, snapshots
-- **Step 5** - Validate: `dbt compile` gate (free), then **legacy-prod vs dbt-dev** data parity (explain every difference)
-- **Step 6** - Cost comparison: **measured** warehouse consumption (legacy vs dbt), auditable
-- **Step 7** - Coverage report (confirm ≥95%, flag residual)
-- **Step 8** - Document changes in `migration_changes.md`
+`templates/migration_manifest.yml` in the foundations skill is the single input contract.
+It supersedes the older flat `migration_decisions.yml`, which covered three of the seven
+Step-0 questions and none of the artifact, access, or compliance inputs — the ones that
+actually halt migrations. Validate it either way:
 
-Each migration skill carries a `references/` folder with two source-specific docs: how to parse
-the source artifact, and the component/transformation → dbt answer key. All generated SQL is dbt
-Fusion-conformant (`cast()` not `::`, `coalesce()` not `nvl`/`ifnull`, tests via the `arguments:`
-nested spec).
+```
+python3 skills/legacy-to-dbt-migration-foundations/scripts/preflight_decisions.py \
+    decisions --file migration_manifest.yml
+```
 
-**Uses the dbt package ecosystem** (all Fusion-checked): **codegen** to scaffold sources/models/YAML,
-**audit_helper** to prove legacy-vs-dbt parity, **dbt_utils** + **dbt_expectations** for tests,
-**dbt_project_evaluator** as the quality gate, **datavault4dbt**/**dbt_date** per modeling approach - see
-`skills/legacy-to-dbt-migration-foundations/references/dbt-packages.md`.
-
-## Target modeling approach (Step 2)
-
-After mapping the legacy workload, the skill **asks which target modeling approach to build**,
-then generates the dbt models accordingly:
-
-- **Layered (default)** - faithful source-aligned staging → intermediate → mart. Lowest risk.
-- **Data Vault 2.0** - hubs / links / satellites via the [datavault4dbt](https://github.com/ScalefreeCOM/datavault4dbt)
-  package, with dimensional info marts on top.
-- **Kimball dimensional** - conformed dimensions + fact tables, SCD2 via snapshots, surrogate keys.
-- **Star schema (pragmatic)** - facts + dimensions for a focused subject area.
-
-The generation for each paradigm lives in the **shared foundations skill's references** - not as
-separate skills - so the install is just the six migration skills + foundations:
-`skills/legacy-to-dbt-migration-foundations/references/target-modeling.md` (legacy→paradigm mapping +
-performance), `building-datavault.md`, `building-kimball.md`, `building-starschema.md`.
-
-> **Data Vault path:** `building-datavault.md` is **distilled** from Scalefree's
-> [datavault4dbt agent skills](https://github.com/ScalefreeCOM/datavault4dbt-agent-skills)
-> (Apache-2.0) - see [ATTRIBUTION.md](ATTRIBUTION.md). The `datavault4dbt` **package** itself is
-> installed on demand when Data Vault is chosen (see `dbt-packages.md`). For deeper Data Vault
-> coverage, install Scalefree's full skill set separately. Kimball and star need nothing extra.
+or follow the Step-0 checklist in the foundations `SKILL.md`, which needs no Python. The
+no-Python path exists because these skills often run on the dbt platform, where Python
+isn't available.
 
 ## Install
 
@@ -88,7 +53,7 @@ npx skills add hicham-bab/dbt-legacy-migration-skills   # vercel-labs/skills
 # or:  gh skill install hicham-bab/dbt-legacy-migration-skills
 ```
 
-**Or the bundled one-liner** (installs/updates all eight skills):
+**Or the bundled one-liner** (installs/updates all the skills):
 
 ```bash
 git clone https://github.com/hicham-bab/dbt-legacy-migration-skills.git
@@ -97,7 +62,7 @@ cd dbt-legacy-migration-skills && ./install.sh          # dbt Wizard CLI (~/.dbt
 #                                  ./install.sh --codex  # Codex CLI     (~/.codex/skills)
 ```
 
-`install.sh` copies just the eight skill folders (from `skills/`) into your skills directory and leaves
+`install.sh` copies just the skill folders (from `skills/`) into your skills directory and leaves
 everything else untouched. If you run it outside a clone it fetches the skills from GitHub for you.
 **It's safe to re-run to update**; it cleanly replaces only these folders. (Use `--dest <path>` for a
 custom location.) After it finishes, **restart the agent** so it reloads the skill list.
@@ -110,7 +75,7 @@ cp -R skills/* ~/.dbt/wizard/skills/
 
 </details>
 
-Install **all seven together** - the five migration skills reference
+Install **all the skills together** - every migration and remediation skill references
 `legacy-to-dbt-migration-foundations` by relative path, so it must sit alongside them.
 
 ### Using dbt Wizard on the dbt platform (Studio)
@@ -119,7 +84,7 @@ Wizard **in the dbt platform** does not read `~/.dbt/wizard/skills`. It discover
 skills** from an `.agents/skills/` directory at your **dbt project root**, scanned at the start of
 each chat ([docs](https://docs.getdbt.com/docs/dbt-ai/wizard-platform-skills)). Studio is a browser
 IDE with no general shell, so you do **not** run `install.sh` (or any of the commands above) inside
-the platform. Instead, get the seven skill folders into your project repo's `.agents/skills/` one of
+the platform. Instead, get the skill folders into your project repo's `.agents/skills/` one of
 two ways.
 
 **Via git (recommended)** - in a local checkout of *your dbt project* (on your machine, outside
@@ -139,7 +104,7 @@ in the platform.)
 
 **Or in the Studio file explorer** - create `.agents/skills/<skill>/SKILL.md` (plus any `references/`
 files) for each skill by hand, pasting the contents from this repo. Fine for one skill, tedious for
-all seven.
+all of them.
 
 Either way, then:
 
@@ -149,11 +114,11 @@ Either way, then:
 3. Keep `.agents/skills/` committed so the whole project team (and every Wizard session on the repo)
    gets them. A custom skill overrides a built-in one of the same name.
 
-Keep all seven together so `legacy-to-dbt-migration-foundations` sits alongside the migration skills.
+Keep all the skills together so `legacy-to-dbt-migration-foundations` sits alongside the migration skills.
 
 ### Using with Claude Code or Codex
 
-The same seven skill folders work in other Agent-Skills-compatible CLIs; only the directory differs
+The same skill folders work in other Agent-Skills-compatible CLIs; only the directory differs
 (each agent scans its own location, not `.agents/skills`):
 
 - **Claude Code** - `~/.claude/skills/` (all your projects) or `.claude/skills/` in a repo (that
@@ -164,7 +129,7 @@ The same seven skill folders work in other Agent-Skills-compatible CLIs; only th
   `./install.sh --codex`. Invoke with `$migrating-talend-to-dbt`, or let it auto-activate from the
   skill's description.
 
-All seven install together (foundations must sit alongside the five migration skills), and re-running
+All the skills install together (foundations must sit alongside the migration skills), and re-running
 `install.sh` is safe to update.
 
 ### Iterating on the skills (frequent edits / beta)
@@ -184,17 +149,6 @@ back to a real copy. For the **dbt platform (Studio)** there's no symlink, itera
 
 ## Usage
 
-Once installed, ask the agent to migrate a project and point it at the source artifacts, e.g.:
-
-- "Migrate this Informatica workflow export to dbt" (point at the `.XML`)
-- "Migrate these Talend jobs to dbt" (point at the `.item` folder)
-- "Migrate this stored procedure to a dbt model and prove parity"
-- "Migrate this Matillion pipeline to dbt" (point at the `.tran.yaml`/`.orch.yaml` or METL JSON)
-- "Migrate this Coalesce project to dbt" (point at the cloned Coalesce Git repo)
-
-The skill runs the 8-step workflow, asks which cloud you're targeting, and produces the dbt
-models, tests, docs, a parity check, a cost comparison, and a coverage report.
-
 **Set the approval posture up front.** A migration is a multi-step run (it writes models and runs
 `dbt`), so decide once at the start instead of confirming every edit. To run **without a prompt at
 each step**, use a workspace-scoped sandbox with approvals off:
@@ -210,22 +164,46 @@ the following edits?" at each step; if you stay in that mode, press `a` ("don't 
 files") to stop the prompts for the current files. `--dangerously-bypass-approvals-and-sandbox`
 removes the sandbox entirely and is for externally sandboxed / CI runs only.
 
-## Scope & caveats
+## Project independence
 
-- **Only transformation logic migrates to dbt.** Ingestion/extract-load (Informatica sessions
-  loading files, Talend `tFileInput`/`tFTP`, Matillion S3 Load / connector queries / CDC capture)
-  and control-flow/scheduling have no model equivalent - the skills map those to `sources` and a
-  scheduler, and exclude them from the coverage denominator rather than force-fitting them.
-- **Compilation is not correctness.** Every skill treats `dbt compile` as the fast iteration gate
-  and **data parity against the warehouse** as the proof a migration preserved business logic.
-- Dynamic SQL, non-deterministic procedural logic, and proprietary runtime components are routed
-  to the flagged residual, not guessed at.
+These skills are source-tool-specific but **customer-agnostic**. Everything that varies per
+engagement belongs in the migrator's own `migration_manifest.yml`, never in a skill file.
 
-## Eval results
+Worked examples use invented schemas, and where a reference cites evidence it can no longer
+show — "developed against real exports covering X, but not Y" — it says so without pointing
+at files that do not ship.
 
-Every push and PR runs a deterministic eval harness over the skills' inventory **parsers** (the step
-that reads a legacy export and produces the workload inventory). CI fails on any regression, so the
-badges above reflect the live state of `main`.
+How thoroughly that was verified differs by skill, so treat the guarantee as uneven:
+
+- **Matillion and SnapLogic — verified programmatically.** A real export was available for
+  each. Every identifier in the export was extracted and matched against every skill file;
+  each hit was either generalized or confirmed to be source-tool vocabulary
+  (`transformationJob`, `execution_mode`, `implementationID`) rather than customer data.
+  This found leaks that reading had missed twice — verbatim snap labels, a patient-data
+  schema, environment names, and component names buried in code comments.
+- **Informatica, Talend, stored procedures — inspected only.** No export was on disk to
+  diff against. Their worked examples (`m_STG_CUSTOMER`, `RETAIL_SRC.CUSTOMERS`,
+  `EXP_CLEANSE`) read as hand-authored retail demos rather than customer data, but that is
+  a judgment, not a measurement. If you have a real export for one of these tools, run the
+  same extract-and-match check before trusting the property.
+
+If you add to these skills, keep that property: no customer names, table or column names,
+job or component names, environment names, or counts taken from one engagement.
+
+## Tests
+
+```
+python3 -m unittest discover -s skills/migrating-matillion-to-dbt/scripts -p 'test_*.py'
+```
+
+The Matillion skill carries a synthetic fixture that reproduces the structural shape of a
+real METL export — `jobsTree`, the common transformation component ids, `run-transformation`
+bridges, and the orchestration connector collections — without carrying customer data. Its
+14 tests lock in role classification and the coverage denominator.
+
+Every push and PR also runs a deterministic eval harness over the skills' inventory **parsers** (the
+step that reads a legacy export and produces the workload inventory). CI fails on any regression, so
+the badges above reflect the live state of `main`.
 
 - **Published breakdown:** [`evals/RESULTS.md`](evals/RESULTS.md) - per-check results by source,
   refreshed by CI on every push to `main`.
@@ -233,20 +211,13 @@ badges above reflect the live state of `main`.
   "verified against real vendor exports" discipline behind the numbers.
 - **Reproduce locally:** `pip install pyyaml && python3 evals/run_evals.py` (add `--write` to
   regenerate the report + `results.json`).
-
-Two layers of evals:
-
-- **Parser evals** (above) - deterministic unit checks over the inventory parsers, gated in CI.
 - **Agent eval + scorecard** - [`harbor/`](harbor/) holds
   [Harbor](https://github.com/harbor-framework/harbor) tasks that run a whole agent *following the
   skills* against real migrations in a container (targeting DuckDB, no cloud creds) and grade the
   output on a weighted **scorecard**: build → **data parity** (row-for-row vs a held-out expected
   output) → **coverage** → **structural** (idiomatic-dbt signals) → **LLM-as-judge** (SCD
-  correctness, decomposition, docs/test quality). **Five tasks** - **stored procedure**, **Talend**,
-  **Informatica**, **Matillion**, and **Coalesce** (incl. a Type 2 SCD → dbt snapshot) - each
+  correctness, decomposition, docs/test quality). **Six tasks** - **stored procedure**, **Talend**,
+  **Informatica**, **Matillion**, **Coalesce** (incl. a Type 2 SCD → dbt snapshot), and a
+  **lift-and-shift remediation** (refactor to idiomatic dbt, parity preserved, lint must pass) - each
   verified solvable: the oracle scores 100% / reward 1, a broken migration drops parity and scores
   reward 0. Run the aggregate smoke test with `python3 harbor/_scorer/run_all.py`.
-
-## License
-
-Apache-2.0. See [LICENSE](LICENSE).

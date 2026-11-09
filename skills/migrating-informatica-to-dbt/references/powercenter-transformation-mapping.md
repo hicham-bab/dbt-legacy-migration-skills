@@ -1,8 +1,8 @@
 # PowerCenter transformation → dbt answer key (Step 3)
 
-The translation table for each PowerCenter transformation type. Grounded in
-`a reference SQL simulation of the workflow (each mapping replicated in SQL)`, where each mapping is
-replicated in SQL (tagged with its `[m_...]` name) — treat that file as the worked answer key.
+The translation table for each PowerCenter transformation type. Grounded in a SQL simulation of a
+full PowerCenter workflow, in which each mapping was replicated in SQL and checked against the
+mapping's own semantics.
 
 ## Contents
 
@@ -98,7 +98,8 @@ Always emit `cast()` (never `::`) and `coalesce()` (never `nvl`).
 
 ## Worked example
 
-`m_STG_CUSTOMER` in the fixture: Source Qualifier `SQ_CUSTOMERS` reads `RETAIL_SRC.CUSTOMERS`;
+A representative mapping, `m_STG_CUSTOMER`: Source Qualifier `SQ_CUSTOMERS` reads
+`RETAIL_SRC.CUSTOMERS`;
 `EXP_CLEANSE` builds `out_FULL_NAME`, `out_EMAIL`, `out_LOYALTY_TIER`, `out_AGE_YEARS`, `out_LOAD_TS`.
 The verified `TRANSFORMFIELD EXPRESSION` values are:
 `INITCAP(LTRIM(RTRIM(FIRST_NAME))) || ' ' || INITCAP(LTRIM(RTRIM(LAST_NAME)))`,

@@ -1,0 +1,68 @@
+# migration_manifest.yml -- Step-0 input manifest for this non-interactive Harbor eval run.
+# The skill's preflight gate reads this:
+#   python3 <skills>/legacy-to-dbt-migration-foundations/scripts/preflight_decisions.py \
+#       decisions --file /app/migration_manifest.yml
+# The answers were fixed by the task author, not by a migrator in the loop, so provenance
+# says so (method: supplied_file).
+# This is a remediation, not a fresh migration: keep the existing layered shape, just make it idiomatic.
+
+schema_version: 1
+
+provenance:
+  answered_by: harbor-task-author
+  answered_at: "2026-11-09T00:00:00Z"
+  method: supplied_file
+  attested_keys: [target_modeling, data_warehouse, packages_mode, landing_spot, landing_mode, dbt_runtime, parity_scope]
+
+decisions:
+  target_modeling: layered
+  data_warehouse: duckdb           # local dbt-duckdb; no cloud credentials
+  packages_mode: external_hub
+  landing_spot: /app/project
+  landing_mode: fold_into_existing
+  existing_project_path: /app/project
+  dbt_runtime: core                # the container runs dbt-core with dbt-duckdb
+  mesh_split: false
+  naming_convention: null          # model names are fixed by the task spec
+  snapshot_strategy: null
+  contract_boundary: null
+  residual_disposition: null
+  orchestration_target: undecided  # out of scope for the eval
+  parity_scope: all_marts
+  parity_tier_rule: null
+
+inputs:
+  legacy_export_path: /app/project
+  export_format: dbt_project
+  legacy_target_ddl_path: null
+  schedule_definitions_path: null
+  shared_job_bundles_path: null
+  variable_bindings: {}
+  runtime_token_dispositions: {}
+  grid_variables_path: null
+
+access:
+  dev_target:
+    database: dev                  # profiles.yml -> path: dev.duckdb
+    schema: main
+  warehouse_catalog_readable: true # the raw CSVs load as seeds into the same DuckDB file
+  # The current (lift-and-shift) project is the legacy system: build it before refactoring
+  # to capture its output, then compare. The verifier also checks parity after the run.
+  legacy_prod_readable: true
+  legacy_prod_tables: []
+  metering_views_readable: false   # DuckDB has no metering views: Step 6 is a labelled estimate
+  can_isolate_warehouse: false
+  can_rerun_legacy_job: false
+
+reference_facts:
+  legacy_run_metrics_path: null
+  source_freeze_window:
+    start: null
+    end: null
+  legacy_prod_last_built: null
+  downstream_consumers: []
+
+compliance:
+  pii_columns: []                  # synthetic data
+  pii_policy: null
+  business_rules: []
