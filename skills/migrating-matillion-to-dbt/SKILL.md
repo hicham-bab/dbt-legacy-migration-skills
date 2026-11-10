@@ -29,7 +29,8 @@ the warehouse, and report coverage and cost.
   platform job. Document these; do not force them into models.
 
 **Success criteria**: Migration is complete when:
-1. `dbt compile` finishes with 0 errors **and 0 warnings**
+1. `dbt compile` **and the first `dbt build`** finish with 0 errors and 0 warnings (some Fusion
+   warnings, such as dbt1071, appear only at build time)
 2. Every generated model builds (`dbt build`) and its tests pass
 3. Data parity is proven for each mart (row-for-row or aggregate baseline — see Step 5)
 4. **≥95% of the inventoried transformation components are migrated and validated**, with the
@@ -53,7 +54,8 @@ link into its references for the common work. **Assume the migrator may be new t
 ## Additional Resources
 
 - [parsing-matillion-pipelines.md](references/parsing-matillion-pipelines.md) — how to read DPC YAML (`.orch.yaml`/`.tran.yaml`) and METL JSON, and inventory the workload
-- [matillion-component-mapping.md](references/matillion-component-mapping.md) — the component → dbt answer key, the `implementationID` map, **Translation traps**, and variable handling
+- [matillion-component-mapping.md](references/matillion-component-mapping.md) — the component → dbt answer key, the `implementationID` map, the six **Translation traps**, and variable handling
+- foundations → [test-sources-and-mock-data.md](../legacy-to-dbt-migration-foundations/references/test-sources-and-mock-data.md) — building against existing dev tables or mock seed sources when legacy outputs are not readable
 - The **`legacy-to-dbt-migration-foundations`** skill — shared references for cloud detection, **dbt-package usage**, layer classification (incl. **wave planning**), target modeling approach, best practices, validation, cost, coverage, **orchestration handoff**, and the **cutover runbook**
 - `legacy-to-dbt-migration-foundations/templates/migration_manifest.yml` — the Step-0 input contract (decisions, access/feasibility, token bindings)
 - `scripts/test_inventory_matillion.py` — regression tests for the inventory denominator
@@ -73,10 +75,15 @@ where Python cannot run — is the manifest checked by hand instead.
    If a completed `migration_manifest.yml` was supplied with the work (`provenance.method:
    supplied_file`), read it and honor it instead of re-asking, but still raise anything in it that
    the export contradicts.
-2. **Ask the migrator every question below**, recommending the best fit with a one-line why. They
-   decide. Even when the README, DDL, environment, or the source workload strongly implies an
-   answer, still **ASK and confirm** — surface each as a question, never as a decision you already
-   made. Getting these wrong means redoing dozens of files.
+2. **Ask the migrator every question below in one consolidated round**, recommending the best fit
+   with a one-line why. They decide. Even when the README, DDL, environment, or the source workload
+   strongly implies an answer, still **ASK and confirm** — surface each as a question, never as a
+   decision you already made. Getting these wrong means redoing dozens of files. Include the
+   inputs that are otherwise discovered mid-run (`test_source_mode`, `shared_job_bundles_path`,
+   `legacy_target_ddl_path`, columns with misleading names), and offer a pasteable block of the
+   answers so a later run can reuse them. A run handed a complete manifest or answer block asks no
+   gate question; record a pasted block as `provenance.method: interactive` with its keys in
+   `attested_keys`.
 3. Write their answers into the manifest, including `provenance.answered_by` and `answered_at`.
 4. **Validate the manifest** (see below) and **do not create any dbt models, project files, or
    macros until it passes.** `null` is a valid answer meaning "asked, and the answer is no". A
@@ -110,6 +117,11 @@ resolve a single real object:
 - **runtime_token_dispositions** — orchestration runtime tokens (process id, started/ended at) →
   one of `dbt_var` | `invocation_id` | `scheduler_run_id` | `drop`. **Dropping one silently breaks
   downstream audit lineage** — make it an explicit decision, never a default.
+- **test_source_mode** *(required)* — `existing_tables` (with `test_source_schemas`) | `seeds` |
+  `none`: what dbt builds against in dev. `existing_tables` covers any real input the migrator
+  supplied, including files loaded with `dbt seed`; `seeds` means rows the agent invents, with
+  results labelled "mock data only", never parity. See foundations →
+  [test-sources-and-mock-data.md](../legacy-to-dbt-migration-foundations/references/test-sources-and-mock-data.md).
 
 **Validate the manifest with the preflight script (primary path):**
 
@@ -125,7 +137,8 @@ filled in for itself passes the script and fails the engagement.
 **Alternate path — dbt platform only, where Python cannot run** (see foundations → "Choosing the
 path": a failing gate is never a reason to switch). Check the manifest by hand instead: every key in the lists above is present (`null` counts; a blank does not), each enum value
 is one of the listed options, `existing_project_path` is set if `landing_mode` is
-`fold_into_existing`, and all three access answers are `true` or `false`. Use this path only where
+`fold_into_existing`, `test_source_mode` is answered and `test_source_schemas` is set if it is `existing_tables`, and
+all three access answers are `true` or `false`. Use this path only where
 the script cannot run, never as a shortcut past it.
 
 **As you build, explain your reasoning in plain language — the migrator may be new to dbt.** For
@@ -212,9 +225,15 @@ rules the script applies, so the artifact comes out identical. Use
    `trueConnectors`, `falseConnectors`, `unconditionalConnectors`, `iterationConnectors` — **keep
    the collection name as the edge `kind`.** The `on_failure` edges are the ones migrations
    silently drop; they are the input to the Step-8 orchestration handoff.
-7. **Write `migration/01_inventory.json`** with `units[]` (each with `components[]` and `edges[]`),
-   `parity_targets[]`, `control_flow_edges[]`, `unknown_components[]`, and a `summary` carrying
-   `coverage_denominator`. Step 7 recomputes coverage from this file — it must not be retyped.
+7. **Read every control and script component's parameters before describing it.** One whose
+   parameters are all `${...}` pass-throughs, with no SQL/script body, is a **suspected Shared
+   Job** (`shared_job_suspected: true`): its logic is in a `.melt` bundle not in the export. Report
+   it as "logic not in export, bundle required", never as an inline script (parsing reference →
+   Shared Jobs).
+8. **Write `migration/01_inventory.json`** with `units[]` (each with `components[]` and `edges[]`),
+   `parity_targets[]`, `control_flow_edges[]`, `unknown_components[]`, `shared_job_suspected[]`,
+   and a `summary` carrying `coverage_denominator`. Step 7 recomputes coverage from this file — it
+   must not be retyped.
 
 
 Then scaffold `_sources.yml` with **codegen** `generate_source` (foundations → dbt-packages.md),
@@ -222,8 +241,9 @@ Then scaffold `_sources.yml` with **codegen** `generate_source` (foundations →
 `source('legacy_prod', ...)` and nothing else in the workflow creates it.
 
 > **CHECKPOINT (confirm scope).** Before classifying or building anything, show the migrator the
-> inventory summary: the **coverage denominator** (count of migratable units) and the list of units
-> **out of scope** (ingestion/EL, jobs, non-SQL/custom components). Ask them to confirm this is the
+> inventory summary: the **coverage denominator** (count of migratable units), the list of units
+> **out of scope** (ingestion/EL, jobs, non-SQL/custom components), and every **suspected Shared
+> Job** with the bundle it needs. Ask them to confirm this is the
 > workload — this is the cheap moment to catch a missed job or an out-of-scope table, before dozens
 > of files exist. Wait for confirmation, then proceed.
 
@@ -247,21 +267,43 @@ reads a table another pipeline produced (Detect Changes → snapshot); **Kimball
 foundations building-kimball.md / building-starschema.md; **Data Vault** → follow foundations
 building-datavault.md (stage → hub/link/satellite), building info marts on top. Pick
 materializations per the target cloud (foundations → cloud-detection-and-materializations.md). Emit
-Fusion-conformant SQL (`cast()`, `coalesce()`).
+Fusion-conformant SQL (`cast()`, `coalesce()`), check every model against the six **Translation
+traps** in the mapping reference (trap 6: a constant `order by` is never a key), and route
+`current_date` in business rules through `as_of_date()` (foundations → dbt-best-practices.md,
+"Date-dependent logic").
+
+Where the build departs from the plan the migrator approved (for example an unpivot written as
+`union all` branches instead of `dbt_utils.unpivot`), **list each deviation in the final message**,
+not only in a notes file.
 
 ### Step 4 — Apply best practices: tests, docs, contracts, snapshots
 
 Generate `_sources.yml`, per-model YAML with `arguments:`-spec tests, column docs, enforced
-contracts on public marts, and a **snapshot** for any Detect Changes / SCD2 pipeline. See
+contracts on the marts inside `contract_boundary`, and a **snapshot** for any Detect Changes / SCD2 pipeline. See
 foundations → [dbt-best-practices.md](../legacy-to-dbt-migration-foundations/references/dbt-best-practices.md).
+Meet its **minimum test floor** (grain tests, closed code sets, unit tests on logic models,
+warn-level tests on condition-less joins, cross-model invariants, contracts) and record the
+coverage table it defines in `migration_changes.md`. Check it with
+`preflight_decisions.py tests --manifest target/manifest.json --changes migration_changes.md
+--file migration_manifest.yml` (advisory). **Whenever the script cannot be run** (the dbt
+platform, no shell, or no `python3`), check the floor's list by hand and **give the migrator the
+warning** in foundations → dbt-best-practices.md, "Minimum test floor": the check did not run, the
+risk, what to verify by hand, and that it runs automatically from the CLI.
 
 ### Step 5 — Validate: compile gate, then data parity
 
-`dbt compile` to 0 errors/warnings, then `dbt build` into dev, then compare the **legacy
-production** table each `Rewrite Table` / `Table Output` produced to the **dbt dev** output (align
-the inputs first) and **explain every difference** — accept legitimate environment/platform
-differences, fix real logic bugs. See foundations →
+`dbt compile` to 0 errors/warnings, then `dbt build` into dev (also 0 warnings — some only appear
+at build time). Then run the **rebuild-stability check**: `dbt build --full-refresh` a second time
+and confirm identical row counts and key values for every mart, recorded in `05_parity.json` under
+`rebuild_stability`. A difference is a non-determinism bug (translation trap 6) to fix before any
+legacy comparison. Then compare the **legacy production** table each `Rewrite Table` /
+`Table Output` produced to the **dbt dev** output (align the inputs first) and **explain every
+difference** — accept legitimate environment/platform differences, fix real logic bugs. See
+foundations →
 [data-validation.md](../legacy-to-dbt-migration-foundations/references/data-validation.md). Prefer **audit_helper** classify macros over a hand-written diff (foundations → dbt-packages.md).
+If `test_source_mode` is `seeds`, everything here runs on mock sources and is reported as "mock
+data only", never as parity (foundations →
+[test-sources-and-mock-data.md](../legacy-to-dbt-migration-foundations/references/test-sources-and-mock-data.md)).
 
 > **CHECKPOINT (parity sign-off).** Do not declare the migration complete on your own judgment.
 > Present the parity result per mart and **every difference classified as accepted (legitimate
@@ -294,7 +336,8 @@ who accepted it, and when. See foundations →
 Write `migration_changes.md` using the template below, **and** write
 `08_orchestration_handoff.md` — the control flow, retries, failure branches, run-id strategy and
 notifications that dbt does not own. Use the typed `control_flow_edges` from `01_inventory.json`
-as the worklist. See foundations →
+as the worklist, and list every `shared_job_suspected` component whose bundle was not supplied.
+See foundations →
 [orchestration-handoff.md](../legacy-to-dbt-migration-foundations/references/orchestration-handoff.md).
 Handing over a migration with no scheduler story is not done.
 
@@ -389,10 +432,19 @@ METL variable exports carry names only.
 | *_snapshot | snapshot | preserves history (SCD2) |
 
 ## Migration Status
-- Final compile: 0 errors, 0 warnings
+- Final compile and first build: 0 errors, 0 warnings
 - Models built / tests passed: [x/y]
-- Parity: [pass | N mismatches investigated]
+- Rebuild stability: [2 runs, identical | differences fixed: …]
+- Test sources: [existing_tables | seeds — results are "mock data only" | none]
+- Parity: [pass | N mismatches investigated | not run: mock data only]
 - Coverage: [migrated_validated/N = XX.X%]
+
+## Test coverage (minimum test floor)
+| Model | Generic tests | Unit tests | Singular tests | Reason if none |
+|-------|---------------|------------|----------------|----------------|
+
+## Deviations from the approved plan
+- [what the plan said] → [what was built] — [why]  (also listed in the final message)
 
 ## Component → dbt Object
 | Pipeline.component | dbt object(s) | layer | parity |
@@ -406,7 +458,7 @@ METL variable exports carry names only.
 |-----------|--------------------------|--------------------------|
 
 ## Residual (needs human review)
-- [component] — [reason: SQL/Python script, iterator, dynamic pattern]
+- [component] — [reason: SQL/Python script, iterator, dynamic pattern, suspected Shared Job (bundle not supplied), condition-less join]
 
 ## Cost Comparison
 - (summary; full detail in cost_comparison.md)

@@ -29,6 +29,9 @@ provenance:
   answered_by: null                # email or name of the migrator who answered
   answered_at: null                # ISO 8601, e.g. 2026-09-08T14:22:00Z
   method: interactive              # interactive | supplied_file
+                                   #   supplied_file = a completed manifest was handed over.
+                                   #   Answers pasted as a prompt block are still
+                                   #   `interactive`: list every key they cover below.
   attested_keys: []                # list the decision keys the human explicitly confirmed
 
 # ---------------------------------------------------------------------------
@@ -53,7 +56,11 @@ decisions:
   naming_convention: null          # dimensional (fct_/dim_) | dbt_entity_names
   snapshot_strategy: null          # timestamp | check   (prefer timestamp if a
                                    #   reliable updated_at exists)
-  contract_boundary: null          # public_marts | all_marts | none
+  contract_boundary: null          # all_marts | public_marts | none  (REQUIRED)
+                                   #   all_marts: legacy outputs are read outside dbt;
+                                   #   the usual recommendation. public_marts: Mesh or a
+                                   #   few shared marts. none: prototype only. See
+                                   #   references/dbt-best-practices.md (Contracts).
   residual_disposition: null       # rewrite | retire | keep_in_legacy | human_backlog
   orchestration_target: null       # dbt_platform_job | airflow | dagster |
                                    #   step_functions | undecided
@@ -62,13 +69,36 @@ decisions:
 
 # ---------------------------------------------------------------------------
 # inputs -- artifacts the migrator supplies. The export alone is not enough.
+# Ask for all of these in the SAME gate round. The ones most often discovered
+# mid-run instead: column DDL for staging and contracts; shared job bundles;
+# names of columns whose names are misleading (for example an employee id in a
+# column called IGNORE -- record those under compliance.misleading_names).
 # ---------------------------------------------------------------------------
 inputs:
   legacy_export_path: null         # REQUIRED: file or directory
   export_format: null              # e.g. metl_json | dpc_yaml | mixed | powercenter_xml
   legacy_target_ddl_path: null     # nullable; absent degrades contracts and typing
   schedule_definitions_path: null  # nullable; needed for Step 6 frequency + handoff
-  shared_job_bundles_path: null    # nullable; reusable sub-jobs migrate once as macros
+  shared_job_bundles_path: null    # nullable; reusable sub-jobs migrate once as macros.
+                                   #   If the inventory flags any component as
+                                   #   shared_job_suspected, this key must be present;
+                                   #   null then needs decisions.residual_disposition.
+
+  # Test sources -- what dbt builds against in dev. See
+  # references/test-sources-and-mock-data.md.
+  test_source_mode: null           # REQUIRED: existing_tables | seeds | none
+                                   #   existing_tables: real inputs the migrator supplied --
+                                   #     tables in dev, or files provided with the work
+                                   #     (even if loaded with `dbt seed`). The agent
+                                   #     invents no rows.
+                                   #   seeds: the agent FABRICATES mock source rows as dbt
+                                   #     seeds (test only; never parity)
+                                   #   none: no inputs available; compile-only
+  test_source_schemas: {}          # where each supplied input lives: source name (or
+                                   #   `supplied_seeds`) -> database.schema.
+                                   #   REQUIRED when existing_tables.
+    # legacy_prod_lnd: RAW_DB.LANDING
+    # supplied_seeds: DEV.MAIN
 
   # Source-parameter tokens (Matillion ${EV_*}/${JV_*}, Informatica $$PARAM, etc.)
   # split into TWO classes, because they need different treatment. A legacy export
@@ -158,3 +188,10 @@ compliance:
   # of these is indistinguishable from a migration defect.
   business_rules: []
     # - "negative amounts are retained, not zeroed -- they represent reversals"
+
+  # Columns whose names mislead a reader about their content. Keep the legacy name
+  # where parity needs it, but document the real meaning (and PII status) in the
+  # column description.
+  misleading_names: []
+    # - column: IGNORE
+    #   actually_holds: employee id (PII)

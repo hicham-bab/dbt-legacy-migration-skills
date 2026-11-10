@@ -98,6 +98,15 @@ A checklist tied to artifacts, not to confidence. Every line needs a name and a 
 - [ ] **Owner and window agreed** — named person on point, slack for a rollback decision, low-risk
       slot in the business calendar. Not the day before close.
 - [ ] **Freshness and volume monitoring live** on the new targets *before* switchover.
+- [ ] **Test floor confirmed** — `preflight_decisions.py tests` run on a machine with Python reports
+      no gaps, or every gap has a reason in the `migration_changes.md` coverage table (see
+      [dbt-best-practices.md](dbt-best-practices.md#minimum-test-floor-for-a-migration)). If the
+      migration was built on the dbt platform, run it locally once before switchover. Do not
+      require `--strict` or write placeholder tests to silence a flag: the logic detection is
+      pattern-based, and a stated reason is the correct answer to a false alarm.
+- [ ] **Mock sources removed** (only if `inputs.test_source_mode` was `seeds`) — every mock seed,
+      its `dbt_project.yml` config, and each substitution var, listed by name. See
+      [test-sources-and-mock-data.md](test-sources-and-mock-data.md#removal-before-production).
 
 ## Rollback
 

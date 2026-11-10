@@ -10,10 +10,17 @@ Gates:
   decisions   Step 0 -> Step 1. Validate migration_manifest.yml (or the older flat
               migration_decisions.yml). Blocks model building.
   inventory   Step 1 -> Step 2. Validate 01_inventory.json: non-empty, no unmapped
-              components, parity targets present when parity_scope demands them.
+              components, parity targets present when parity_scope demands them, and
+              an answer for shared_job_bundles_path when Shared Jobs are suspected.
+  tests       Step 4 -> Step 5. ADVISORY. Check target/manifest.json against the
+              minimum test floor: grain test on marts, contracts per contract_boundary,
+              a row per model in the migration_changes.md coverage table, and a unit
+              test (or a stated reason) for every model with case/window/non-key-join/
+              regex/date logic. Warns; --strict makes gaps a failure.
   parity      Step 5 -> Step 6. Verify every in-scope model has a parity record AND
               that the record compared EVERY column. A single-column diff is a false
-              pass, so columns_compared < columns_total is a FAIL.
+              pass, so columns_compared < columns_total is a FAIL. Also requires the
+              rebuild_stability record (two identical builds).
   coverage    Step 7 -> Step 8. RECOMPUTE gross/in-scope/residual coverage from the
               artifacts rather than accepting a typed number. Applies the >=95% gate
               and the <=5% residual ceiling to the GROSS figure, honouring waivers.
@@ -23,7 +30,10 @@ Usage:
                                              [--profiles ~/.dbt/profiles.yml]
     python3 preflight_decisions.py inventory  --inventory migration/01_inventory.json
                                              [--file migration_manifest.yml]
-    python3 preflight_decisions.py parity     --parity migration/05_parity.json
+    python3 preflight_decisions.py tests     [--manifest target/manifest.json]
+                                             [--changes migration_changes.md]
+                                             [--file migration_manifest.yml] [--strict]
+    python3 preflight_decisions.py parity    --parity migration/05_parity.json
                                               --inventory migration/01_inventory.json
     python3 preflight_decisions.py coverage   --inventory migration/01_inventory.json
                                               --parity  migration/05_parity.json
@@ -52,12 +62,15 @@ REQUIRED_ENUMS = {
     "dbt_runtime": {"fusion", "core"},
     "landing_mode": {"new_standalone", "fold_into_existing"},
     "parity_scope": {"all_marts", "tiered", "sampled"},
+    "contract_boundary": {"all_marts", "public_marts", "none"},
 }
 REQUIRED_FREE = ("landing_spot",)
 # Feasibility answers. `null` is NOT acceptable here -- "unknown" is the state this
 # gate exists to eliminate. `false` is acceptable and re-scopes later steps.
 REQUIRED_ACCESS = ("legacy_prod_readable", "metering_views_readable",
                    "warehouse_catalog_readable")
+# What dbt builds against in dev. See references/test-sources-and-mock-data.md.
+TEST_SOURCE_MODES = {"existing_tables", "seeds", "none"}
 
 QUESTIONS = {
     "target_modeling":
@@ -83,6 +96,15 @@ QUESTIONS = {
     "parity_scope":
         "Which outputs get data-parity proof? all_marts | tiered | sampled. "
         "If tiered or sampled, also set parity_tier_rule.",
+    "contract_boundary":
+        "Which marts get an enforced contract? all_marts | public_marts | none "
+        "(all_marts when the legacy outputs are read outside dbt -- the usual case; "
+        "public_marts for Mesh or a few shared marts; none for prototype work).",
+    "test_source_mode":
+        "What does dbt build against in dev? existing_tables | seeds | none "
+        "(existing_tables = real inputs you supply: dev tables or provided files, set "
+        "test_source_schemas; seeds = the agent invents mock rows, results are never "
+        "parity; none = compile only).",
     "legacy_prod_readable":
         "Can we still query the LEGACY PRODUCTION output tables? true | false. "
         "If false, Step-5 data parity -- the definition of done -- is unachievable "
@@ -208,6 +230,7 @@ def gate_decisions(fpath: Path, ppath: Path) -> int:
     dec = {ALIASES.get(k, k): v for k, v in (man.get("decisions") or {}).items()}
     acc = man.get("access") or {}
     prov = man.get("provenance") or {}
+    inp = man.get("inputs") or {}
 
     missing, invalid, warn = [], [], []
 
@@ -232,6 +255,19 @@ def gate_decisions(fpath: Path, ppath: Path) -> int:
             and not dec.get("parity_tier_rule"):
         missing.append("parity_tier_rule")
 
+    tsm = inp.get("test_source_mode")
+    if tsm not in (None, "") and str(tsm).lower() not in TEST_SOURCE_MODES:
+        invalid.append(("test_source_mode", tsm, sorted(TEST_SOURCE_MODES)))
+    elif str(tsm).lower() == "existing_tables" and not inp.get("test_source_schemas"):
+        missing.append("test_source_schemas")
+    elif str(tsm).lower() == "seeds":
+        warn.append("test_source_mode is seeds -- every build and test result is against "
+                    "FABRICATED data only. Label it 'mock data only'; it is not parity "
+                    "and never counts toward coverage. See "
+                    "references/test-sources-and-mock-data.md.")
+    elif tsm in (None, "") and ("decisions" in raw or "access" in raw):
+        missing.append("test_source_mode")      # the older flat file has no inputs block
+
     if not prov.get("answered_by") or not prov.get("answered_at"):
         warn.append("provenance.answered_by / answered_at are empty -- these values "
                     "carry no human attestation and a reviewer cannot tell them from "
@@ -251,7 +287,8 @@ def gate_decisions(fpath: Path, ppath: Path) -> int:
         print(f"Manifest: {fpath}  (create/complete it, then re-run)\n")
         print("Ask the migrator these questions and record their answers "
               "(recommend a default with a one-line why, but they decide):\n")
-        for key in list(REQUIRED_ENUMS) + list(REQUIRED_FREE) + list(REQUIRED_ACCESS):
+        for key in list(REQUIRED_ENUMS) + list(REQUIRED_FREE) + list(REQUIRED_ACCESS) \
+                + ["test_source_mode"]:
             if key in missing or any(k == key for k, _, _ in invalid):
                 print(f"  [{key}] {QUESTIONS.get(key, 'required')}")
                 if key == "data_warehouse" and rec:
@@ -259,7 +296,7 @@ def gate_decisions(fpath: Path, ppath: Path) -> int:
                           f"recommend, but confirm)")
                 print()
         for key in missing:
-            if key in ("existing_project_path", "parity_tier_rule"):
+            if key in ("existing_project_path", "parity_tier_rule", "test_source_schemas"):
                 print(f"  [{key}] required because of an earlier answer.\n")
         for key, val, allowed in invalid:
             print(f"  ! '{key}' = '{val}' is not one of {allowed}")
@@ -272,6 +309,8 @@ def gate_decisions(fpath: Path, ppath: Path) -> int:
         print(f"  decisions.{key}: {dec.get(key)}")
     for key in REQUIRED_ACCESS:
         print(f"  access.{key}: {acc.get(key)}")
+    if inp.get("test_source_mode"):
+        print(f"  inputs.test_source_mode: {inp.get('test_source_mode')}")
     if prov.get("answered_by"):
         print(f"  provenance: {prov.get('answered_by')} at {prov.get('answered_at')}")
     for w in warn:
@@ -282,7 +321,9 @@ def gate_decisions(fpath: Path, ppath: Path) -> int:
 def gate_inventory(ipath: Path, fpath: Path) -> int:
     inv = load_json(ipath, "01_inventory.json")
     s = inv.get("summary") or {}
-    dec = (load_yaml(fpath).get("decisions") or {}) if fpath else {}
+    man = load_yaml(fpath) if fpath else {}
+    dec = man.get("decisions") or {}
+    inp = man.get("inputs") or {}
     problems = []
 
     if not s.get("unit_count"):
@@ -309,6 +350,23 @@ def gate_inventory(ipath: Path, fpath: Path) -> int:
                 f"table name. Supply them in the manifest under "
                 f"access.legacy_prod_tables.")
 
+    # Suspected Shared Jobs carry logic that is not in the export. The bundle path must
+    # be answered: a real path, or null together with an explicit residual_disposition.
+    suspected = inv.get("shared_job_suspected") or []
+    if suspected:
+        names = ", ".join(str(c.get("name")) for c in suspected)
+        if "shared_job_bundles_path" not in inp:
+            problems.append(
+                f"{len(suspected)} suspected Shared Job(s) ({names}) but "
+                f"inputs.shared_job_bundles_path is not answered. Ask the migrator for "
+                f"the .melt bundles, or record null with a residual_disposition.")
+        elif inp.get("shared_job_bundles_path") in (None, "") \
+                and dec.get("residual_disposition") in (None, ""):
+            problems.append(
+                f"{len(suspected)} suspected Shared Job(s) ({names}) and "
+                f"shared_job_bundles_path is null, but decisions.residual_disposition is "
+                f"not set. Their logic is not in the export: say where it goes.")
+
     if problems:
         fail("Step-1 inventory is not usable", [f"* {p}" for p in problems])
     banner("Step-1 gate PASSED -- inventory usable")
@@ -322,6 +380,12 @@ def gate_inventory(ipath: Path, fpath: Path) -> int:
         print(f"\n  NOTE: {s['append_mode_targets']} append-mode target(s). Each needs "
               f"an incremental model with an explicit unique_key, and a "
               f"run-window-scoped parity comparison.")
+    if suspected:
+        print(f"\n  NOTE: {len(suspected)} suspected Shared Job(s) -- logic not in export, "
+              f"bundle required. Put each on the Step-1 checkpoint list and the Step-8 "
+              f"handoff:")
+        for c in suspected:
+            print(f"    - {c.get('name')} ({c.get('unit')})")
     return 0
 
 
@@ -358,11 +422,33 @@ def gate_parity(ppath: Path, ipath: Path) -> int:
                not any(str(w).lower() in str(h).lower() for h in have if h)}
         if gap:
             problems.append(f"no parity record for: {sorted(gap)}")
+    # Rebuild stability runs before parity: two clean builds must give identical row
+    # counts and key values, or a non-deterministic key (e.g. order by 0) survives.
+    rs = par.get("rebuild_stability") if isinstance(par, dict) else None
+    if not isinstance(rs, dict):
+        problems.append("no rebuild_stability record. Build twice (the second with "
+                        "--full-refresh) and record runs, key columns and whether the "
+                        "results were identical. See data-validation.md.")
+    else:
+        if (rs.get("runs") or 0) < 2:
+            problems.append(f"rebuild_stability.runs is {rs.get('runs')}; it needs 2.")
+        if rs.get("identical") is not True:
+            problems.append("rebuild_stability.identical is not true. A rebuild that "
+                            "changes keys or row counts is a non-determinism bug to fix "
+                            "before comparing with legacy data.")
+        no_keys = [m.get("model", "<unnamed>") for m in (rs.get("models") or [])
+                   if not m.get("key_columns")]
+        if not rs.get("models"):
+            problems.append("rebuild_stability.models is empty -- name the marts and "
+                            "key columns compared.")
+        elif no_keys:
+            problems.append(f"rebuild_stability: no key_columns recorded for {no_keys}.")
     if problems:
         fail("Step-5 parity is incomplete", [f"* {p}" for p in problems])
     banner("Step-5 gate PASSED -- parity complete and fully attributed")
     print(f"  models with parity records: {len(records)}")
     print(f"  all columns compared on every model: yes")
+    print(f"  rebuild stability: {rs.get('runs')} runs, identical")
     return 0
 
 
@@ -494,6 +580,151 @@ def gate_coverage(ipath: Path, ppath: Path, wpath: Path | None) -> int:
     return 0
 
 
+# Heuristics for "this model carries logic a unit test must pin" (the test floor in
+# dbt-best-practices.md). They only SUGGEST candidates: a flagged model passes with a
+# unit test OR a row in the migration_changes.md coverage table giving a reason, so a
+# false positive costs one sentence, not a fake test. Regex, not a SQL parser (this
+# script stays stdlib-only); the gate is advisory unless --strict is passed.
+_JINJA = re.compile(r"\{\{.*?\}\}|\{%.*?%\}|\{#.*?#\}", re.S)
+_BLOCK_COMMENT = re.compile(r"/\*.*?\*/", re.S)
+_LINE_COMMENT = re.compile(r"--[^\n]*")
+_STRING = re.compile(r"'(?:[^']|'')*'")
+_CASE_TOKENS = re.compile(r"\b(case|when|end)\b", re.I)
+# An ON clause runs until the next clause keyword, a closing paren, or the end.
+_ON_CLAUSE = re.compile(
+    r"\bon\b(.*?)(?=\b(?:where|join|left|right|full|inner|cross|natural|group|order|"
+    r"qualify|having|union|window|limit|on)\b|\)|;|\Z)", re.I | re.S)
+_NON_KEY_COND = re.compile(r"<|>|!=|\bbetween\b|\blike\b|\bor\b|^\s*(?:1\s*=\s*1|true)\s*$",
+                           re.I)
+_LOGIC_PATTERNS = {
+    "window function": re.compile(r"\bover\s*\(", re.I),
+    "cross join": re.compile(r"\bcross\s+join\b", re.I),
+    "regex": re.compile(r"\bregexp?_\w+|\brlike\b|\bregexp\b|\bsimilar\s+to\b", re.I),
+    "date arithmetic": re.compile(
+        r"\bdate_?add\b|\bdate_?diff\b|\bdate_sub\b|\badd_months\b|\bmonths_between\b"
+        r"|\btimestamp_?(?:add|diff)\b|\blast_day\b|\binterval\b"
+        r"|\b(?:current_date|current_timestamp|sysdate|getdate|as_of_date)\b"
+        r"\s*(?:\(\s*\))?\s*[-+]", re.I),
+}
+_GRAIN_TESTS = {"unique", "unique_combination_of_columns"}
+
+
+def _sql_for_scan(node: dict) -> str:
+    """compiled_code when present (macro-generated logic is visible), else raw_code
+    with Jinja removed. Comments and string literals are stripped either way."""
+    code = node.get("compiled_code")
+    if not code:
+        code = _JINJA.sub(" __jinja__ ", node.get("raw_code") or "")
+    code = _LINE_COMMENT.sub(" ", _BLOCK_COMMENT.sub(" ", code))
+    return _STRING.sub("''", code)
+
+
+def _max_case_branches(sql: str) -> int:
+    """Largest number of WHEN branches in any single CASE ... END block."""
+    stack, best = [], 0
+    for tok in _CASE_TOKENS.findall(sql):
+        t = tok.lower()
+        if t == "case":
+            stack.append(0)
+        elif t == "when" and stack:
+            stack[-1] += 1
+        elif t == "end" and stack:
+            best = max(best, stack.pop())
+    return best
+
+
+def _logic_hits(sql: str) -> list:
+    hits = ["case with 3+ branches"] if _max_case_branches(sql) >= 3 else []
+    hits += [label for label, rx in _LOGIC_PATTERNS.items() if rx.search(sql)]
+    if re.search(r"\bjoin\b", sql, re.I) and any(
+            _NON_KEY_COND.search(m.group(1).strip()) for m in _ON_CLAUSE.finditer(sql)):
+        hits.append("non-key join")
+    return hits
+
+
+def _coverage_table(path: Path) -> dict | None:
+    """Rows of the migration_changes.md 'Test coverage' table: {model: reason}.
+    None when the file or the table is absent."""
+    if not path or not path.exists():
+        return None
+    rows, in_table, seen = {}, False, False
+    for line in path.read_text().splitlines():
+        if line.startswith("#"):
+            in_table = "test coverage" in line.lower()
+            seen = seen or in_table
+            continue
+        if not in_table or not line.strip().startswith("|"):
+            continue
+        cells = [c.strip().strip("`") for c in line.strip().strip("|").split("|")]
+        if not cells or not cells[0] or cells[0].lower() == "model" or set(cells[0]) <= set("-: "):
+            continue
+        reason = cells[4] if len(cells) > 4 else ""
+        rows[cells[0]] = "" if reason in ("-", "—", "n/a") else reason
+    return rows if seen else None
+
+
+def _is_mart(node: dict) -> bool:
+    path = str(node.get("original_file_path") or node.get("path") or "").lower()
+    return "mart" in path or str(node.get("name", "")).startswith(("fct_", "dim_", "mart_"))
+
+
+def gate_tests(mpath: Path, strict: bool, fpath: Path | None = None,
+               cpath: Path | None = None) -> int:
+    """Advisory Step-4 check of the minimum test floor against target/manifest.json."""
+    man = load_json(mpath, "target/manifest.json (run dbt parse or dbt compile)")
+    boundary = str(((load_yaml(fpath) if fpath else {}).get("decisions") or {})
+                   .get("contract_boundary") or "").lower()
+    table = _coverage_table(cpath)
+    nodes = man.get("nodes") or {}
+    models = {uid: n for uid, n in nodes.items() if n.get("resource_type") == "model"}
+    grain = set()
+    for n in nodes.values():
+        if n.get("resource_type") == "test" and \
+                (n.get("test_metadata") or {}).get("name") in _GRAIN_TESTS:
+            grain.update((n.get("depends_on") or {}).get("nodes") or [])
+    unit = set()
+    for ut in (man.get("unit_tests") or {}).values():
+        unit.update((ut.get("depends_on") or {}).get("nodes") or [])
+        if ut.get("model"):
+            unit.update(uid for uid, m in models.items() if m.get("name") == ut["model"])
+
+    gaps = []
+    for uid, n in sorted(models.items()):
+        name = n.get("name", uid)
+        reason = (table or {}).get(name, "")
+        if _is_mart(n):
+            if uid not in grain:
+                gaps.append(f"{name}: mart with no grain test (unique / "
+                            f"unique_combination_of_columns)")
+            wants_contract = boundary == "all_marts" or (
+                boundary == "public_marts" and n.get("access") == "public") or not boundary
+            if wants_contract and not ((n.get("config") or {}).get("contract") or {}) \
+                    .get("enforced"):
+                gaps.append(f"{name}: mart with no enforced contract"
+                            + ("" if boundary else " (no contract_boundary in the "
+                               "manifest; pass --file to scope this check)"))
+        hits = _logic_hits(_sql_for_scan(n))
+        if hits and uid not in unit and not reason:
+            gaps.append(f"{name}: has {', '.join(hits)} but no unit test and no reason "
+                        f"in the coverage table")
+        if table is not None and name not in table:
+            gaps.append(f"{name}: no row in the migration_changes.md test coverage table")
+    if table is None:
+        gaps.append(f"no 'Test coverage' table found in {cpath} -- every model needs a "
+                    f"row (model, generic, unit, singular tests, reason if none)")
+
+    banner("Step-4 test floor -- " + ("gaps found (advisory)" if gaps else "PASSED"))
+    print(f"  models: {len(models)}  |  with grain test: {len(grain & set(models))}  |  "
+          f"with unit test: {len(unit & set(models))}")
+    for g in gaps:
+        print(f"  WARN: {g}")
+    if gaps:
+        print("\n  Close each gap, or record the reason in the migration_changes.md test "
+              "table. Logic detection is regex-based; a false positive is a reason, not a "
+              "test to fake.")
+    return 1 if (gaps and strict) else 0
+
+
 # ---------------------------------------------------------------------------
 def main(argv):
     sub = argv[0] if argv and not argv[0].startswith("-") else "decisions"
@@ -502,7 +733,9 @@ def main(argv):
     opts = {}
     i = 0
     while i < len(rest):
-        if rest[i].startswith("--") and i + 1 < len(rest):
+        if rest[i] == "--strict":                 # the only boolean flag
+            i += 1
+        elif rest[i].startswith("--") and i + 1 < len(rest):
             opts[rest[i][2:]] = rest[i + 1]; i += 2
         else:
             i += 1
@@ -531,6 +764,10 @@ def main(argv):
             print("usage: coverage --inventory ... --parity ... [--waivers ...]")
             return 2
         return gate_coverage(ipath, parpath, wpath)
+    if sub == "tests":
+        return gate_tests(Path(opts.get("manifest", "target/manifest.json")),
+                          "--strict" in rest, fpath,
+                          Path(opts.get("changes", "migration_changes.md")))
     print(__doc__)
     return 2
 

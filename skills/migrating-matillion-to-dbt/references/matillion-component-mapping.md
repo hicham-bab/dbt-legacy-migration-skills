@@ -130,6 +130,7 @@ producing a confident-looking but wrong coverage number.
 | **Distinct** / Remove Duplicates | Deduplicate | `select distinct` (or `qualify row_number() = 1`) |
 | **Convert Type** (`convert-type`) | Cast types | `cast(col as <type>)` |
 | **Rename** (`rename`) | Rename columns | `col as new_name` |
+| **Unpivot / Transpose** (`unpivot`) | Melt columns into rows (one row per field per record) | `dbt_utils.unpivot` (keeps null values) or explicit `union all` branches — pick one, match the legacy null handling, and record it (translation trap 4) |
 | **Fixed Flow** (`fixed-flow`) | Inline literal table (hard-coded / from variables) | a dbt **seed**, or `select ... union all` of literal rows |
 | **Extract Nested Data** (`extract-nested-data`) | Unpack JSON/semi-structured | platform flatten: `lateral flatten` (Snowflake) / `unnest` (BigQuery) / `explode` (Databricks) |
 | **Split Field** (`split-field`) | Split one column into several | `split_part` / string functions |
@@ -224,7 +225,7 @@ Orchestration is mostly **out of dbt scope** — document, don't model:
 
 ## Translation traps
 
-Five Matillion-general translation errors that **compile cleanly and silently corrupt parity**. Each
+Six Matillion-general translation errors that **compile cleanly and silently corrupt parity**. Each
 is worth an explicit check per pipeline, because none of them produces an error message.
 
 1. **Translate joins by the CONFIGURED join type, never the component name.** Matillion join
@@ -246,12 +247,34 @@ is worth an explicit check per pipeline, because none of them produces an error 
    *Why it silently corrupts parity:* collapsing or duplicating the melt grain multiplies or divides
    the row count downstream, so every row-count and aggregate check breaks at a point far from the
    component that caused it.
+   Choose and record one approach: `dbt_utils.unpivot` (preferred when installed: fewer lines, same
+   grain) or explicit `union all` branches (use when per-branch conditions or null handling differ).
+   Match the legacy null handling deliberately. `dbt_utils.unpivot` **keeps** rows whose value is
+   null ([dbt-utils docs](https://github.com/dbt-labs/dbt-utils#unpivot-source)), while Snowflake's
+   native `UNPIVOT` **drops** them unless `INCLUDE NULLS` is set
+   ([Snowflake docs](https://docs.snowflake.com/en/sql-reference/constructs/unpivot)). Do not
+   assume the two agree: read the component's configuration (and, where possible, the SQL Matillion
+   generated) to see whether the legacy flow kept nulls, and add `where <value> is not null`
+   downstream if it dropped them. Add a singular test asserting one
+   row per invalid field per record. If the approach differs from the plan shown to the migrator,
+   say so in the closing message, not only in a notes file.
 5. **Near-identical table names one token apart are common** — e.g. a `_IN` raw load table versus a
    `_PRE_..._IN` intermediate that another pipeline produces. One is a `source()`, the other is a
    `ref()`. Resolve which by asking whether a pipeline in the estate writes it.
    *Why it silently corrupts parity:* referencing the wrong one compiles and runs, but reads a
    different table at a different stage of processing, producing a silently wrong DAG and plausible
    but incorrect numbers.
+6. **`row_number() over (order by 0)` (or any constant `order by`) is not a key.** It numbers rows in
+   arbitrary order, so the value changes between runs and between queries. Never copy it into an
+   output column unchanged. Replace it with a deterministic key and record it as a contract change
+   the migrator must approve: `md5` of the record's content hash plus its occurrence number among
+   byte-identical rows (`row_number() over (partition by content_hash order by content_hash)`).
+   Keep the plain content hash as a separate column if the legacy output had one. Identical rows
+   then share the content hash but have distinct keys, and the key is stable across rebuilds.
+   *Why it silently corrupts parity:* row-for-row comparison on this column can never pass, and any
+   test that joins on it flakes. The Step-5 rebuild-stability check (foundations →
+   data-validation.md) catches a survivor; `lint_idiomatic.py` flags the pattern as
+   `nondeterministic_order`.
 
 ## Structural rules
 

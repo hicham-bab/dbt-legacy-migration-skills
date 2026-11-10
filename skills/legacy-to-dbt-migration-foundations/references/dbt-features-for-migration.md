@@ -19,9 +19,11 @@ this is gold — encode "this CASE / join / aggregation reproduces the legacy ru
 warehouse-light assertion that can't silently drift. (dbt **v1.8+**; the `test_type:unit` selector
 works on Core and Fusion.)
 
-Author them at **Step 4** for the models carrying real transformation logic (a mart's segmentation
-`case`, a fan-out-prone join, the SCD change-detection). Mock each upstream `ref()`/`source()`;
-capture 2-3 representative rows — including a legacy edge case — as expected output:
+Author them at **Step 4** for every model that contains any of: a `case` with 3 or more branches,
+a join that is not a plain key equality, a window function, regex, or date arithmetic (the
+[minimum test floor](dbt-best-practices.md#minimum-test-floor-for-a-migration)). Mock each upstream
+`ref()`/`source()`; capture 2-3 representative rows — including at least one edge case taken from
+the legacy export (null input, excluded category, boundary date, duplicate row) — as expected output:
 
 ```yaml
 unit_tests:
@@ -38,6 +40,16 @@ unit_tests:
       rows:
         - {customer_id: 1, ltv_segment: 'high'}
         - {customer_id: 2, ltv_segment: 'low'}
+```
+
+A model whose logic depends on the run date (a pay-year window, an "active as of today" filter) is
+date-dependent and brittle near boundaries. Route the date through the `as_of_date()` macro (see
+[dbt-best-practices.md](dbt-best-practices.md#date-dependent-logic)) and pin it per test:
+
+```yaml
+    overrides:
+      vars:
+        as_of_date: "2026-03-31"
 ```
 
 Formats: `dict` (default), `csv`, `sql` (ephemeral inputs must use `sql`); fixtures live in a

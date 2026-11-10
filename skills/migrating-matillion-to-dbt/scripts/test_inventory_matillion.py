@@ -45,7 +45,7 @@ def _conn(cid: int, s: int, t: int) -> dict:
 
 
 def build_fixture() -> dict:
-    """1 orchestration job (7 components) + 2 transformation jobs (8 + 2)."""
+    """1 orchestration job (9 components) + 2 transformation jobs (8 + 2)."""
     orch = {
         "id": 900,
         "components": {
@@ -57,6 +57,14 @@ def build_fixture() -> dict:
             "5": _c(15, 1896325668, "TRANS_EXAMPLE_AUX"),             # bridge
             "6": _c(16, 438858066, "MSG_EXAMPLE"),                    # sns     -> control
             "7": _c(17, 999999999, "MYSTERY_COMPONENT"),              # UNMAPPED -> unknown
+            # only ${...} pass-throughs: a suspected Shared Job, logic not in export
+            "8": _c(18, 2014087685, "LOG_SHARED_JOB_EXAMPLE",
+                    {str(i): (f"Param {i}", f"${{JV_PARAM_{i}}}") for i in range(2, 8)}),
+            # same shape but with a real SQL body: an inline script, not a Shared Job
+            "9": _c(19, -798585337, "SQL_SCRIPT_INLINE_EXAMPLE",
+                    {"2": ("SQL Script", "insert into LOG_EXAMPLE select 1"),
+                     **{str(i): (f"Param {i}", f"${{JV_PARAM_{i}}}")
+                        for i in range(3, 8)}}),
         },
         # control flow lives across five collections, not in `connectors`
         "successConnectors": {"a": _conn(51, 11, 12)},
@@ -196,6 +204,35 @@ class InventoryRegression(unittest.TestCase):
         self.assertEqual(by_comp["TBL_OUT_MART"]["write_mode"], "truncate_reload")
         self.assertEqual(by_comp["TBL_OUT_LOG"]["write_mode"], "append")
         self.assertEqual(self.s["append_mode_targets"], 1)
+
+    # --- suspected Shared Jobs ------------------------------------------------
+    def test_pass_through_control_is_suspected_shared_job(self):
+        names = [c["name"] for c in self.inv["shared_job_suspected"]]
+        self.assertEqual(names, ["LOG_SHARED_JOB_EXAMPLE"])
+        self.assertEqual(self.s["shared_job_suspected_count"], 1)
+        self.assertEqual(self.inv["shared_job_suspected"][0]["parameter_count"], 7)
+
+    def test_sql_script_with_body_is_not_suspected(self):
+        flags = {c["name"]: c["shared_job_suspected"]
+                 for u in self.inv["units"] for c in u["components"]}
+        self.assertFalse(flags["SQL_SCRIPT_INLINE_EXAMPLE"])
+        # components with only a Name parameter are below the threshold
+        self.assertFalse(flags["ST_EXAMPLE"])
+        self.assertFalse(flags["TRANS_EXAMPLE_MAIN"])
+
+    def test_shared_job_rule_unit(self):
+        tok = [("Name", ["X"])] + [(f"P{i}", [f"${{V{i}}}"]) for i in range(5)]
+        self.assertTrue(inv._shared_job_suspected("control", tok))
+        self.assertTrue(inv._shared_job_suspected("bridge", tok))
+        # transformation components are never flagged
+        self.assertFalse(inv._shared_job_suspected("transformation", tok))
+        # a literal value means the component carries its own configuration
+        self.assertFalse(inv._shared_job_suspected("control", tok + [("P9", ["literal"])]))
+        # fewer than the minimum number of parameters
+        self.assertFalse(inv._shared_job_suspected("control", tok[:3]))
+        # all empty: no token, nothing to suspect
+        self.assertFalse(inv._shared_job_suspected(
+            "control", [(f"P{i}", [""]) for i in range(6)]))
 
     # --- naming ----------------------------------------------------------------
     def test_job_names_recovered_from_jobs_tree(self):

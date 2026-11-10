@@ -25,7 +25,7 @@ decisions:
   mesh_split: false
   naming_convention: null          # model names are fixed by the task spec
   snapshot_strategy: null
-  contract_boundary: null
+  contract_boundary: none          # asked: no contracts for this eval
   residual_disposition: null
   orchestration_target: undecided  # out of scope for the eval
   parity_scope: all_marts
@@ -37,6 +37,9 @@ inputs:
   legacy_target_ddl_path: null
   schedule_definitions_path: null
   shared_job_bundles_path: null
+  test_source_mode: existing_tables  # the task supplies the raw CSVs; the agent invents no rows
+  test_source_schemas:
+    supplied_seeds: dev.main         # loaded with dbt seed into the DuckDB dev target
   variable_bindings: {}
   runtime_token_dispositions: {}
   grid_variables_path: null

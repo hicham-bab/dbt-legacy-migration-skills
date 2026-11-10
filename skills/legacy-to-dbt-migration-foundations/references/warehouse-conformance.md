@@ -45,6 +45,11 @@ compile preflight confirm them. Quick orientation only (always confirm by compil
 | Databricks | `bigint` | `decimal(18,2)` | `string` | `timestamp` |
 | Redshift | `bigint` | `numeric(18,2)` | `varchar` | `timestamp` |
 
+On Snowflake, write the precision out in the model SQL too: `cast(x as number(38, 0))`, never a bare
+`cast(x as number)`. Fusion reports the bare form as a dbt1071 warning ("numeric type and
+unspecified precision/scale") at **build** time, so a clean compile does not prove it is absent.
+See [dbt-best-practices.md](dbt-best-practices.md#fusion-yaml-gotchas).
+
 Or use dbt's portable type macros in the contract (`{{ dbt.type_int() }}`, `type_string()`,
 `type_numeric()`, `type_timestamp()`) so the type resolves per adapter, see the cross-database macros
 below.
@@ -108,7 +113,10 @@ Things the compile gate will catch, but that are worth knowing up front:
   `timestamp('...')`** (or `cast(... as timestamp)`), not a bare `'2020-01-01'::timestamp`.
 - **`row_number()` tiebreaking is non-deterministic** - always add a deterministic secondary sort key
   in the `order by` (matters for CDC dedup and SCD surrogate keys, see
-  [cdc-deduplication.md](cdc-deduplication.md)).
+  [cdc-deduplication.md](cdc-deduplication.md)). This holds on every adapter. A constant
+  `order by` (`order by 0`, `order by null`) is worse: there is no sort key to break ties on, so the
+  column must be replaced by a content-based key (Matillion → matillion-component-mapping.md,
+  translation trap 6).
 
 **Redshift**
 - `QUALIFY` is historically unsupported - the compile will flag it; rewrite as a subquery with

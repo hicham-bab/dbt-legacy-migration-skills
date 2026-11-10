@@ -1,7 +1,7 @@
 # dbt best practices: SQL, tests, docs, contracts, snapshots (Step 4)
 
-Every migrated model must ship Fusion-conformant SQL, tests, docs, and (for public marts)
-contracts. Grounded in the [dbt documentation](https://docs.getdbt.com/best-practices) and in
+Every migrated model must ship Fusion-conformant SQL, tests, docs, and (for the marts inside
+the manifest's `contract_boundary`) contracts. Grounded in the [dbt documentation](https://docs.getdbt.com/best-practices) and in
 patterns from prior legacy-to-dbt migrations; the governance assets referred to below
 (`_marts.yml`, `groups.yml`, `exposures.yml`) are described here in full and do not ship as
 fixtures with this skill.
@@ -15,7 +15,9 @@ flags undocumented/untested models, bad structure, and fanout).
 ## Contents
 
 - [Fusion-conformant SQL rules](#fusion-conformant-sql-rules)
-- [Tests](#tests)
+- [Fusion YAML gotchas](#fusion-yaml-gotchas)
+- [Date-dependent logic](#date-dependent-logic)
+- [Tests](#tests) (incl. the [minimum test floor](#minimum-test-floor-for-a-migration))
 - [Docs](#docs)
 - [Contracts](#contracts)
 - [Snapshots for SCD2](#snapshots-for-scd2)
@@ -31,6 +33,44 @@ flags undocumented/untested models, bad structure, and fanout).
    No hard-coded database.schema.table references.
 6. No DDL in models — no `CREATE TABLE`/`CREATE VIEW`/`INSERT INTO` (dbt owns materialization).
 7. `require-dbt-version: [">=1.9.0"]` in `dbt_project.yml`; no `config-version:` key.
+
+## Fusion YAML gotchas
+
+Each of these was observed on dbt Fusion 2.0.11 and cost a failed compile or a build warning:
+
+1. **Column-level `meta` goes under `config:`.** `meta:` directly on a column is rejected
+   (`UnusedConfigKey`, dbt1060, reported as a compile error). Write
+   `config: {meta: {pii: true}}`.
+2. **Source tables take no `database:` or `schema:` key.** Those are set on the source. For tables
+   in different databases or schemas, declare one source per location (for example `legacy_prod`,
+   `legacy_prod_lnd`, `legacy_prod_temp`).
+3. **Give every numeric cast an explicit precision.** `cast(x as number)` triggers a dbt1071 warning
+   ("numeric type and unspecified precision/scale") at build time, not compile time. Use
+   `number(38, 0)` for integers, and match the contract `data_type`. Compile alone will not show it,
+   so the zero-warnings bar is checked on the first `dbt build` output too.
+
+## Date-dependent logic
+
+Replace every `current_date` / `current_timestamp` used in a business rule with a project macro
+`as_of_date()` that returns `current_date` unless the `as_of_date` var (YYYY-MM-DD) is set. Unit
+tests then pin the date with `overrides: vars: {as_of_date: "YYYY-MM-DD"}`. Repeated predicates (for
+example a fiscal-year window) become one macro that calls `as_of_date()`. Default behaviour must
+not change when the var is unset. Audit timestamps that record when a run happened stay as they are.
+
+```jinja
+{% macro as_of_date() -%}
+    {%- if var('as_of_date', none) is not none -%}
+        cast('{{ var("as_of_date") }}' as date)
+    {%- else -%}
+        current_date
+    {%- endif -%}
+{%- endmacro %}
+```
+
+This macro was verified on Snowflake only; compile it against the connected adapter before relying
+on it elsewhere (see [warehouse-conformance.md](warehouse-conformance.md)). The check: no bare
+`current_date` remains in model SQL outside audit columns, and every unit test on a date-windowed
+model sets `as_of_date`.
 
 ## Tests
 
@@ -86,6 +126,72 @@ Also capture the legacy job's **downstream consumers** (dashboards, reports, ML 
 **exposures** so lineage-to-consumers survives the migration and you know what not to break —
 see [dbt-features-for-migration.md](dbt-features-for-migration.md#exposures--preserve-downstream-lineage).
 
+### Minimum test floor for a migration
+
+Every migrated project ships at least:
+
+1. **Grain and keys.** `unique` + `not_null` (or `dbt_utils.unique_combination_of_columns`) on the
+   grain of every mart and every staging lookup. If no grain exists, state that in the model
+   description and add a `warn`-level grain test.
+2. **Closed code sets.** `accepted_values` on every column whose legacy logic enumerates its values
+   (for example a list of validated columns or categories).
+3. **Unit tests.** At least one `unit_tests:` entry for every model that contains any of: a `case`
+   with 3 or more branches, a join that is not a plain key equality, a window function, regex,
+   or date arithmetic. Each unit test includes at least one edge case taken from the legacy export
+   (null input, excluded category, boundary date, duplicate row).
+4. **Joins without a condition or on a non-key.** Every cross join, `on 1 = 1`, or non-key join
+   gets a `warn`-level singular test asserting the expected grain, and is listed under Residual.
+5. **Cross-model invariants.** One singular test per invariant the legacy logic implies, for
+   example "every record rejected by validation appears in the error log" and "no rejected record
+   reaches the valid output".
+6. **Contracts** on the marts inside the manifest's `contract_boundary`: every column typed, numeric
+   columns with explicit precision and scale.
+
+Record a table in `migration_changes.md` under a `## Test coverage` heading, one row per model:
+model, generic tests, unit tests, singular tests, and a reason for any model with none. A model
+that matches item 3 but needs no unit test (for example a `row_number()` already pinned by a grain
+test) is covered by a reason in this table; never write a placeholder unit test to satisfy the
+check.
+
+**Checking the floor.** Where Python runs, use the advisory gate:
+
+```bash
+python3 <skills-dir>/legacy-to-dbt-migration-foundations/scripts/preflight_decisions.py tests \
+        --manifest target/manifest.json --changes migration_changes.md --file migration_manifest.yml
+```
+
+It needs a current `target/manifest.json` (run `dbt parse` or, better, `dbt compile` first, so
+SQL generated by macros is checked too; a parse-only manifest has no compiled SQL). With the dbt
+platform CLI, the manifest is downloaded to `target/` after each command that parses the project.
+If it is missing, check the CLI setting that skips artifact downloads and any `target-path`
+override. That downloaded manifest is a copy of one invocation, not production state, so never use
+it as `--state` for deferral. It reports marts without a grain test, marts inside
+`contract_boundary` without an enforced contract, models missing from the coverage table, and
+models whose SQL looks like item 3 (found by pattern matching, so it can be wrong both ways) with
+neither a unit test nor a reason. It warns only; `--strict` makes gaps fail.
+
+**When the script cannot be run** — on the dbt platform, with no shell, or with `python3` not
+found (see foundations SKILL.md, "Choosing the path"; a non-zero exit or a missing
+`target/manifest.json` is a gate result to fix, not a reason to skip) — still check items 1-6
+against each model yourself, then **give the migrator this warning**, in the message and in
+`migration_changes.md`:
+
+> **The automated test-floor check did not run.**
+>
+> - **Why:** `preflight_decisions.py tests` needs Python, which is not available here.
+> - **Risk:** a model with business logic and no unit test, a mart with no grain test, or a mart
+>   missing its contract can go unnoticed. A changed rule, duplicated rows, or a broken column
+>   for downstream consumers would then surface only after deployment.
+> - **Please check by hand,** in the Test coverage table in `migration_changes.md`:
+>   - every model has a row;
+>   - every mart has a `unique` (or `unique_combination_of_columns`) test;
+>   - every mart inside `contract_boundary` has an enforced contract;
+>   - every model with a 3+ branch `case`, a window function, a non-key join, regex, or date
+>     arithmetic has a unit test or a stated reason.
+> - **Automatic on the CLI:** when the migration runs from the CLI on a machine with Python, the
+>   skill runs this check automatically at Step 4. Running `preflight_decisions.py tests` there
+>   once before cutover confirms the hand check.
+
 ## Docs
 
 - Model-level `description:` — 1-2 sentences: what the entity is and its grain.
@@ -94,8 +200,20 @@ see [dbt-features-for-migration.md](dbt-features-for-migration.md#exposures--pre
 
 ## Contracts
 
-For public marts (especially in a Mesh producer), enforce a contract so column names/types are a
-stable API and parity is pre-wired:
+Enforce a contract on every mart inside the manifest's `contract_boundary`, so column names/types
+are a stable API and parity is pre-wired.
+
+**Choosing `contract_boundary` (Step 0, the migrator decides).** Recommend from who reads the marts:
+
+| Answer | Contracts on | Recommend when |
+|---|---|---|
+| `all_marts` | every mart | the legacy output tables are read outside dbt (BI, extracts, other teams). This is the usual case when replacing a legacy tool, so it is the default recommendation. |
+| `public_marts` | only marts with `access: public` | a dbt Mesh split, or a few marts clearly shared while the rest are internal to the project |
+| `none` | no mart | throwaway or prototype work only. Say that consumers then get no build-time protection against a changed column or type. |
+
+The types come from `inputs.legacy_target_ddl_path` when supplied (the legacy table is the shape
+consumers already depend on), otherwise from the warehouse catalog. With neither, say the contract
+types are inferred and list them for the migrator to confirm.
 
 ```yaml
 models:

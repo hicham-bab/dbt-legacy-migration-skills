@@ -29,7 +29,46 @@ dbt compile       # or dbtf compile
 
 Fix every error **and warning** until compile is clean, then run models once
 (`dbt build` / `dbt run`) into **dev** to materialize them before parity checks. Only parity checks
-and `dbt test` incur warehouse cost — run them after compile is clean.
+and `dbt test` incur warehouse cost — run them after compile is clean. Some diagnostics appear only
+at build time (for example Fusion's dbt1071 unspecified-numeric-precision warning), so the
+zero-warnings bar applies to the first `dbt build` output as well as to compile.
+
+**Rebuild stability (required, runs before parity).** After the first clean `dbt build`, record the
+key columns and row counts of every mart. Run `dbt build --full-refresh` a second time. The two runs
+must both have 0 failures, identical row counts, and identical key values. Any difference is a
+non-determinism bug (for example `row_number() over (order by 0)` copied into a key; see
+"Non-deterministic ordering" under [Explaining the differences](#explaining-the-differences)) to fix
+before comparing with legacy data. Record the result and the columns compared in `05_parity.json`
+under `rebuild_stability`:
+
+```json
+"rebuild_stability": {
+  "runs": 2,
+  "identical": true,
+  "models": [
+    {"model": "fct_sales", "key_columns": ["sales_key"], "row_counts": [1200, 1200]}
+  ]
+}
+```
+
+This check needs only the dev target, so it runs even when `legacy_prod_readable` is false. The
+`preflight_decisions.py parity` gate fails without it.
+
+**Snowflake shortcut: `hash_agg` as a pass/fail screen.** Instead of comparing key values row by
+row, compute one hash per run over an **explicit, identically ordered column list** (never `*`:
+column order changes the hash), paired with `count(*)`:
+
+```sql
+select count(*) as row_count, hash_agg(sales_key, order_status, net_amount) as table_hash
+from {{ ref('fct_sales') }}
+```
+
+A mismatch is conclusive: the rebuild differs. A match is probabilistic only, so treat it as a
+screen, not a full diff. The docs do not say how duplicate rows are combined, which is why
+`count(*)` goes with it. Hash values are not guaranteed stable across Snowflake releases: compare
+two runs taken close together, and never store a hash as a long-lived baseline
+([Snowflake docs](https://docs.snowflake.com/en/sql-reference/functions/hash_agg)). Record the
+columns hashed under `key_columns` and note `method: hash_agg` in the `rebuild_stability` entry.
 
 ## Set up the comparison: legacy prod vs dbt dev
 
@@ -398,7 +437,10 @@ model and re-run). Never leave a difference unexplained.
 - **NULL handling & ordering**, **collation / case sensitivity**, **timestamp / timezone** defaults,
   **date parsing / formatting** differences between the legacy engine and the target warehouse.
 - **Non-deterministic ordering** — `row_number()` over tied keys can rank differently; add a
-  deterministic tiebreaker to the `order by`.
+  deterministic tiebreaker to the `order by`. A **constant** `order by` (`order by 0`, `order by 1`,
+  `order by null`) has no ordering at all, so a tiebreaker does not fix it: replace the column with a
+  deterministic content-based key (Matillion → matillion-component-mapping.md, translation trap 6).
+  This is a bug to fix, not an accepted difference, when the column is a key.
 
 **Category 3 — real migration bugs (must fix):**
 - **Join fan-out** — a one-to-many join multiplied rows (inflated counts/sums). Fix the grain.
@@ -432,3 +474,7 @@ until only accepted differences remain.
   fail (see Pattern A). Only accepted differences may
   remain; unexplained differences block the model and count against coverage in Step 7. Write this
   into the `migration_changes.md` parity section.
+- **Mock data is not parity.** A build on agent-created seed sources (`inputs.test_source_mode:
+  seeds`) proves the SQL runs and the tests hold on fabricated rows only. Label it "mock data only";
+  it never sets `parity: pass` and never counts toward coverage. See
+  [test-sources-and-mock-data.md](test-sources-and-mock-data.md).

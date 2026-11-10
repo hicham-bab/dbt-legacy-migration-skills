@@ -198,7 +198,7 @@ python3 -m unittest discover -s skills/migrating-matillion-to-dbt/scripts -p 'te
 The Matillion skill carries a synthetic fixture that reproduces the structural shape of a
 real METL export — `jobsTree`, the common transformation component ids, `run-transformation`
 bridges, and the orchestration connector collections — without carrying customer data. Its
-14 tests lock in role classification and the coverage denominator.
+17 tests lock in role classification, the coverage denominator, and Shared Job detection.
 
 Every push and PR also runs a deterministic eval harness over the skills' inventory **parsers** (the
 step that reads a legacy export and produces the workload inventory). CI fails on any regression, so

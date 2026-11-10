@@ -31,7 +31,8 @@ cost.
   into models.
 
 **Success criteria**: Migration is complete when:
-1. `dbt compile` finishes with 0 errors **and 0 warnings**
+1. `dbt compile` **and the first `dbt build`** finish with 0 errors and 0 warnings (some Fusion
+   warnings, such as dbt1071, appear only at build time)
 2. Every generated model builds (`dbt build`) and its tests pass
 3. Data parity is proven for each mart (row-for-row or aggregate baseline — see Step 5)
 4. **≥95% of the inventoried transformation stages are migrated and validated**, with the residual
@@ -114,6 +115,11 @@ Collect these before Step 3:
 - **runtime_token_dispositions** — orchestration runtime tokens (run id, start/end time) → one of
   `dbt_var` | `invocation_id` | `scheduler_run_id` | `drop`. **Dropping one silently breaks
   downstream audit lineage** — make it an explicit decision, never a default.
+- **test_source_mode** *(required)* — `existing_tables` (with `test_source_schemas`) | `seeds` |
+  `none`: what dbt builds against in dev. `existing_tables` covers any real input the migrator
+  supplied, including files loaded with `dbt seed`; `seeds` means rows the agent invents, with
+  results labelled "mock data only", never parity. See foundations →
+  [test-sources-and-mock-data.md](../legacy-to-dbt-migration-foundations/references/test-sources-and-mock-data.md).
 
 **Validate the manifest with the preflight script (primary path):**
 
@@ -129,7 +135,8 @@ filled in for itself passes the script and fails the engagement.
 **Alternate path — dbt platform only, where Python cannot run** (see foundations → "Choosing the
 path": a failing gate is never a reason to switch). Check the manifest by hand instead: every key in the lists above is present (`null` counts; a blank does not), each enum value
 is one of the listed options, `existing_project_path` is set if `landing_mode` is
-`fold_into_existing`, and all three access answers are `true` or `false`. Use this path only where
+`fold_into_existing`, `test_source_mode` is answered and `test_source_schemas` is set if it is
+`existing_tables`, and all three access answers are `true` or `false`. Use this path only where
 the script cannot run, never as a shortcut past it.
 
 **As you build, explain your reasoning in plain language — the migrator may be new to dbt.** For
@@ -216,8 +223,14 @@ cloud-detection-and-materializations.md). Emit Fusion-conformant SQL (`cast()`, 
 ### Step 4 — Apply best practices: tests, docs, contracts, snapshots
 
 Generate `_sources.yml`, per-model YAML with `arguments:`-spec tests, column docs, enforced
-contracts on public marts, and a **snapshot** for any Change Capture/Apply or native SCD stage. See
+contracts on the marts inside `contract_boundary`, and a **snapshot** for any Change Capture/Apply or native SCD stage. See
 foundations → [dbt-best-practices.md](../legacy-to-dbt-migration-foundations/references/dbt-best-practices.md).
+
+Meet the **minimum test floor** (foundations → dbt-best-practices.md, "Minimum test floor") and
+record its coverage table in `migration_changes.md`. Check it with
+`preflight_decisions.py tests --manifest target/manifest.json --changes migration_changes.md
+--file migration_manifest.yml` (advisory). Whenever the script cannot be run (the dbt platform, no
+shell, or no `python3`), check the list by hand and give the migrator the warning defined there.
 
 ### Step 5 — Validate: compile gate, then data parity
 
@@ -227,6 +240,14 @@ inputs first) and **explain every difference** — accept legitimate environment
 fix real logic bugs. See foundations →
 [data-validation.md](../legacy-to-dbt-migration-foundations/references/data-validation.md). Prefer
 **audit_helper** classify macros over a hand-written diff (foundations → dbt-packages.md).
+
+**Build warnings and rebuild stability.** The first `dbt build` must also finish with 0 warnings
+(some Fusion warnings, such as dbt1071, appear only at build time). Before comparing with legacy
+data, build a second time with `--full-refresh` and confirm identical row counts and key values for
+every mart; a difference is a non-determinism bug (for example a `row_number()` over a constant
+`order by` copied into a key) to fix first. Record the runs, key columns and result in the parity
+section of `migration_changes.md`. If `test_source_mode` is `seeds`, every result here is "mock
+data only", never parity. See foundations → data-validation.md, "Rebuild stability".
 
 > **CHECKPOINT (parity sign-off).** Do not declare the migration complete on your own judgment.
 > Present the parity result per mart and **every difference classified as accepted (legitimate

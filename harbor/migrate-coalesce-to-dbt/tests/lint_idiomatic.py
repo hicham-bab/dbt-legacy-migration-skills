@@ -12,6 +12,12 @@ Checks:
                           test, macro, or snapshot, not a hook.
   - hardcoded_ref (error) `from`/`join <db>.<schema>.<table>` instead of ref()/source().
   - control_flow  (error) cursors/loops/EXECUTE IMMEDIATE/CALL copied from the legacy tool.
+  - nondeterministic_order (warn)  `over (... order by <number|null>)`: a constant sort numbers
+                          rows arbitrarily, so the value changes between runs. Never a key.
+                          Deliberately a warning: the lint cannot tell whether the column is
+                          a key (a display row number is harmless), and the rebuild-stability
+                          check in Step 5 is the real gate. Escalate only if a constant-order
+                          key is seen getting past that check.
   - monolith      (warn)  a single model over MONOLITH_LINES lines.
   - no_layering   (warn)  marts exist but there are no staging models.
   - low_tests     (warn)  (manifest only) < TEST_COVERAGE_MIN of models have a test.
@@ -35,6 +41,8 @@ LINE_COMMENT = re.compile(r"--[^\n]*")
 HARDCODED = re.compile(r"\b(from|join)\s+([A-Za-z_]\w*(?:\.[A-Za-z_]\w*)+)", re.I)
 HOOK = re.compile(r"(?:pre|post)[_-]hook\s*[:=]", re.I)  # config assignment, not prose mentions
 CONTROL = re.compile(r"\b(cursor|while|loop|fetch|execute\s+immediate|\bexec\b|call\s+\w+\s*\()\b", re.I)
+# a window whose only sort key is a literal: `over (order by 0)`, `over (partition by x order by null)`
+CONST_ORDER = re.compile(r"\bover\s*\((?:[^()]*?\bpartition\s+by\s+[^()]*?)?\s*order\s+by\s+(?:\d+|null)(?:\s+(?:asc|desc))?\s*\)", re.I)
 
 
 def _strip(sql: str) -> str:
@@ -75,6 +83,9 @@ def lint(project: Path) -> dict:
             add("hardcoded_ref", "error", m, f"{kw} {target}: use ref()/source(), not a hardcoded relation")
         if CONTROL.search(body):
             add("control_flow", "error", m, "legacy control-flow (cursor/loop/EXECUTE IMMEDIATE/CALL) should become set-based SQL")
+        if CONST_ORDER.search(body):
+            add("nondeterministic_order", "warn", m,
+                "window ordered by a constant (order by 0/1/null) numbers rows arbitrarily; use a deterministic content-based key")
         n = len(m.read_text(errors="ignore").splitlines())
         if n > MONOLITH_LINES:
             add("monolith", "warn", m, f"{n} lines: consider decomposing into staging/intermediate models")

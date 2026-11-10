@@ -11,7 +11,8 @@ Handles:
   * METL git per-job   .ORCHESTRATION / .TRANSFORMATION    (stdlib)
   * METL JSON exports  {"job","info"} | {"objects"} | {"jobsTree"}  (stdlib)
 
-Emits, per component: name, type, role, target table, write mode, and the pipeline DAG edges.
+Emits, per component: name, type, role, target table, write mode, a shared_job_suspected flag,
+and the pipeline DAG edges.
 
 Usage:
     python3 inventory_matillion.py <file-or-dir> [...] [--json] [--out PATH] [--strict]
@@ -26,6 +27,7 @@ Exit codes: 0 ok | 2 no args | 3 pyyaml missing and nothing else parsed | 4 --st
 """
 from __future__ import annotations
 import json
+import re
 import sys
 from pathlib import Path
 
@@ -113,6 +115,15 @@ _MODE_PARAM_NAMES = ("Truncate", "Load Option", "Write Mode")
 _SCHEMA_PARAM_NAMES = ("Schema", "Target Schema")
 _DATABASE_PARAM_NAMES = ("Database", "Target Database")
 
+# Shared-Job suspicion. A control/bridge component whose parameters are nothing but
+# ${...} pass-throughs carries no logic of its own: the body lives in a .melt bundle
+# that is not in the export. The thresholds are a starting point, tuned on one real
+# export (a 22-parameter logging component); adjust them on the user's export.
+_SHARED_JOB_MIN_PARAMS = 5
+_SCRIPT_BODY_PARAM_NAMES = {"sql script", "script", "sql query"}
+_NAME_PARAM_NAMES = {"name", "component name"}
+_TOKEN = re.compile(r"^\$\{[^}]+\}$")
+
 
 # ---------------------------------------------------------------------------
 # classification
@@ -150,6 +161,32 @@ def _write_mode(raw) -> str | None:
     return v or None
 
 
+def _shared_job_suspected(role: str, params) -> bool:
+    """True when a control/bridge component looks like a Shared Job call.
+
+    `params` is a list of (parameter_name, [values]). The component is suspected when
+    it has at least _SHARED_JOB_MIN_PARAMS parameters, no SQL/script body parameter
+    has a value, and every non-Name value is a ${...} token or empty (with at least
+    one token). Such a component must be reported as "logic not in export, bundle
+    required", never described as an inline script.
+    """
+    if role not in ("control", "bridge") or len(params) < _SHARED_JOB_MIN_PARAMS:
+        return False
+    tokens = 0
+    for pname, values in params:
+        key = str(pname or "").strip().lower()
+        if key in _NAME_PARAM_NAMES:
+            continue
+        for v in values:
+            s = "" if v is None else str(v).strip()
+            if not s:
+                continue
+            if key in _SCRIPT_BODY_PARAM_NAMES or not _TOKEN.match(s):
+                return False
+            tokens += 1
+    return tokens > 0
+
+
 # ---------------------------------------------------------------------------
 # DPC (.tran.yaml / .orch.yaml)
 # ---------------------------------------------------------------------------
@@ -166,16 +203,20 @@ def parse_dpc_yaml(path: Path):
         body = body or {}
         params = body.get("parameters", {}) or {}
         ctype = body.get("type", "")
+        role = _classify(ctype)
         out.append({
             "name": name,
             "type": ctype,
             # type-driven, never overridden by the pipeline type
-            "role": _classify(ctype),
+            "role": role,
             "in_pipeline_type": ptype,
             "target": params.get("targetTable") or params.get("table"),
             "schema": params.get("schema"),
             "database": params.get("database"),
             "write_mode": _write_mode(params.get("loadOption") or params.get("truncate")),
+            "shared_job_suspected": _shared_job_suspected(role, [
+                (k, v if isinstance(v, list) else [v]) for k, v in params.items()
+                if not isinstance(v, dict)]),
         })
         # DAG edges: DPC records each component's upstreams under `sources:`
         for src in (body.get("sources") or []):
@@ -219,6 +260,19 @@ def _metl_comp_name(c):
     """
     return _metl_param(c, ("Name", "Component Name")) or \
         _slot_value((c.get("parameters") or {}).get("1") or {})
+
+
+def _metl_all_params(c):
+    """Every METL parameter as (name, [values]), across all grid rows and columns."""
+    out = []
+    for pv in (c.get("parameters") or {}).values():
+        if not isinstance(pv, dict):
+            continue
+        values = [v.get("value")
+                  for el in (pv.get("elements") or {}).values() if isinstance(el, dict)
+                  for v in (el.get("values") or {}).values() if isinstance(v, dict)]
+        out.append((pv.get("name"), values))
+    return out
 
 
 # METL connector collections -> edge kind. Transformation jobs use `connectors`
@@ -290,17 +344,21 @@ def parse_metl_json(path: Path):
             ctype = METL_IMPL.get(impl, f"impl:{impl}")
             cname = _metl_comp_name(c) or cid
             by_id[str(c.get("id", cid))] = cname
+            role = _classify(ctype)
+            all_params = _metl_all_params(c)
             comps.append({
                 "name": cname,
                 "type": ctype,
                 "implementation_id": impl,
                 # type-driven, never overridden by the job type
-                "role": _classify(ctype),
+                "role": role,
                 "in_pipeline_type": jtype,
                 "target": _metl_param(c, _TARGET_PARAM_NAMES),
                 "schema": _metl_param(c, _SCHEMA_PARAM_NAMES),
                 "database": _metl_param(c, _DATABASE_PARAM_NAMES),
                 "write_mode": _write_mode(_metl_param(c, _MODE_PARAM_NAMES)),
+                "parameter_count": len(all_params),
+                "shared_job_suspected": _shared_job_suspected(role, all_params),
             })
         # DAG edges across every connector collection: {cid: {sourceID, targetID}}
         edges = []
@@ -373,12 +431,22 @@ def build_inventory(paths):
         for u in units for e in (u.get("edges") or [])
         if e.get("kind") in ("on_failure", "on_true", "on_false", "iteration")
     ]
+    # Suspected Shared Jobs: their logic is not in the export. They go on the Step-1
+    # checkpoint list and the Step-8 handoff, and the inventory gate requires an
+    # answer for inputs.shared_job_bundles_path.
+    shared_jobs = [
+        {"unit": u["unit"], "name": c["name"], "type": c["type"],
+         "implementation_id": c.get("implementation_id"),
+         "parameter_count": c.get("parameter_count")}
+        for u in units for c in u["components"] if c.get("shared_job_suspected")
+    ]
     return {
         "schema_version": 1,
         "units": units,
         "parity_targets": parity_targets,
         "control_flow_edges": control_flow,
         "unknown_components": unknown_detail,
+        "shared_job_suspected": shared_jobs,
         "yaml_pyyaml_missing": yaml_missing,
         "summary": {
             "unit_count": len(units),
@@ -390,6 +458,7 @@ def build_inventory(paths):
             "control_out_of_scope": roles.count("control"),
             "bridges": roles.count("bridge"),
             "unknown_needs_mapping": unknown,
+            "shared_job_suspected_count": len(shared_jobs),
             "edge_count": sum(len(u.get("edges") or []) for u in units),
             "control_flow_edge_count": len(control_flow),
             "parity_targets_found": len(parity_targets),
@@ -451,6 +520,12 @@ def main(argv):
                   f"{s['unknown_needs_mapping']} -- map these before trusting coverage:")
             for u in inv["unknown_components"]:
                 print(f"       {u['name']:38s} impl={u['implementation_id']}")
+        if s["shared_job_suspected_count"]:
+            print(f"  ** suspected Shared Job(s): {s['shared_job_suspected_count']} -- "
+                  f"logic not in export, .melt bundle required:")
+            for u in inv["shared_job_suspected"]:
+                print(f"       {u['name']:38s} ({u['parameter_count']} parameters, "
+                      f"all ${{...}} pass-throughs)")
         for u in inv["units"]:
             print(f"\n[{u['pipeline_type']}] {u['unit']}  "
                   f"({len(u['components'])} components, {len(u.get('edges') or [])} edges)")

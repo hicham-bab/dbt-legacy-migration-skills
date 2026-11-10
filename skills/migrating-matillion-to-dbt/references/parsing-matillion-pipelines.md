@@ -140,6 +140,16 @@ nothing to migrate into dbt; document it as an ingestion dependency feeding your
   Exported as a `.melt` bundle. → migrate the underlying job once as a **macro or a set of
   intermediate/`int_` models**, and `ref()` it from callers. (`.melt` internal structure is
   doc-sourced, not file-verified — inspect the actual bundle before trusting field names.)
+- **Read before you describe.** Before stating what any control or script component does, read all
+  of its parameters. A component whose parameters are only variable pass-throughs (every value is a
+  `${...}` token, no SQL/script body parameter) is a **suspected Shared Job**: its logic lives in a
+  `.melt` bundle that is not in the export. Report it as "logic not in export, bundle required",
+  never as an inline script. Add it to the Step 1 checkpoint list and to the Step 8 handoff. The
+  inventory script marks these `shared_job_suspected: true` and lists them under
+  `shared_job_suspected` (count in `summary.shared_job_suspected_count`); the
+  `preflight_decisions.py inventory` gate then requires `inputs.shared_job_bundles_path` to be
+  answered. The script's thresholds (control or bridge role, at least 5 parameters, every non-Name
+  value a `${...}` token) were tuned on one export; treat a flag as a prompt to read, not a verdict.
 - **Sub-pipelines (DPC)** — an orchestration/transformation invoked by a parent via Run
   Transformation / Run Orchestration. Recurse into it; it becomes part of the same dbt DAG.
 - **Custom Connectors (DPC)** — user-defined API extract connectors. These are **ingestion →
@@ -155,6 +165,11 @@ Regardless of form, the same split governs what maps to dbt:
   data-load / connector / API / CDC components = EL ingestion → map to `sources`; `run-transformation`
   / Run Transformation → the dbt DAG/run; DDL / `if` / `and` / `retry` / iterators / scripts →
   run ordering + a scheduler/job (captured as notes, not modeled).
+
+The role comes from the component type, which is right for the denominator. It does **not** tell you
+what a control component does. Read its parameters before describing it; a control component made
+only of `${...}` pass-throughs is a suspected Shared Job, not an inline script (see
+[Shared Jobs](#shared-jobs-sub-pipelines--custom-connectors)).
 
 ## Building the inventory + data-flow graph
 
@@ -180,7 +195,7 @@ Regardless of form, the same split governs what maps to dbt:
 > [`../scripts/test_inventory_matillion.py`](../scripts/test_inventory_matillion.py). It reproduces
 > the structural shape described above — a `jobsTree` export, the common transformation component
 > ids, `run-transformation` bridges, and all five orchestration connector collections — without
-> carrying customer data, and its 14 tests lock in the role-classification and denominator
+> carrying customer data, and its 17 tests lock in the role-classification and denominator
 > behaviour. No sample export ships with this skill.
 >
 > Verify against the user's *actual* export early: if a component `type`/`implementationID` or
